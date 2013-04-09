@@ -1,0 +1,784 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="ctl00_Head1"><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link id="ctl00_linkCSS" type="text/css" rel="stylesheet" href="http://www.comlaw.gov.au/Content/Site.css" /><link type="text/css" rel="Stylesheet" media="print" href="../Content/PrintStyle.css" /><link rel="alternate" type="application/rss+xml" title="ComLaw Rss feed" href="../rss" /><link id="ctl00_linkMenuCSS" rel="stylesheet" type="text/css" href="http://www.comlaw.gov.au/Content/Skins/Comlaw/Menu.Comlaw.css" />
+    <script type="text/javascript">
+        function bookmarksite(title, url) {
+            if (window.sidebar) // firefox
+                window.sidebar.addPanel(title, url, "");
+            else if (window.opera && window.print) { // opera
+                var elem = document.createElement('a');
+                elem.setAttribute('href', url);
+                elem.setAttribute('title', title);
+                elem.setAttribute('rel', 'sidebar');
+                elem.click();
+            }
+            else if (document.all)// ie
+                window.external.AddFavorite(url, title);
+        }
+        function DoSearch() {
+            var searchtext = $find('ctl00_txtRegularSearch').get_value();
+            location.href = "/Search/" + replacestring(searchtext);
+            return false;
+        }
+        function replacestring(stringtoreplace) {
+            stringtoreplace = stringtoreplace.split("&").join("$A$");
+
+            stringtoreplace = stringtoreplace.split('*').join("$ST$");
+            stringtoreplace = stringtoreplace.split("'").join("$SQ$");
+            stringtoreplace = stringtoreplace.split('"').join("$DQ$");
+            stringtoreplace = stringtoreplace.split("/").join("$FS$");
+            stringtoreplace = stringtoreplace.split("\\").join("$BS$");
+            stringtoreplace = stringtoreplace.split(",").join("$C$");
+            stringtoreplace = stringtoreplace.split(";").join("$SC$");
+            stringtoreplace = stringtoreplace.split("(").join("$LB$");
+            stringtoreplace = stringtoreplace.split(")").join("$RB$");
+            stringtoreplace = stringtoreplace.split("{").join("$LCB$");
+            stringtoreplace = stringtoreplace.split("}").join("$RCB$");
+            stringtoreplace = stringtoreplace.split(":").join("$CO$");
+            stringtoreplace = stringtoreplace.split("#").join("$HA$");
+            stringtoreplace = stringtoreplace.split("+").join("$PL$");
+
+            return stringtoreplace
+        }
+
+        function forceLoginout(eventTarget, eventArgument) {
+            if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+                theForm.action = "/mycomlaw";
+            }
+        }
+    </script>
+    <title>
+	Marriage Act 1961
+</title><span id="ctl00_UrnManager"></span><link href="http://www.comlaw.gov.au/Series/C1961A00012" rel="canonical" /><link href="/WebResource.axd?d=pxAwhQGJ3SDvE59bfxHe0ZfegdCWgHuuJ1bl5g67I70_G-ha8snCMnXzoeREPXLDPg37yhdKqJEjF2hxfBwwX9vxgbfE-NgbSXwGXCnUkaU8_pvhwOwiySCSridVjKZ5jZEdUA2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=2UeCcYYN3zrt5oUzgnQQ8nZWQZriwhdOKjbl_nOACxLdCJLkDQUir23c2QhLLBN2xEEfnaRGW9jjqEL2CENXf575xAaBVlqZyL4LnPt7pHraLz_MWv_dVrqUb_OVpgx5e0v0qw2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=NjQekIEV7BvSQtoTqRF3dEGeqq1Fp3VTo_KHlrEsx_kKKejsdFk5iSHsCBhW2sEexAnCDTPd60Ay_wY-65X1FEv5rqqsYDQVFtr4jLAUtymNTwk44diQ6VdHFHtVngJ65Tg7JqxksYJd4LepBNZmnZ6Okms1&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=kxQ-G5W-1YWVN4mlDmWhr-6P8k6wuW7fVqNsZLgA4mm_HrnFNmpbNO5TtokLs_BtkYj9jgkom3fbpLDNDxOfkMiCADzv1VgH3XpKlrFtlaFZ_nCrHbDk7-UzAAnZoCStUAV32g2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=sugTjinAMWzjLTbRSh_mwVxnoXyIwE7SZapR8MQgQK42ARdpDBUYJb2gbBA42aiED1K_WjEmLmNvjQdBeKkIRMVA0z2IRisSh0c_Pk02pTZbm-8W6KmtMOsp90JG2xpu4xTMr0Cz_yH2lWCW8dxwAPNdOnQ1&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=TEewOyGjk6t3ZiJ7P2O9jJhB8pDcTwxW4sCcuDLHZ6Omf6YbmUpsb-RlpOMRndh-1j3Rk17QL79vgJPNuBhd24J_8X92r7cYISmwbwQ3gDokrU3idVcpUIlc2k9BRKbG-1y8wg2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=QgsPSA_nlQIsN9qn4o19aQFqlB8yE2ezPVPBxPXV2auYEQzGcIhc1N08CrVva9HwHFfmyveoiPmic1ZnNYnkDAl1optUoenjYtd4ORUdGnXw_d3fyNKJ5fnWtRiyIWCrfotkbQ2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=dI92pKJ6YZLH0AURJkponMJm2VqfJ_IekQkYFk8wnsIUhUOTzbGs8QxcRjbdsRoR4hkJR94fmfSERnIgLwcqJ1aHk7BH3EgQ1Z6pGwZBYhvAXZWR6eULQBdtdnMBTuLiL2yyTUWra7mdhX1oO97kPPfq2141&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=RCJP0FHXy8UO5WPAiO1PRL4qc_y-vm9yMJj45MksXLUiMvouCMuWOLZadKV4JlGuNvSuPfM7S7c6rSerLIpw8Grot85QJPdRjaRYs-4x9dLfuVZYGJecoVPexY4eLotICskzGA2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=qJFW0321R4bTAtSs7u2e24xM-C3pV-qJFTOvYlnvgqRJK_nsABX_YVmaVnqR8CZqlSeC1KCF3AqFOkK8PXROsc4ZQUiaeZOczDu6Ui2pwsPTZYgqMgaug1QjQe6N8fz9BfrfejMDXNR-Zvyo1T5jjBSZRSM1&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=VFDNDp4S78DP-NNLOCp3E4HTnP3TlD7kYp1RNrE196teS0_2l03Owi7_Fpy4eqIl0MnyY1G50DE-1nK8WteMnOJUVl8VKx7gri0aQHamgGNo0n7TdkjtN9-ySH5dYEcm1X-Ztw2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=Mv_yxEQxPHhZSVslSnRLk8Bjsl7X0gUZ9gtCOp3tsbJQAmwGIaa6PZvarjZ5cQzHVv1HRKB4UcOqp_JDS3pgtR3Z-AiFesvOghPOdkE15zB0wQNPrgmBpRRcOQzd95uaVWxr008dPFA-_ulcplfjucmQhKE1&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=quaLIYYE4w56_xGVBoEOh-pU3uR6UkZJq02AD90ef6zLFIgPHA7py3Pup5JgddL1tpFNT-5Gj_yo75MrLLV2hMzvHItwJCxSt63YLg4TAnHEd6XU--6hhl2XAob2K0SLzcWMfQ2&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=dNEgSEGPtf17X_9OoKG3TJCLwGC0iGeq8VL0i3btBD15c9Bc84vO0uq2z6NfLmXCHMMoolQ_V7vVcRLP95PJxV-A9MED2cjv1pgnHs6_XBWn26i7HtEsJN4EluCrySp0oMqpdcSqnJCmrMNnZUZGFujcJTY1&amp;t=634969580860000000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /></head>
+<body>
+    <form name="aspnetForm" method="post" action="C1961A00012" id="aspnetForm">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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wLH23k+8PGWbyj42xrfiPInQhPo7e+r6PdP8gufTk2/1c8gbp8NzdPBNzdFqev2kney9Wv3Ugu1akb8WW/RTi4fN5POH5G/dX3p269OXJw+vXi5E/xItT13+5KswXkV8p3kvGvtwfutzyh2x7/Dw7dN3x7D1JzLHSg+dM+rv5FjXI4wvLP07Pyv7wbtiWhxfvrzY+b1efvv4ExO7DP38yc/n5dmzJ6Rv7v909nuTLT55skKu64xsM9Hlarp4eDW59wJ0ETv9+W5JcSrZ/O/c/387T39ucsQXXy2yb7/amT6tLp/fm92bXd//6cneLvkx0/VP7VEuZPFs9/lO2SLvQnngn5ye3F9m3/0p8N9E+e2LJ6/fVbNvv7r6sji4JAj3ni9eXE6+Szb++v5ycu/3Wf8+v/dXlxTDk09NfvXJwxOi2z3KBz8h/kEOxvPfqmfP9+Y7s28ff/r8+iFBmhI/Pmwnnz8jmLPLWXF/Pnv98DsT+DW/N/kuy+9Qfy/Kn/juO/LPf2I9/fz+EmP7tssrNTePjXBd0rwsf+Lyzec/uSQf5clPffunVrS2BNqsbn7f0ga+DfGIpc+5o0/7PvQ5zX7vFz89gX/23Z/kOP3M6Jvjr37Rzfi48RDMq5xs6k8RTRmOiU2PbzPnHpzvEp1/b7aDpRvT/fcZ0xPKbJXTey9Wv8+ibEgO7gOf7zh8qvfB5w386T3Kn0PeC+OPXj0jubyJd95ABim2v0L/v9fX7B9++Gzx7Kdz+LvFjuv/uzf2//lPkc34fejdbO/V2/8HCxgDBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WCQUOY3RsMDAkbWFpbk1lbnUFHmN0bDAwJE1haW5Db250ZW50JFJhZFRhYlN0cmlwMQUfY3RsMDAkTWFpbkNvbnRlbnQkUmFkTXVsdGlQYWdlMQUwY3RsMDAkTWFpbkNvbnRlbnQkU2VyaWVzQ29tcGlsYXRpb25zJGN0bDAyJGN0bDAwBS1jdGwwMCRNYWluQ29udGVudCRTZXJpZXNDb21waWxhdGlvbnMkUmFkR3JpZDEFUGN0bDAwJE1haW5Db250ZW50JFNlcmllc0NvbXBpbGF0aW9ucyRSYWRHcmlkMSRjdGwwMCRjdGwwMiRjdGwwMCRQYWdlU2l6ZUNvbWJvQm94BVBjdGwwMCRNYWluQ29udGVudCRTZXJpZXNDb21waWxhdGlvbnMkUmFkR3JpZDEkY3RsMDAkY3RsMDMkY3RsMDEkUGFnZVNpemVDb21ib0JveAVNY3RsMDAkTWFpbkNvbnRlbnQkU2VyaWVzQ29tcGlsYXRpb25zJFJhZEdyaWQxJGN0bDAwJGN0bDA0JGluY29ycFVwVG8kUmFkR3JpZDEFTWN0bDAwJE1haW5Db250ZW50JFNlcmllc0NvbXBpbGF0aW9ucyRSYWRHcmlkMSRjdGwwMCRjdGwwNiRpbmNvcnBVcFRvJFJhZEdyaWQxBVBjdGwwMCRNYWluQ29udGVudCRTZXJpZXNDb21waWxhdGlvbnMkUmFkR3JpZDEkY3RsMDAkY3RsMDMkY3RsMDEkUGFnZVNpemVDb21ib0JveA8UKwACBQIxMAUCMTBkBVBjdGwwMCRNYWluQ29udGVudCRTZXJpZXNDb21waWxhdGlvbnMkUmFkR3JpZDEkY3RsMDAkY3RsMDIkY3RsMDAkUGFnZVNpemVDb21ib0JveA8UKwACBQIxMAUCMTBk" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=xcP61nvxrwfVSt1xbTxnYB_0brWXHa3VRJEX_Erc37QzBhaxUeq00wI42TnRMb0Abxcju2qsYhjG5agtgHtCP-SPkSA1&amp;t=634208816355201944" type="text/javascript"></script>
+
+
+<script src="/ScriptResource.axd?d=jRKXLys7uriMuFVwOhP1rmO64fQRd9WsCOSIbph317iqFkuQPp1sW4Fv5VPrRnZZjp25qdgrUhdgegygcy9lGD4E60v8vc7mHnrs3kvrqY7_GUygxuoDKCZuIs2MZd0mxp5YcH9J4qNXyxLCp5q9TSI2I2g1&amp;t=ffffffffbace4dd5" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=gNsWnMtmUhw1wMqzZD354jhMEeocHjcZzwEmD6CQOOq3AZcbAIGxd52aPHfaLjCqeZcj77Ncv4-rvd9f5CM_31-qTlLSGassxCJBLMVt_wlWxeoYGge6_6iX6JWXyQsMaJ3BOHigolBMoUM5t1t1BAjIx-rIW1bXmFsjIwdU1eHkvZYP0&amp;t=ffffffffbace4dd5" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=mfmWOUfooKwFnHIL5rGvz4bmeUJ1sBbcCkXFs_5jXlFqstOlLmMTUH3_S7S9Y3-qBLJlZp3wtkvV-339dWI8zjjL1kvl4M2uHFHYJITj7A1XxxWi4utncAHVtJ1n_CKfT4bysw2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=zTjPpYMY0G2DK2lRii1tTLWuLP5nV2I2UAfOaCkpYSdcc6Ci_VYO60yfIQxJ6odrLEDkluQWfGFV62a37CVb-WKovCOyKZT95tRA5cp0lmPHYMrjH4qSBE9qeaGtNeoVgkJy8g2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=-zqZzEhQ7AcBEjxF6Hhn_XNaN-4tNwOMUzcHkpNW_UxRuqML0wO812Zmk84Q6xeZo9p1qDNcHGyqPE04kfH026w6dDHHZ5qNA77YmSsOom4muBFN5ksfR6wvLlVGT3G5s5Qarw2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=29odzC5uXQFzbd9EuaxrvetjbI_ruNbqp1ARaZKetVO7GXezXaArc7vjC7UhcbTjDMYufwAgQ45s6Iiwk8DxyZ11oBhb-s-slnjsB_CZ3rTEbeAX6kUq3Ok6PFFrHSG8TMeFx14BMlfgpvV0ptT_VL7fz141&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=p_-9CTaFbgamCiTgu3uxIj4surUKqaNDxshqIQPLHxK3b2wuCcfW6FYfyqV-oABT_NEYZx7Zup50lz9QFTbS4XUJ_E9efjexsLmgGkbtBy8oQ6D_cAGixN2PaU22VSYKJGlxT_aGmy2Z2seBl29zsHEtQ8E1&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=52p6TXQ-EFe65LAxlZlflx3Q9H8R612iEMH8zLsscYDNhonv9ojH-jAy2BGJaLNly6Hm4acu0Hqs1GXLJx1u9mDvddAjPODlpFgJ02lbrujqQUqRXoDkrv9-fA5tk6YuxNay0Q2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=XxsdmgXJ6IDbk1-tqm1wIyaC7P2fKRSxXqWOuKCT7PYj18tnuMKL2ETwHmn2A_6_DBHRMeTY6e5Z8T0JfGpW4JrHnY7Ib06VP_lpdCO_fsHXzW33J6fvXp9TZgzndvSqtgZSOrIaI61kZI6525JrG9tJRio1&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=EXEF9T0OU-xk05qzKnV7aL_AbVH2laWi54PtX8HF4mtuJAm2tuPiSDQ5uRvg31_Yn6jP22UYa-rwe7WZdJrLqVniElyQgqWJRzOAu9WB5O_f6QhPWTxu48kgrZDtmEjpiD7ZiIpckDhHLPCCoLuucvH9UBA1&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=pYBrqdznNKEmX9AaAixPT-lMI0_AN7Nokp_vgeO6UA4C2C7zTlKY1dbWo0gF-lPX_9tcyX6FQWS-4ZJKIexm8Gz2da-LMWQNCCiUpGna6lHaEqxmYtQ6O57CWzhmnioaye4THZIbBAr6ZazS6ckyhlvFVFiusNQaqBjKrtbhdQu0vRrO0&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=_zk3L6ofHWcyqCSHpg-5P14BUW6MdhJL1Xxf139S9OZRovwmblJdhugZ0MxSCraO-3Q5bX99h9--iTIv3PhB_74zphosAYz4wPy8alsbkG7rEmR0zaLbUMa5nmey-C9AVX5oVQ2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=hGjPkYcNtxeBAj4Vbk2FzPqqLBVXysGZS3M_PVqNMIZru4VSF9J9hS_9TV1XAATxQ53kOKOGi3O0gZ0SLXwyPcIDLIweodmVIdE7rPPPXE0qYyDAz0PlSdo9BVEAjL0RTYsSDB9aHOtChoDDNKeytMh8k9s1&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=3U8CUQG6BR2qACpwPHBFbyYsz0PKG-_jiqM9_TCOEhzbb2wvyxvsaULQRa4EbUnjLpjttBA51qWv7QK0o3oPZ1feySl3z582QJfqGx3pCCCMq1rpYgf_AzNw1cLB2nY_6ompnA2&amp;t=3e9bafdd" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=2GfAXsZwKm6ka_oV2M9WkFdmqSgIh0uJj_1Wjl8bvJaejfKib-Lam561CpFeZU4Tt46KgbkOZoNpRYOW-Tqdn8LI32Z5g9CeFd2voTugWEE9Ab8jMcDPVpz0qlX7HlYtdYDTl5CtJPpYk07E_lB_wMZNZQY1&amp;t=3e9bafdd" type="text/javascript"></script>
+<div>
+
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEWDwKS9fC/DgKx0MTzCgKE/sLWCQK//NNqAsD802oCvvzTagK8/NNqAsH8v48IAsL8v48IAv/Gm+sCAv7Gm+sCAvjGm+sCAvrGm+sCAv3Gh5AKAvzGh5AK" />
+</div>
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager1', document.getElementById('aspnetForm'));
+Sys.WebForms.PageRequestManager.getInstance()._updateControls([], [], [], 90);
+//]]>
+</script>
+
+
+    <div id="content">
+        <div class="default">
+            <table>
+                <tr>
+                    <td>
+                        <a href="#skipToContent" class="invisibleLink" accesskey="S">Skip to Content</a>
+                        <img id="ctl00_imgaustgov" alt="Australian Goverment Comlaw Banner" src="http://www.comlaw.gov.au/images/ComlawBanner.jpg" style="border-width:0px;" />
+                        <div style="position: absolute; top: 20px; left: 400px; z-index: -1111111; width: 1px;
+                            display: none; height: 1px">
+                        </div>
+                    </td>
+                    <td style="width: 525px; text-align: right">
+                        <div style="vertical-align: middle">
+                            <div style="vertical-align: middle; width: 100%">
+                                <img id="ctl00_imgMaze" alt="" src="http://www.comlaw.gov.au/images/maze.gif" style="border-width:0px;" />
+                            </div>
+                            <div style="width: 100%">
+                                <span id="ctl00_spnShoppingCart">
+                                    <a id="ctl00_lnkShoppingCart" class="ComlawLinkBlue" href="https://legislation.infoservices.com.au/cart"><img id="ctl00_imgShoppingCart" alt="Shopping Cart" title="Print Shopping Cart" src="http://www.comlaw.gov.au/images/shoppingcart.png" style="height:16px;width:20px;border-width:0px;border: 0pt; text-align: right" />Shopping
+                                        Cart</a>
+                                    | </span>
+                                <a id="ctl00_lnkHelp" accesskey="6" class="ComlawLinkBlue" href="http://www.comlaw.gov.au/Content/Help">Help</a>
+                                | <a href="http://www.comlaw.gov.au/Feedback" id="ctl00_lnkFeedback" accesskey="9" class="ComlawLinkBlue">Feedback</a>
+                                |
+                                <a id="ctl00_lnkMyComlaw" class="ComlawLinkBlue" CausesValidation="false" href="http://www.comlaw.gov.au/MyComLaw">My Comlaw</a>
+
+
+                            </div>
+                        </div>
+                        <br />
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" class="mytable" style="margin-top: -8px">
+                <tr>
+                    <th>
+                        <div style="float: left;">
+                            <div id="ctl00_mainMenu" class="RadMenu RadMenu_Comlaw" style="z-index: 2000">
+	<!-- 2010.2.929.35 --><ul class="rmRootGroup rmHorizontal">
+		<li class="rmItem rmFirst"><a href="/Home" accesskey="1" title="Home" class="rmLink rmRootLink"><span class="rmText">Home</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Home/Populartitles" title="Popular titles" class="rmLink"><span class="rmText">Popular titles</span></a></li><li class="rmItem "><a href="/Home/Keyresources" title="Key resources" class="rmLink"><span class="rmText">Key resources</span></a></li><li class="rmItem "><a href="/Home/Popularcategories" title="Popular categories" class="rmLink"><span class="rmText">Popular categories</span></a></li><li class="rmItem "><a href="/Home/Lawbyterritory" title="Law by territory" class="rmLink"><span class="rmText">Law by territory</span></a></li><li class="rmItem rmLast"><a href="/Home/Othersources" title="Other sources of Australian law" class="rmLink"><span class="rmText">Other sources of Australian law</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/WhatsNew#top" accesskey="2" title="What's New" class="rmLink rmRootLink"><span class="rmText">What's New</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/WhatsNew" title="Recently Published on ComLaw" class="rmLink"><span class="rmText">Recently Published on ComLaw</span></a></li><li class="rmItem rmLast"><a href="/Content/JustPrinted" title="Recently Printed" class="rmLink"><span class="rmText">Recently Printed</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/Browse/ByTitle/Constitution/Current#top" title="Constitution" class="rmLink rmRootLink"><span class="rmText">Constitution</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/Constitution/Current" title="Current" class="rmLink"><span class="rmText">Current</span></a></li><li class="rmItem rmLast"><a href="/Browse/ByTitle/Constitution/Historical" title="Historical" class="rmLink"><span class="rmText">Historical</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/Browse/ByTitle/Acts/Current#top" title="Acts" class="rmLink rmRootLink"><span class="rmText">Acts</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/Acts/Current" title="Current" class="rmLink"><span class="rmText">Current</span></a></li><li class="rmItem "><a href="/Browse/Results/ByTitle/Acts/RecentlyPublished/_/0/0" title="Recently Published" class="rmLink"><span class="rmText">Recently Published</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Acts/Asmade" title="As made A-Z" class="rmLink"><span class="rmText">As made A-Z</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Acts/Historical" title="Historical" class="rmLink"><span class="rmText">Historical</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem "><a href="/Browse/ByYearNumber/Acts/Asmade/0/0/" title="Numbered Acts by Year" class="rmLink"><span class="rmText">Numbered Acts by Year</span></a></li><li class="rmItem rmLast"><a href="/Content/FutureLaw#top" title="Future Law Compilations" class="rmLink"><span class="rmText">Future Law Compilations</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/Browse/ByTitle/LegislativeInstruments/Current#top" class="rmLink rmRootLink"><span class="rmText">Legislative Instruments</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/LegislativeInstruments/Current" class="rmLink"><span class="rmText">Current</span></a></li><li class="rmItem "><a href="/Browse/Results/ByTitle/LegislativeInstruments/RecentlyPublished/_/0/0" class="rmLink"><span class="rmText">Recently Published</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/LegislativeInstruments/Asmade" class="rmLink"><span class="rmText">As Made A-Z</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/LegislativeInstruments/Historical" class="rmLink"><span class="rmText">Historical</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem "><a href="/Browse/ByYearNumber/SelectLIsandStatRules/Asmade/0/0/" class="rmLink"><span class="rmText">Numbered SRs/SLIs by Year</span></a></li><li class="rmItem "><a href="/Content/FutureLaw" class="rmLink"><span class="rmText">Future Law Compilations</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem "><a href="/Browse/ByTitle/LegislativeInstruments/OpentoDisallowance" class="rmLink"><span class="rmText">Currently Open to Disallowance</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/LegislativeInstruments/Disallowed" class="rmLink"><span class="rmText">Disallowed</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem rmLast"><a href="/Home/PopularCategories#top" class="rmLink"><span class="rmText">See all available categories</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/Browse/ByTitle/Gazettes/Current#top" class="rmLink rmRootLink"><span class="rmText">Gazettes</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/GeneralNotices/" class="rmLink"><span class="rmText">General Notices</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Specials/Current" class="rmLink"><span class="rmText">Specials</span></a></li><li class="rmItem rmLast"><a href="/Browse/ByTitle/Periodics/Current" class="rmLink"><span class="rmText">Periodics</span></a></li>
+			</ul>
+		</div></li><li class="rmItem "><a href="/Browse/ByTitle/Bills/Current" class="rmLink rmRootLink"><span class="rmText">Bills</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/Bills/Asmade" class="rmLink"><span class="rmText">As Introduced A-Z</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem "><a href="/Browse/ByPrivateMembers/Bills/Current/0/0/3" class="rmLink"><span class="rmText">Private Members' Bills</span></a></li><li class="rmItem rmLast"><a href="/Browse/ByPortfolio/Bills/Current/0/0/2" class="rmLink"><span class="rmText">Government Bills</span></a></li>
+			</ul>
+		</div></li><li class="rmItem rmLast"><a href="/Browse/1/Other/Current#top" class="rmLink rmRootLink"><span class="rmText">Other</span></a><div class="rmSlide">
+			<ul class="rmVertical rmGroup rmLevel1">
+				<li class="rmItem rmFirst"><a href="/Browse/ByTitle/Other/Current" class="rmLink"><span class="rmText">Current Titles</span></a></li><li class="rmItem "><a href="/Browse/Results/ByTitle/Other/RecentlyPublished/_/0/0" class="rmLink"><span class="rmText">Recently Published</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Other/Asmade" class="rmLink"><span class="rmText">As Made A-Z</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Other/Historical" class="rmLink"><span class="rmText">Historical</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem "><a href="/Browse/ByTitle/AdministrativeArrangementsOrders/Current" class="rmLink"><span class="rmText">Administrative Arrangements Orders</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/AppliedLawActCompilations/Current#top" class="rmLink"><span class="rmText">Applied Law Compilations</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/AppliedLawActCompilations/Current" class="rmLink"><span class="rmText">- Amended WA Acts</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/AppliedLawRegulationCompilations/Current" class="rmLink"><span class="rmText">- Amended WA Regulations</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/CommonwealthReservedLaws/Current" class="rmLink"><span class="rmText">Commonwealth Reserved Laws</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/PerogativeInstruments/Current" class="rmLink"><span class="rmText">Prerogative Instruments</span></a></li><li class="rmItem "><a href="/Browse/ByTitle/Miscellaneous/Current" class="rmLink"><span class="rmText">Miscellaneous</span></a></li><li class="rmItem "><a href="#" class="rmLink rmDisabled rmDisabled"><span class="rmText"><hr/></span></a></li><li class="rmItem rmLast"><a href="/Home/PopularCategories#To" class="rmLink"><span class="rmText">See All Available Categories</span></a></li>
+			</ul>
+		</div></li>
+	</ul><input id="ctl00_mainMenu_ClientState" name="ctl00_mainMenu_ClientState" type="hidden" />
+</div>
+
+                        </div>
+
+
+                        <div id="ctl00_Panel1" onkeypress="javascript:return WebForm_FireDefaultButton(event, 'ctl00_btnRegularSearch')" style="white-space:nowrap; float: right; margin: -1px 0px 0px 0px;">
+
+                            <table border="0" cellpadding="0" cellspacing="0" style="padding: 0px 0px 0px 0px;margin-top:0px; margin-bottom:-5px;">
+                                <tr>
+                                    <td style="white-space:nowrap; padding: 0px 0px 0px 0px;">
+                                        <label visible="false" for="txtRegularSearch" title="Search">
+                                        </label>
+                                        <span id="ctl00_txtRegularSearch_wrapper" class="RadInput RadInput_Default" style="white-space:normal;"><input value="  Search ID Or Current Titles" type="text" size="20" id="ctl00_txtRegularSearch_text" name="ctl00_txtRegularSearch_text" class="riTextBox riEmpty HeaderRegularSearch" accesskey="4" style="width:180px;" /><input id="ctl00_txtRegularSearch" name="ctl00$txtRegularSearch" class="rdfd_" style="visibility:hidden;margin:-18px 0 0 -1px;width:1px;height:1px;overflow:hidden;border:0;padding:0;" type="text" value="" /><input id="ctl00_txtRegularSearch_ClientState" name="ctl00_txtRegularSearch_ClientState" type="hidden" /></span>
+                                        <input type="submit" name="ctl00$btnRegularSearch" value="Search" onclick="return DoSearch();" id="ctl00_btnRegularSearch" class="RedButton" style="margin: 0px 4px 0px 0px; " />
+                                    </td>
+                                    <td style="margin-left:-10px; padding-left:0px;">
+                                        <a id="ctl00_lnkAdvancedSearch" class="ComlawLinkWhite" href="http://www.comlaw.gov.au/AdvancedSearch" style="font-size: 8pt; white-space:nowrap;">Advanced Search</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+</div>
+                    </th>
+                </tr>
+            </table>
+            <a name="skipToContent" class="invisibleLink"></a>
+
+    <div id="ctl00_MainContent_SeriesPane_pnlHomePage">
+
+    <div class="myitem">
+        <table>
+            <tr>
+
+                <td>
+                    <div>
+                        <b>
+                            <span id="ctl00_MainContent_SeriesPane_lblTitle" class="LegTitle">Marriage Act 1961</span></b></div>
+                    <div>
+                        <span id="ctl00_MainContent_SeriesPane_CurrentCitation" class="RedText">Series</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table width="100%">
+        <tr id="ctl00_MainContent_SeriesPane_trSeries">
+		<td id="ctl00_MainContent_SeriesPane_tdSeriesDetails" valign="top" style="width: 70%">
+                <fieldset>
+                    <table width="100%" class="mytable">
+
+                        <tr id="ctl00_MainContent_SeriesPane_trDetails">
+			<td>
+                                <span id="ctl00_MainContent_SeriesPane_lblDetails">Act No. 12 of 1961</span><br />
+                            </td>
+		</tr>
+
+
+                        <tr id="ctl00_MainContent_SeriesPane_trAdminDepts">
+			<td>
+                                <span id="ctl00_MainContent_SeriesPane_lblAdminDepts">Administered by:  Attorney-General's, Families, Housing, Community Services and Indigenous Affairs</span>
+                            </td>
+		</tr>
+
+                    </table>
+                </fieldset>
+            </td>
+		<td id="ctl00_MainContent_SeriesPane_tdStatus" valign="top" style="width: 30%">
+                <fieldset>
+                    <table id="ctl00_MainContent_SeriesPane_tableStatus" width="100%" class="mytable">
+			<tr>
+				<td colspan="2" style="vertical-align:text-top">
+
+                            </td>
+			</tr>
+			<tr id="ctl00_MainContent_SeriesPane_trCommences">
+				<td style="vertical-align:text-top">
+                                <span id="ctl00_MainContent_SeriesPane_lblCommences">Date of Assent</span>
+                            </td>
+				<td style="vertical-align:text-top">
+                                <span id="ctl00_MainContent_SeriesPane_lblCommencesDate">06 May 1961</span>
+                            </td>
+			</tr>
+		</table>
+
+                </fieldset>
+            </td>
+	</tr>
+
+    </table>
+
+</div>
+
+    <div id="ctl00_MainContent_RadTabStrip1" class="RadTabStrip RadTabStrip_Default RadTabStripTop_Default">
+	<div class="rtsLevel rtsLevel1">
+		<ul class="rtsUL"><li class="rtsLI rtsFirst"><a class="rtsLink rtsSelected" href="C1961A00012/Compilations"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Compilations</span></span></span></a></li><li class="rtsLI"><a class="rtsLink rtsAfter" href="C1961A00012/Amendments"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Principal + Amendments</span></span></span></a></li><li class="rtsLI"><a class="rtsLink" href="C1961A00012/Enables"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Enables</span></span></span></a></li><li class="rtsLI rtsLast"><a class="rtsLink" href="C1961A00012/RelatedBills"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Related Bills</span></span></span></a></li></ul>
+	</div><input id="ctl00_MainContent_RadTabStrip1_ClientState" name="ctl00_MainContent_RadTabStrip1_ClientState" type="hidden" />
+</div>
+    <div id="ctl00_MainContent_RadMultiPage1">
+	<div id="ctl00_MainContent_RadPageCompilations">
+
+            <div id="ctl00_MainContent_pnlCompilations" class="TabPanel">
+
+                <span id="ctl00_MainContent_lblCompilationsFragment"><br />
+<p>&nbsp;&nbsp;&nbsp;&nbsp;Displayed here are links to compilations of the Principal, the most current at the top of the list.</p></span>
+                <div id="ctl00_MainContent_SeriesCompilations_RadAjaxLoadingPanel1" class="RadAjax RadAjax_Default" style="display:none;height:75px;width:75px;">
+				<div class="raDiv">
+
+
+				</div><div class="raColor raTransp">
+
+				</div>
+			</div>
+<div id="ctl00_MainContent_SeriesCompilations_RadAjaxPanel1">
+
+    <table width="100%" class="mytable">
+        <tr id="ctl00_MainContent_SeriesCompilations_tr1">
+					<td>
+                <span id="ctl00_MainContent_SeriesCompilations_lblTitle" style="font-weight:bold;">Compilations</span>
+            </td>
+				</tr>
+
+        <tr id="ctl00_MainContent_SeriesCompilations_trUnincorporatedAmendments">
+					<td>
+                <span id="ctl00_MainContent_SeriesCompilations_lblUnincorporatedAmendments"></span>
+                <div id="ctl00_MainContent_SeriesCompilations_ctl02_ctl00" class="RadTreeView RadTreeView_Default">
+						<ul class="rtUL rtLines">
+							<li class="rtLI rtFirst rtLast"><div class="rtTop">
+								<span class="rtSp"></span><span class="rtPlus"></span><span class="rtIn" style="color:Red;">Unincorporated Amendments</span>
+							</div><ul class="rtUL" style="display:none;">
+								<li class="rtLI rtLast"><div class="rtBot">
+									<span class="rtSp"></span><span class="rtPlus"></span><span class="rtIn">Federal Circuit Court of Australia (Consequential Amendments) Act 2013 - C2013A00013</span>
+								</div><ul class="rtUL" style="display:none;">
+									<li class="rtLI rtLast"><div class="rtBot">
+										<span class="rtSp"></span><span class="rtIn">sch 1 (items 328-330)</span>
+									</div></li>
+								</ul></li>
+							</ul></li>
+						</ul><input id="ctl00_MainContent_SeriesCompilations_ctl02_ctl00_ClientState" name="ctl00_MainContent_SeriesCompilations_ctl02_ctl00_ClientState" type="hidden" />
+					</div>
+            </td>
+				</tr>
+
+        <tr>
+            <td>
+                <div id="ctl00_MainContent_SeriesCompilations_RadGrid1" class="RadGrid RadGrid_Default" style="width:100%;">
+
+				<table cellspacing="0" class="rgMasterTable rgClipCells" border="0" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00" style="width:100%;table-layout:fixed;empty-cells:show;">
+	<colgroup>
+		<col style="width:100%" />
+		<col style="width:100px" />
+		<col style="width:100px" />
+		<col style="width:100px" />
+		<col style="width:100px" />
+		<col style="width:250px" />
+	</colgroup>
+<thead>
+		<tr class="rgPager">
+			<td colspan="6"><table cellspacing="0" border="0" style="width:100%;">
+				<tr>
+					<td class="rgPagerCell NextPrevAndNumeric"><div class="rgWrap rgArrPart1">
+						<input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl02" value=" " onclick="return false;" title="First Page" class="rgPageFirst" /> <input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl03" value=" " onclick="return false;" title="Previous Page" class="rgPagePrev" />
+					</div><div class="rgWrap rgNumPart">
+						<a onclick="return false;" class="rgCurrentPage" href="javascript:__doPostBack('ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl05','')"><span>1</span></a><a href="javascript:__doPostBack('ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl07','')"><span>2</span></a>
+					</div><div class="rgWrap rgArrPart2">
+						<input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl10" value=" " title="Next Page" class="rgPageNext" /> <input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$ctl11" value=" " title="Last Page" class="rgPageLast" />
+					</div><div class="rgWrap rgAdvPart">
+						<span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_ChangePageSizeLabel" class="rgPagerLabel">Page size:</span><div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox" class="RadComboBox RadComboBox_Default" style="width:46px;white-space:normal;">
+							<table summary="combobox" style="border-width:0;border-collapse:collapse;">
+								<tr class="rcbReadOnly">
+									<td style="width:100%;" class="rcbInputCell rcbInputCellLeft"><input name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$PageSizeComboBox" type="text" class="rcbInput" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_Input" value="10" readonly="readonly" /></td>
+									<td class="rcbArrowCell rcbArrowCellRight"><a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_Arrow" style="overflow: hidden;display: block;position: relative;outline: none;">select</a></td>
+								</tr>
+							</table>
+							<div class="rcbSlide" style="z-index:6000;"><div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_DropDown" class="RadComboBoxDropDown RadComboBoxDropDown_Default " style="display:none;"><div class="rcbScroll rcbWidth" style="width:100%;"><ul class="rcbList" style="list-style:none;margin:0;padding:0;zoom:1;"><li class="rcbItem ">10</li><li class="rcbItem ">20</li><li class="rcbItem ">50</li></ul></div></div></div><input id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_ClientState" name="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_ClientState" type="hidden" />
+						</div>
+					</div><div class="rgWrap rgInfoPart">
+						 &nbsp;<strong>19</strong> items in <strong>2</strong> pages
+					</div></td>
+				</tr>
+			</table></td>
+		</tr><tr>
+			<th scope="col" class="rgHeader">Title</th><th scope="col" class="rgHeader">ComlawId</th><th scope="col" class="rgHeader">Date Prepared</th><th scope="col" class="rgHeader">Start Date</th><th scope="col" class="rgHeader">End Date</th><th scope="col" class="rgHeader">Incorporating Amendments Up To</th>
+		</tr>
+	</thead><tfoot>
+		<tr class="rgPager">
+			<td colspan="6"><table cellspacing="0" border="0" style="width:100%;">
+				<tr>
+					<td class="rgPagerCell NextPrevAndNumeric"><div class="rgWrap rgArrPart1">
+						<input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl02" value=" " onclick="return false;" title="First Page" class="rgPageFirst" /> <input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl03" value=" " onclick="return false;" title="Previous Page" class="rgPagePrev" />
+					</div><div class="rgWrap rgNumPart">
+						<a onclick="return false;" class="rgCurrentPage" href="javascript:__doPostBack('ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl05','')"><span>1</span></a><a href="javascript:__doPostBack('ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl07','')"><span>2</span></a>
+					</div><div class="rgWrap rgArrPart2">
+						<input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl10" value=" " title="Next Page" class="rgPageNext" /> <input type="submit" name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$ctl11" value=" " title="Last Page" class="rgPageLast" />
+					</div><div class="rgWrap rgAdvPart">
+						<span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_ChangePageSizeLabel" class="rgPagerLabel">Page size:</span><div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox" class="RadComboBox RadComboBox_Default" style="width:46px;white-space:normal;">
+							<table summary="combobox" style="border-width:0;border-collapse:collapse;">
+								<tr class="rcbReadOnly">
+									<td style="width:100%;" class="rcbInputCell rcbInputCellLeft"><input name="ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$PageSizeComboBox" type="text" class="rcbInput" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_Input" value="10" readonly="readonly" /></td>
+									<td class="rcbArrowCell rcbArrowCellRight"><a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_Arrow" style="overflow: hidden;display: block;position: relative;outline: none;">select</a></td>
+								</tr>
+							</table>
+							<div class="rcbSlide" style="z-index:6000;"><div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_DropDown" class="RadComboBoxDropDown RadComboBoxDropDown_Default " style="display:none;"><div class="rcbScroll rcbWidth" style="width:100%;"><ul class="rcbList" style="list-style:none;margin:0;padding:0;zoom:1;"><li class="rcbItem ">10</li><li class="rcbItem ">20</li><li class="rcbItem ">50</li></ul></div></div></div><input id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_ClientState" name="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_ClientState" type="hidden" />
+						</div>
+					</div><div class="rgWrap rgInfoPart">
+						 &nbsp;<strong>19</strong> items in <strong>2</strong> pages
+					</div></td>
+				</tr>
+			</table></td>
+		</tr>
+	</tfoot><tbody>
+	<tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__0">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+                                                <img id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_imgFRLI" title="Authoritative version" src="../images/AusLittleTickEmbossed.gif" alt="Authoritative version" style="border-width:0px;" />
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_hl" class="default" href="../Details/C2012C00837">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_Label1" style="font-style:italic;">Current</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2012C00837</td><td>20/Nov/2012</td><td>19/Apr/2011</td><td>&nbsp;</td><td>
+                                    <div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_pnlActOrLI">
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1" class="RadGrid RadGrid_Default" style="background-color:Transparent;border-style:None;">
+
+			<table cellspacing="0" class="rgMasterTable" border="0" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ctl00" style="width:100%;table-layout:auto;empty-cells:show;">
+	<colgroup>
+		<col  />
+	</colgroup>
+<thead>
+		<tr style="display:none;">
+			<th scope="col">&nbsp;</th>
+		</tr>
+	</thead><tbody>
+	<tr class="rgNoRecords">
+		<td colspan="1" style="text-align:left;"><div>No records to display.</div></td>
+	</tr>
+	</tbody>
+
+</table><input id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ClientState" name="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ClientState" type="hidden" />
+				</div>
+
+
+		</div>
+
+
+                                </td>
+	</tr><tr class="rgAltRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__1">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_hl" class="default" href="../Details/C2011C00192">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2011C00192</td><td>19/Apr/2011</td><td>19/Apr/2011</td><td>&nbsp;</td><td>
+                                    <div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_pnlActOrLI">
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1" class="RadGrid RadGrid_Default" style="background-color:Transparent;border-style:None;">
+
+			<table cellspacing="0" class="rgMasterTable" border="0" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ctl00" style="width:100%;table-layout:auto;empty-cells:show;">
+	<colgroup>
+		<col  />
+	</colgroup>
+<thead>
+		<tr style="display:none;">
+			<th scope="col">&nbsp;</th>
+		</tr>
+	</thead><tbody>
+	<tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ctl00__0">
+		<td>
+                    <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ctl00_ctl04_hl" href="../Details/C2011A00005">Statute Law Revision Act 2011</a>
+                </td>
+	</tr>
+	</tbody>
+
+</table><input id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ClientState" name="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ClientState" type="hidden" />
+				</div>
+
+
+		</div>
+
+
+                                </td>
+	</tr><tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__2">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl08_hl" class="default" href="../Details/C2010C00189">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl08_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2010C00189</td><td>05/Mar/2010</td><td>01/Mar/2010</td><td>21/Mar/2011</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl08_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl08_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 8 of 2010</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgAltRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__3">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl10_hl" class="default" href="../Details/C2006C00342">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl10_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2006C00342</td><td>01/Jul/2006</td><td>01/Jul/2006</td><td>28/Feb/2010</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl10_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl10_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 46 of 2006</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__4">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl12_hl" class="default" href="../Details/C2006C00280">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl12_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2006C00280</td><td>25/May/2006</td><td>16/Aug/2004</td><td>30/Jun/2006</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl12_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl12_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 46 of 2006</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgAltRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__5">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl14_hl" class="default" href="../Details/C2004C00278">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl14_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2004C00278</td><td>18/Aug/2004</td><td>16/Aug/2004</td><td>&nbsp;</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl14_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl14_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 126 of 2004 </span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__6">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl16_hl" class="default" href="../Details/C2004C05257">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl16_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2004C05257</td><td>27/Oct/2003</td><td>&nbsp;</td><td>&nbsp;</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl16_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl16_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 77 of 2002</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgAltRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__7">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl18_hl" class="default" href="../Details/C2004C05256">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl18_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2004C05256</td><td>08/Apr/2003</td><td>&nbsp;</td><td>&nbsp;</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl18_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl18_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 77 of 2002</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__8">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl20_hl" class="default" href="../Details/C2004C05255">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl20_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2004C05255</td><td>05/Nov/2002</td><td>&nbsp;</td><td>&nbsp;</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl20_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl20_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 77 of 2002</span>
+
+		</div>
+
+                                </td>
+	</tr><tr class="rgAltRow" id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00__9">
+		<td>
+                                    <table>
+                                        <tr>
+                                            <td style="width: 25px">
+
+                                            </td>
+                                            <td>
+
+                                                <a id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl22_hl" class="default" href="../Details/C2004C05254">Marriage Act 1961</a>
+                                                <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl22_Label1" style="font-style:italic;">Superseded</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td><td>C2004C05254</td><td>24/May/2001</td><td>&nbsp;</td><td>&nbsp;</td><td>
+
+<div id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl22_incorpUpTo_pnlActOrLITextOnly">
+
+    <span id="ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl22_incorpUpTo_lblTextOnlyIncorporatedAmendment">Act No. 24 of 2001</span>
+
+		</div>
+
+                                </td>
+	</tr>
+	</tbody>
+
+</table><input id="ctl00_MainContent_SeriesCompilations_RadGrid1_ClientState" name="ctl00_MainContent_SeriesCompilations_RadGrid1_ClientState" type="hidden" />
+					</div>
+
+            </td>
+        </tr>
+    </table>
+
+			</div>
+
+
+
+		</div>
+
+	</div><input id="ctl00_MainContent_RadMultiPage1_ClientState" name="ctl00_MainContent_RadMultiPage1_ClientState" type="hidden" />
+</div>
+
+            <div style="width: 100%; background-color: White">
+                <a href="#" onclick="window.scrollTo(0,0); return false;" class="footerLink">
+                    <img id="ctl00_Image2" src="http://www.comlaw.gov.au/Images/Up.gif" alt="Back to Top" style="border-width:0px;" />
+                    Back to Top</a>
+            </div>
+            <div class="footer">
+                <div style="width: 100%">
+                    <table style="width: 100%">
+                        <tr>
+                            <td>
+                                <div style="vertical-align: middle;">
+                                    <div style="float: left; margin-top: 2px;">
+                                        <a id="ctl00_linkBrowseAloud" href="http://www.comlaw.gov.au/Content/BrowseAloud"><img id="ctl00_imgBrowseAloud" Border="0" src="http://www.comlaw.gov.au/Images/BrowseAloud.png" alt="Browse Aloud" style="border-width:0px;" /></a>
+                                    </div>
+                                    <div style="float: right; margin-top: 8px;">
+                                        <a id="ctl00_hlLegalAdvice" href="http://www.comlaw.gov.au/Content/LegalAdvice"><img src="http://www.comlaw.gov.au/Images/Legal.gif" alt="Need legal advice?" style="border-width:0px;" /></a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding-top: 10px; padding-bottom: 10px;">
+                                <div style="font-size: small; vertical-align: top; text-align: right; margin-right: 10px;">
+                                    <strong>ComLaw may not have all the information you need. </strong>
+                                    <a id="ctl00_lnkDisclaimer" accesskey="8" class="footerLink" href="http://www.comlaw.gov.au/Content/Disclaimer">Read full disclaimer</a>
+                                    <br />
+                                    &copy; Commonwealth of Australia unless noted otherwise.
+                                    <a id="ctl00_lnkCopyright" class="footerLink" href="http://www.comlaw.gov.au/Content/Copyright">Copyright</a>
+                                    <br />
+                                    More information:
+                                    <a id="ctl00_hlAbount" class="footerLink" href="http://www.comlaw.gov.au/Content/About">About ComLaw</a>
+                                    |
+                                    <a id="ctl00_hlAccessibility" class="footerLink" href="http://www.comlaw.gov.au/Content/Accessibility">Accessibility</a>
+                                    |
+                                    <a id="ctl00_hlLinking" class="footerLink" href="http://www.comlaw.gov.au/Content/Linking">Linking & Downloads</a>
+                                    |
+                                    <a id="ctl00_hlSiteMap" accesskey="3" class="footerLink" href="http://www.comlaw.gov.au/SiteMap">Site map</a>
+                                    |
+                                    <a id="ctl00_lnkPrivacy" class="footerLink" href="http://www.comlaw.gov.au/Content/Privacy">Privacy</a>
+                                    |
+                                    <a id="ctl00_lnkContactUs" class="footerLink" href="http://www.comlaw.gov.au/Feedback">Contact us</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+//<![CDATA[
+Telerik.Web.UI.RadTreeView._preInitialize("ctl00_MainContent_SeriesCompilations_ctl02_ctl00","0");Sys.Application.initialize();
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadMenu, {"_childListElementCssClass":null,"_skin":"Comlaw","attributes":{},"clientStateFieldID":"ctl00_mainMenu_ClientState","collapseAnimation":"{\"duration\":450}","defaultGroupSettings":"{\"flow\":0}","expandAnimation":"{\"duration\":450}","itemData":[{"items":[{"value":"Popular titles","navigateUrl":"/Home/Populartitles"},{"value":"Key resources","navigateUrl":"/Home/Keyresources"},{"value":"Popular categories","navigateUrl":"/Home/Popularcategories"},{"value":"Law by territory","navigateUrl":"/Home/Lawbyterritory"},{"value":"Other sources of Australian law","navigateUrl":"/Home/Othersources"}],"value":"Home","navigateUrl":"/Home"},{"items":[{"value":"Recently Published on ComLaw","navigateUrl":"/WhatsNew"},{"value":"Recently Printed","navigateUrl":"/Content/JustPrinted"}],"value":"What\u0027s New","navigateUrl":"/WhatsNew#top"},{"items":[{"value":"Current","navigateUrl":"/Browse/ByTitle/Constitution/Current"},{"value":"Historical","navigateUrl":"/Browse/ByTitle/Constitution/Historical"}],"value":"Constitution","navigateUrl":"/Browse/ByTitle/Constitution/Current#top"},{"items":[{"value":"Current","navigateUrl":"/Browse/ByTitle/Acts/Current"},{"value":"Recently Published","navigateUrl":"/Browse/Results/ByTitle/Acts/RecentlyPublished/_/0/0"},{"value":"As made A-Z","navigateUrl":"/Browse/ByTitle/Acts/Asmade"},{"value":"Historical","navigateUrl":"/Browse/ByTitle/Acts/Historical"},{"value":"--------","enabled":false},{"value":"Numbered Acts by Year","navigateUrl":"/Browse/ByYearNumber/Acts/Asmade/0/0/"},{"value":"Future Law Compilations","navigateUrl":"/Content/FutureLaw#top"}],"value":"Acts","navigateUrl":"/Browse/ByTitle/Acts/Current#top"},{"items":[{"value":"Current","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/Current"},{"value":"Recently Published","navigateUrl":"/Browse/Results/ByTitle/LegislativeInstruments/RecentlyPublished/_/0/0"},{"value":"As Made A-Z","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/Asmade"},{"value":"Historical","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/Historical"},{"value":"--------","enabled":false},{"value":"Numbered SRs/SLIs by Year","navigateUrl":"/Browse/ByYearNumber/SelectLIsandStatRules/Asmade/0/0/"},{"value":"Future Law Compilations","navigateUrl":"/Content/FutureLaw"},{"value":"--------","enabled":false},{"value":"Currently Open to Disallowance","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/OpentoDisallowance"},{"value":"Disallowed","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/Disallowed"},{"value":"--------","enabled":false},{"value":"See all available categories","navigateUrl":"/Home/PopularCategories#top"}],"value":"Legislative Instruments","navigateUrl":"/Browse/ByTitle/LegislativeInstruments/Current#top"},{"items":[{"value":"General Notices","navigateUrl":"/Browse/ByTitle/GeneralNotices/"},{"value":"Specials","navigateUrl":"/Browse/ByTitle/Specials/Current"},{"value":"Periodics","navigateUrl":"/Browse/ByTitle/Periodics/Current"}],"value":"Gazettes","navigateUrl":"/Browse/ByTitle/Gazettes/Current#top"},{"items":[{"value":"As Introduced A-Z","navigateUrl":"/Browse/ByTitle/Bills/Asmade"},{"value":"--------","enabled":false},{"value":"Private Members\u0027 Bills","navigateUrl":"/Browse/ByPrivateMembers/Bills/Current/0/0/3"},{"value":"Government Bills","navigateUrl":"/Browse/ByPortfolio/Bills/Current/0/0/2"}],"value":"Bills","navigateUrl":"/Browse/ByTitle/Bills/Current"},{"items":[{"value":"Current Titles","navigateUrl":"/Browse/ByTitle/Other/Current"},{"value":"Recently Published","navigateUrl":"/Browse/Results/ByTitle/Other/RecentlyPublished/_/0/0"},{"value":"As Made A-Z","navigateUrl":"/Browse/ByTitle/Other/Asmade"},{"value":"Historical","navigateUrl":"/Browse/ByTitle/Other/Historical"},{"value":"--------","enabled":false},{"value":"Administrative Arrangements Orders","navigateUrl":"/Browse/ByTitle/AdministrativeArrangementsOrders/Current"},{"value":"Applied Law Compilations","navigateUrl":"/Browse/ByTitle/AppliedLawActCompilations/Current#top"},{"value":"- Amended WA Acts","navigateUrl":"/Browse/ByTitle/AppliedLawActCompilations/Current"},{"value":"- Amended WA Regulations","navigateUrl":"/Browse/ByTitle/AppliedLawRegulationCompilations/Current"},{"value":"Commonwealth Reserved Laws","navigateUrl":"/Browse/ByTitle/CommonwealthReservedLaws/Current"},{"value":"Prerogative Instruments","navigateUrl":"/Browse/ByTitle/PerogativeInstruments/Current"},{"value":"Miscellaneous","navigateUrl":"/Browse/ByTitle/Miscellaneous/Current"},{"value":"--------","enabled":false},{"value":"See All Available Categories","navigateUrl":"/Home/PopularCategories#To"}],"value":"Other","navigateUrl":"/Browse/1/Other/Current#top"}]}, null, null, $get("ctl00_mainMenu"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTextBox, {"_focused":false,"_postBackEventReferenceScript":"setTimeout(\"__doPostBack(\\\u0027ctl00$txtRegularSearch\\\u0027,\\\u0027\\\u0027)\", 0)","_skin":"Default","clientStateFieldID":"ctl00_txtRegularSearch_ClientState","emptyMessage":"  Search ID Or Current Titles","enabled":true,"styles":{HoveredStyle: ["width:180px;", "riTextBox riHover HeaderRegularSearch"],InvalidStyle: ["width:180px;", "riTextBox riError HeaderRegularSearch"],DisabledStyle: ["width:180px;", "riTextBox riDisabled HeaderRegularSearch"],FocusedStyle: ["width:180px;", "riTextBox riFocused HeaderRegularSearch"],EmptyMessageStyle: ["font-family:HelveticNeue;width:180px;", "riTextBox riEmpty HeaderRegularSearch"],ReadOnlyStyle: ["width:180px;", "riTextBox riRead HeaderRegularSearch"],EnabledStyle: ["width:180px;", "riTextBox riEnabled HeaderRegularSearch"]}}, null, null, $get("ctl00_txtRegularSearch"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTabStrip, {"_selectedIndex":0,"_skin":"Default","causesValidation":false,"clientStateFieldID":"ctl00_MainContent_RadTabStrip1_ClientState","multiPageID":"ctl00_MainContent_RadMultiPage1","selectedIndexes":["0"],"tabData":[{"value":"0","pageViewID":"ctl00_MainContent_RadPageCompilations"},{"value":"1","pageViewID":"ctl00_MainContent_RadPageAmendments"},{"value":"2","pageViewID":"ctl00_MainContent_RadPageEnables"},{"value":"5","pageViewID":"ctl00_MainContent_RadPageRelatedBills"}]}, null, null, $get("ctl00_MainContent_RadTabStrip1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadAjaxLoadingPanel, {"initialDelayTime":0,"isSticky":false,"minDisplayTime":0,"skin":"Default","transparency":0,"uniqueID":"ctl00$MainContent$SeriesCompilations$RadAjaxLoadingPanel1","zIndex":90000}, null, null, $get("ctl00_MainContent_SeriesCompilations_RadAjaxLoadingPanel1"));
+});
+
+WebForm_InitCallback();Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTreeView, {"_skin":"Default","_uniqueId":"ctl00$MainContent$SeriesCompilations$ctl02$ctl00","clientStateFieldID":"ctl00_MainContent_SeriesCompilations_ctl02_ctl00_ClientState","collapseAnimation":"{\"duration\":200}","expandAnimation":"{\"duration\":200}","nodeData":[{"items":[{"items":[{"value":"36060244-5fac-421d-80c4-2beebc35de50"}]}]}]}, null, null, $get("ctl00_MainContent_SeriesCompilations_ctl02_ctl00"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadComboBox, {"_dropDownWidth":0,"_height":0,"_isAspNet35":true,"_skin":"Default","_text":"10","_uniqueId":"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl02$ctl00$PageSizeComboBox","_value":"10","clientStateFieldID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox_ClientState","collapseAnimation":"{\"duration\":450}","expandAnimation":"{\"duration\":450}","itemData":[{"value":"10","selected":true,"attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}},{"value":"20","attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}},{"value":"50","attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}}],"selectedIndex":0}, {"selectedIndexChanged":Telerik.Web.UI.Grid.ChangePageSizeComboHandler}, null, $get("ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl02_ctl00_PageSizeComboBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadComboBox, {"_dropDownWidth":0,"_height":0,"_isAspNet35":true,"_skin":"Default","_text":"10","_uniqueId":"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl03$ctl01$PageSizeComboBox","_value":"10","clientStateFieldID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox_ClientState","collapseAnimation":"{\"duration\":450}","expandAnimation":"{\"duration\":450}","itemData":[{"value":"10","selected":true,"attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}},{"value":"20","attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}},{"value":"50","attributes":{"ownerTableViewId":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00"}}],"selectedIndex":0}, {"selectedIndexChanged":Telerik.Web.UI.Grid.ChangePageSizeComboHandler}, null, $get("ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl03_ctl01_PageSizeComboBox"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"ShouldCreateRows":true,"DataBinding":{},"Selecting":{},"Scrolling":{},"Resizing":{},"ClientMessages":{},"KeyboardNavigationSettings":{"AllowActiveRowCycle":false,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127},"Animation":{}},"Skin":"Default","UniqueID":"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl04$incorpUpTo$RadGrid1","_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_editIndexes":"[]","_embeddedSkin":true,"_gridTableViewsData":"[{\"ClientID\":\"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ctl00\",\"UniqueID\":\"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl04$incorpUpTo$RadGrid1$ctl00\",\"PageSize\":10,\"PageCount\":1,\"EditMode\":\"EditForms\",\"CurrentPageIndex\":0,\"VirtualItemCount\":0,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":true,\"AllowFilteringByColumn\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[],\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_columnsData\":[{\"UniqueName\":\"TemplateColumn\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"Display\":true}]}]","_masterClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ctl00","_shouldFocusOnPage":false,"allowMultiRowSelection":false,"clientStateFieldID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1_ClientState"}, null, null, $get("ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl04_incorpUpTo_RadGrid1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"ShouldCreateRows":true,"DataBinding":{},"Selecting":{},"Scrolling":{},"Resizing":{},"ClientMessages":{},"KeyboardNavigationSettings":{"AllowActiveRowCycle":false,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127},"Animation":{}},"Skin":"Default","UniqueID":"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl06$incorpUpTo$RadGrid1","_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_editIndexes":"[]","_embeddedSkin":true,"_gridTableViewsData":"[{\"ClientID\":\"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ctl00\",\"UniqueID\":\"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00$ctl06$incorpUpTo$RadGrid1$ctl00\",\"PageSize\":10,\"PageCount\":1,\"EditMode\":\"EditForms\",\"CurrentPageIndex\":0,\"VirtualItemCount\":0,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":true,\"AllowFilteringByColumn\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[],\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_columnsData\":[{\"UniqueName\":\"TemplateColumn\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"Display\":true}]}]","_masterClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ctl00","_shouldFocusOnPage":false,"allowMultiRowSelection":false,"clientStateFieldID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1_ClientState"}, null, null, $get("ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00_ctl06_incorpUpTo_RadGrid1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"ShouldCreateRows":true,"DataBinding":{},"Selecting":{},"Scrolling":{},"Resizing":{},"ClientMessages":{},"KeyboardNavigationSettings":{"AllowActiveRowCycle":false,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127},"Animation":{}},"Skin":"Default","UniqueID":"ctl00$MainContent$SeriesCompilations$RadGrid1","_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_editIndexes":"[]","_embeddedSkin":true,"_gridTableViewsData":"[{\"ClientID\":\"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00\",\"UniqueID\":\"ctl00$MainContent$SeriesCompilations$RadGrid1$ctl00\",\"PageSize\":10,\"PageCount\":2,\"EditMode\":\"EditForms\",\"CurrentPageIndex\":0,\"VirtualItemCount\":19,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":true,\"AllowFilteringByColumn\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[],\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_columnsData\":[{\"UniqueName\":\"TemplateColumn\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"Display\":true},{\"UniqueName\":\"ComlawId\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"Display\":true},{\"UniqueName\":\"DatePrepared\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"DataFormatString\":\"{0:dd/MMM/yyyy}\",\"Display\":true},{\"UniqueName\":\"StartDate\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"DataFormatString\":\"{0:dd/MMM/yyyy}\",\"Display\":true},{\"UniqueName\":\"EndDate\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"DataFormatString\":\"{0:dd/MMM/yyyy}\",\"Display\":true},{\"UniqueName\":\"TemplateColumn1\",\"Resizable\":true,\"Reorderable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"Display\":true}]}]","_masterClientID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00","_shouldFocusOnPage":false,"allowMultiRowSelection":false,"clientStateFieldID":"ctl00_MainContent_SeriesCompilations_RadGrid1_ClientState"}, null, null, $get("ctl00_MainContent_SeriesCompilations_RadGrid1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadAjaxPanel, {"clientEvents":{OnRequestStart:"",OnResponseEnd:""},"enableAJAX":true,"enableHistory":false,"links":[],"loadingPanelID":"ctl00_MainContent_SeriesCompilations_RadAjaxLoadingPanel1","styles":[],"uniqueID":"ctl00$MainContent$SeriesCompilations$RadAjaxPanel1"}, null, null, $get("ctl00_MainContent_SeriesCompilations_RadAjaxPanel1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadMultiPage, {"clientStateFieldID":"ctl00_MainContent_RadMultiPage1_ClientState","pageViewData":[{"id":"ctl00_MainContent_RadPageCompilations"},{"id":"ctl00_MainContent_RadPageAmendments"},{"id":"ctl00_MainContent_RadPageEnables"},{"id":"ctl00_MainContent_RadPageRepealedBy"},{"id":"ctl00_MainContent_RadPageModifiedBy"},{"id":"ctl00_MainContent_RadPageRelatedBills"}],"selectedIndex":0}, null, null, $get("ctl00_MainContent_RadMultiPage1"));
+});
+//]]>
+</script>
+</form>
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        var googleCode = 'UA-16773208-33';
+        _gaq.push(['_setAccount', googleCode]);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</body>
+</html>
