@@ -26,10 +26,10 @@ class @BasePage
     @getHtml (e) =>
       return done e if e
       @scraper (e, data) =>
+        return done e if e
+        @setData data if data?
         @finishedScraping()
-        if data?
-          @setData data
-        done e, data
+        done null, data
 
   # Note: `body` will still be set if cheerio fails.
   # We always use html if it is provided.
@@ -37,6 +37,8 @@ class @BasePage
   getHtml: (cb) =>
     if @opts.html
       try @$ = cheerio.load(@opts.html) catch e then return cb e
+      @body = @opts.html
+      @gotBody = true
       return cb null, @opts.html
     cb new Error 'Must set url or html' unless @opts.url
     logger.debug "Scraping #{@opts.url}"
@@ -56,6 +58,11 @@ class @BasePage
     unless @gotBody
       throw new Error 'You must call #getHtml first.'
     @body
+
+  get$: =>
+    unless @gotBody
+      throw new Error 'You must call #getHtml first.'
+    @$
 
   setData: (@data) =>
 

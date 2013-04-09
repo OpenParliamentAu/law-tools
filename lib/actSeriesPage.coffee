@@ -10,4 +10,4 @@ class @ActSeriesPage extends BasePage
   extractActs: =>
     actSeriesTableId = '#ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00'
     acts = @extractTable actSeriesTableId
-    acts
+    {acts}

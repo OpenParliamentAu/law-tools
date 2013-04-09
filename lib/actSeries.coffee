@@ -35,12 +35,12 @@ class @ActSeries
 
   scrapeFirstPage: (done) =>
     page = new ActSeriesPage url: @seriesUrl
-    page.scrape (e) =>
+    page.scrape (e, data) =>
       return done e if e
-      $ = cheerio.load page.getBody()
+      $ = page.get$()
       nextPageEl = $('.rgPageNext')[0]
       @noMorePages $, nextPageEl
-      @data = @data.concat page.getData().acts
+      @data = @data.concat data.acts
       done null, page.getBody()
 
   # Emulate clicking next page link until next page link has attribute:
@@ -78,9 +78,9 @@ class @ActSeries
     , (e, r, b) =>
       return done e if e
       page = new ActSeriesPage html: b
-      page.scrape (e) =>
+      page.scrape (e, data) =>
         return done e if e
-        @data = @data.concat page.getData().acts
+        @data = @data.concat data.acts
         done null, b
 
   scrape: (done) =>

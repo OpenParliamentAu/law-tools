@@ -63,6 +63,7 @@ makeGitRepoFromActs = (acts, done) ->
     async.eachSeries acts, (act, done) ->
 
       # Copy file.
+      return done unless act.masterFile?
       src = act.masterFile
       dest = path.join repoPath, 'index.md'
       fs.createReadStream(src).pipe fs.createWriteStream(dest)
@@ -110,9 +111,21 @@ main = ->
       makeGitRepoFromActs acts.reverse(), ->
         logger.info 'Finished!'
 
-main()
-
-#makeGitRepoFromActs fixtures
+scrapeBillHtml = ->
+  ComLaw.actSeries marriageAct, (e, acts) =>
+    throw e if e
+    unless acts?.length
+      return logger.debug 'No acts found'
+    async.each acts, (act, done) ->
+      ComLaw.downloadActHTML act.ComlawId, (e, newFile) =>
+        act.masterFile = newFile
+        done()
+    , (e) ->
+      throw e if e
+      logger.info 'Successfully finished downloading act series and files'
+      logger.info acts
+      makeGitRepoFromActs acts.reverse(), ->
+        logger.info 'Finished!'
 
 getAmendmentLinks = ->
 
@@ -123,3 +136,6 @@ getAmendmentLinks = ->
     console.log page.getData().acts
 
 #getAmendmentLinks()
+#main()
+#makeGitRepoFromActs fixtures
+scrapeBillHtml()

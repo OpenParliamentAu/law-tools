@@ -8,7 +8,7 @@ async = require 'async'
 fs = require 'fs'
 path = require 'path'
 
-{BasePage} = require './basePage'
+{BasePage} = require '../lib/basePage'
 
 class @BillPage extends BasePage
 
@@ -18,10 +18,9 @@ class @BillPage extends BasePage
 
   scraper: (done) =>
     $ = @$
-    _.extend @data, @scrapeMetadata $
-    @data.files = {}
-    _.extend @data.files, @scrapeDownloadLinks $
-    # Download bill's files to `./downloads` directory.
+    @mergeData meta: @scrapeMetadata()
+    @margeData files: @scrapeDownloadLinks()
+
     formattedSystemId = BillPage.formatSystemId @data['System Id'] + '.docx'
     dest = path.join './downloads/docx/', formattedSystemId
     @data.files.downloadedWordFile = dest
@@ -29,7 +28,8 @@ class @BillPage extends BasePage
     @downloadFile dest, downloadLink, =>
       @convertFileToText dest, done
 
-  scrapeMetadata: ($) =>
+  scrapeMetadata: =>
+    $ = @$
     pairs = $('.metadata .metaPadding > div')
     obj = {}
     pairs.each (i, el) ->
@@ -38,7 +38,8 @@ class @BillPage extends BasePage
       obj[key] = val
     obj
 
-  scrapeDownloadLinks: ($) =>
+  scrapeDownloadLinks: =>
+    $ = @$
     obj = {}
     $('#content > .box a').each (i, el) ->
       key = $(el).text()
