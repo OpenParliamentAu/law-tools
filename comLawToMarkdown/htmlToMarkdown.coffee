@@ -281,7 +281,6 @@ class Converter
             padding = ''; padding += spaceChar for x in [1..v.padding]
             $el.prepend padding
 
-    # TODO: Some of this may apply to other tags.
     $('i').each ->
 
       # Any <i> tag's text should all be on same line
@@ -334,7 +333,6 @@ class Converter
 
     $('table i').each ->
       $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
-
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
