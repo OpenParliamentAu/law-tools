@@ -1,3 +1,7 @@
+## Usage
+
+Run `nodemon htmlToMarkdown.coffee`
+
 ### Get list of styles from Word Document
 
 Enable Developer ribbon in Microsoft Word.
@@ -14,6 +18,8 @@ For Each s In ActiveDocument.Styles
     End If
 Next
 ```
+
+You might need to show the Immediate window to get the output.
 
 ### Convert styles into CoffeeScript hash for mapping purposes.
 

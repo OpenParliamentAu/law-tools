@@ -93,7 +93,7 @@ class CustomFilters
     terms = $(@).find('b > i')
     el = this
     terms.each ->
-      slug = getSlugFromTerm @text()
+      slug = util.getSlugFromTerm @text()
       $(el).prepend "<a name='#{slug}'></a>"
       # NOTE: If we prepend to the <i> tag it gets removed by something so we
       # don't use the line below:
@@ -116,7 +116,7 @@ class Converter
 
   preprocessHTML: =>
     # convert nbsp; to space
-    @html = convertNonBreakingSpaceToEnSpace @html
+    @html = util.convertNonBreakingSpaceToEnSpace @html
 
   postprocessHTML: (html) =>
 
@@ -161,10 +161,10 @@ class Converter
     # PRE-PROCESSING
     # ---
     # Before we start modifying the DOM we extract info from it.
-    definitions = extractDefinitions $
+    definitions = util.extractDefinitions $
 
     # make all urls absolute
-    convertRelativeUrlsToAbsolute $, @opts.url
+    util.convertRelativeUrlsToAbsolute $, @opts.url
 
     # change tags to markdown-safe tags
     # v - new tag information
@@ -190,7 +190,7 @@ class Converter
 
           # Change tag names.
           unless (not v.tag?) or (v.tag is '')
-            $el = replaceTagName $, $el, v.tag
+            $el = util.replaceTagName $, $el, v.tag
 
           # Pad contents with tabs.
           # TODO: Not sure about this.
@@ -222,12 +222,12 @@ class Converter
       ensureSpaceBeforeOrAfterItalicTag = (dir, node) ->
         nextNode = node[dir]
         if dir is 'prev'
-          nextNode = findPreviousNonEmptyElement $, dir, node
+          nextNode = util.findPreviousNonEmptyElement $, dir, node
         if nextNode?.type is 'text'
           pos = if dir is 'next' then 0 else nextNode.data.length - 1
           nextChar = nextNode.data.charAt pos
 
-          unless isAlphanumeric nextChar
+          unless util.isAlphanumeric nextChar
             if nextChar isnt ' '
               if dir is 'next'
                 nextNode.data = ' ' + nextNode.data
@@ -282,7 +282,7 @@ class Converter
           # When we find an occurence we find the original unstemmed version
           # by matching the position of the word in our stemmed doc and our
           # original doc.
-          start = getArrayPositionOfStemFromIndex(stemmedDocArray, result.index)
+          start = util.getArrayPositionOfStemFromIndex(stemmedDocArray, result.index)
           end = start + wordsInDefinition
           stemmedDefinition = stemmedDocArray.slice start, end
           unstemmedDefinition = originalDocArray.slice start, end
@@ -318,18 +318,6 @@ class Converter
     md = @convertToMarkdown html
     done null, md
 
-getArrayPositionOfStemFromIndex = (stemmedDocArray, index) ->
-  # Go through all elements of array letter by letter until we have
-  # counted up to the index. Then return position.
-  charCount = 0
-  wordPosition = null
-  for word, i in stemmedDocArray
-    if charCount is index
-      wordPosition = i
-      break
-    else
-      charCount += word.length + 1 # + 1 is because of spaces
-  return wordPosition
 
 html = fs.readFileSync getFile(_2012)
 mappings = require './styles/styles-2012'
