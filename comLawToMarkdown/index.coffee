@@ -30,89 +30,7 @@ test = './out'
 getFile = (file) ->
   path.resolve path.join root, file + '.html'
 
-String::removeLineBreaks = ->
-  @replace /\r?\n|\r/g, ' '
-
-String::replaceLineBreaks = ->
-  @replace /\r?\n|\r/g, ' '
-
-isAlphanumeric = (str) ->
-  not str.match /^[a-z0-9]+$/i
-
-# In the case of:
-#
-#     A<b><i>B</i></b> C
-#
-# When node is <i>B</i> (tag)
-# node.prev is <b> (tag)
-# node.next is C (text node)
-#
-# So when we want to find A, we must recurse up until the first non-empty tag.
-findPreviousNonEmptyElement = ($, dir, node) ->
-  prev = null
-  curr = node
-  el = null
-  until el? or not curr?
-    prev = curr
-    curr = $(curr).parent()[0]
-    if curr.prev?.data?.length > 0
-      # Found previous element.
-      el = curr.prev
-    if curr.type is 'root'
-      # Not found.
-      curr = null
-  return el
-
-replaceTagName = ($, $el, tagName) ->
-  newEl = $("<#{tagName}></#{tagName}>")
-  _.each $el.attribs, (index) ->
-    $(newEl).attr $el.attribs[index].name, $el.attribs[index].value
-  newEl.html $el.html()
-  $el.after(newEl).remove()
-
-  # Post-processing.
-  $newEl = $(newEl)
-
-  # Headings and paragraphs only contain text on a single line.
-  if tagName.toString().match(/p/)?
-    $newEl.text $newEl.text().removeLineBreaks()
-
-  $newEl
-
-convertNonBreakingSpaceToEnSpace = (str) ->
-  str.replace /&nbsp;/g, '\u2002'
-
-convertRelativeUrlsToAbsolute = ($, rootUrl) ->
-  #$('a').each (i, value) ->
-  #  $(@).attr 'href', url.resolve rootUrl, value
-  $('img').each (i, img) ->
-    $(@).attr 'src', "#{rootUrl}/#{$(img).attr('src')}"
-
-# Create a mapping of definitions to their stubs.
-# We use this map to search our stemmed legislation for usages of definitions to linkify.
-extractDefinitions = ($) ->
-  defs = {}
-  # Extract data before manipulating html.
-  $('.Definition').each ->
-    # Optionally add anchor tags to each term being defined.
-    terms = $(@).find('b > i')
-    el = this
-    terms.each ->
-      stemmedText = getStemFromTerm @text()
-      defs[stemmedText] = getSlugFromTerm @text()
-  defs
-
-getStemFromTerm = (text) ->
-  # Stem all words.
-  _text = text.trim().toLowerCase()
-  stemmedArray = natural.PorterStemmer.tokenizeAndStem(_text)
-  stemmedText = stemmedArray.join ' '
-  stemmedText
-
-getSlugFromTerm = (text) ->
-  stemmedText = getStemFromTerm text
-  slug = stemmedText.replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
-  slug
+util = require './util'
 
 # @method #filter ($, opts)
 #   When defining a custom filter for processing an HTML element this is the
@@ -414,7 +332,7 @@ getArrayPositionOfStemFromIndex = (stemmedDocArray, index) ->
   return wordPosition
 
 html = fs.readFileSync getFile(_2012)
-mappings = require './styles-2012'
+mappings = require './styles/styles-2012'
 fileMappings =
   '1-info': ['.Section1']
   '2-contents': ['.Section2']
