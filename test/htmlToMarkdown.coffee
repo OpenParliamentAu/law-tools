@@ -126,8 +126,10 @@ class CustomFilters
   @tableOfAmend: ($) ->
     # Remove dots after section numbers.
     # These elements are in a table so dots are not neccessary.
+    # .TableOfAmend also includes spans with inline styles. We must be careful
+    # to only remove multiple dots or it will mess up the styles.
     html = $(@).html()
-    html = html.replace /(\.)/g, ''
+    html = html.replace /(\.){2,}/g, ''
     $(@).html html
 
   @trim: ($) ->
@@ -165,15 +167,19 @@ class CustomFilters
     # Remove toc anchor tags from headings.
     anchor = $(@).find('a')?[0]
     if anchor?
+      # Replace element with its inner html.
       $(anchor).replaceWith $(anchor).html()
 
+  # Optionally add anchor tags to each term being defined.
   @definition: ($) ->
-    # Optionally add anchor tags to each term being defined.
     terms = $(@).find('b > i')
     el = this
     terms.each ->
       slug = getSlugFromTerm @text()
-      $(@).prepend "<a id='#{slug}'></a>"
+      $(el).prepend "<a name='#{slug}'></a>"
+      # NOTE: If we prepend to the <i> tag it gets removed by something so we
+      # don't use the line below:
+      #$(@).prepend "<a name='#{slug}'></a>"
 
 class Converter
 
@@ -302,9 +308,10 @@ class Converter
         if nextNode?.type is 'text'
           pos = if dir is 'next' then 0 else nextNode.data.length - 1
           nextChar = nextNode.data.charAt pos
+
           unless isAlphanumeric nextChar
             if nextChar isnt ' '
-              if pos is 'next'
+              if dir is 'next'
                 nextNode.data = ' ' + nextNode.data
               else
                 nextNode.data = nextNode.data + ' '
@@ -318,7 +325,16 @@ class Converter
       if $(@).html().match(/^\s$/)?
         $(@).parent().replaceWith '<hr>'
 
-    html = $.root().html()
+    # to-markdown.js bug - Markdown-permitted tags within a table will get
+    # converted to markdown but the table is inserted as inline html.
+    # We want to make sure the tags stay as html.
+    # HACK: We will change them to inline styles.
+    $('table b').each ->
+      $(@).replaceWith "<span style='font-weight: bold;'>#{$(@).html()}</span>"
+
+    $('table i').each ->
+      $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
+
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
@@ -335,7 +351,7 @@ class Converter
         stemmedDocArray.push natural.PorterStemmer.stem word
       stemmedDocText = stemmedDocArray.join ' '
 
-      definitions = marriag: definitions['marriag'] # DEBUG
+      #definitions = marriag: definitions['marriag'] # DEBUG
       _.each definitions, (slug, stemmed) ->
         # For each stemmed definition, we try and find it in our
         # stemmed document.
@@ -357,13 +373,30 @@ class Converter
 
         # With all unstemmed versions, we can now replace each one with a link.
         _.each unstemmedVersions, (v, def) ->
-          console.log def
-          regex = ///(?:^|\s)(#{def})(?=\s|$)///gi
-          html = html.replace regex, (match) ->
-            "<a href='##{slug}'>#{match}</a>"
+          regex = ///(^|\s)(#{def})(\s|$)///gi
+
+          $('p').each ->
+            html = $(@).html()
+            $(@).html html.replace regex, ($0, $1, $2, $3) ->
+              "#{$1}<a href='##{slug}'>#{$2}</a>#{$3}"
+
+    # Undo anchor tag creation in tables.
+    # This is part of the to-markdown.js bug mentioned earlier.
+    $('table a').each ->
+      $(@).removeAttr 'href'
+
+    # Remove newlines in all headings.
+    $(':header').each ->
+      $(@).html $(@).html().removeLineBreaks()
+      $(@).find 'span'
+
+    # Remove empty <p>, unless it contains an image.
+    $('p.MsoHeader').each ->
+      unless $(@).text().trim().length or $(@).find('img').length
+        $(@).remove()
 
     # Escape square brackets.
-    html = html.replace /\[/g, '\\['
+    html = $.root().html().replace /\[/g, '\\['
 
     md = @convertToMarkdown html
     done null, md
@@ -374,7 +407,7 @@ getArrayPositionOfStemFromIndex = (stemmedDocArray, index) ->
   charCount = 0
   wordPosition = null
   for word, i in stemmedDocArray
-    if charCount >= index
+    if charCount is index
       wordPosition = i
       break
     else
@@ -392,7 +425,7 @@ fileMappings =
 converter = new Converter html.toString(),
   cheerio: true
   url: "http://www.comlaw.gov.au/Details/#{_2012}/Html"
-  disableFilters: ['definition']
+  #disableFilters: ['definition']
   mappings: mappings
   fileMappings: fileMappings
   outputSplit: true

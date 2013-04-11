@@ -30,16 +30,16 @@ module.exports =
   'CharAmSchNo': {tag: ''} 
   'CharAmSchText': {tag: ''} 
   'CharBoldItalic': {tag: ''} 
-  'CharChapNo': {tag: null}
-  'CharChapText': {tag: null}
-  'CharDivNo': {tag: null}
-  'CharDivText': {tag: null}
+  'CharChapNo': {tag: ''}
+  'CharChapText': {tag: ''}
+  'CharDivNo': {tag: ''}
+  'CharDivText': {tag: ''}
   'CharENotesHeading': {tag: ''} 
   'CharItalic': {tag: ''} 
   'CharNotesItals': {tag: 'em'}
   'CharNotesReg': {tag: ''}
-  'CharPartNo': {tag: null}
-  'CharPartText': {tag: null}
+  'CharPartNo': {tag: ''}
+  'CharPartText': {tag: ''}
   'CharSectno': {tag: '', filters: ['anchorSection']}
   'CharSubdNo': {tag: ''} 
   'CharSubdText': {tag: ''} 
@@ -61,7 +61,7 @@ module.exports =
   'CTA 4(a)(i)': {tag: ''} 
   'CTA CAPS': {tag: ''} 
   'CTA right': {tag: ''}
-  'Definition': {tag: '', filters: ['definition'], padding: '20'}
+  'Definition': {tag: '', filters: ['definition'], padding: 20}
   'EndNote': {tag: ''} 
   'ENoteNo': {tag: 'h3'}
   'ETA(para)': {tag: ''} 
@@ -88,8 +88,7 @@ module.exports =
   'paragraph(sub-sub),aaa': {tag: ''} 
   'paragraph,a': {tag: ''} 
   'ParlAmend,pp': {tag: ''}
-  # Not sure about this one.
-  'Penalty': {tag: 'blockquote'}
+  'Penalty': {tag: '', padding: 20}
   'Portfolio': {tag: ''} 
   'Preamble': {tag: ''} 
   'Reading': {tag: ''} 
