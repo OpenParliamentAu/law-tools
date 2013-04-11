@@ -211,8 +211,9 @@ class Converter
         md += toMarkdown $(@).html()
         md += '\n'
       # Write html too for debug.
-      fs.writeFileSync path.resolve('./test/out/out.html'), html
-      fs.writeFileSync path.resolve('./test/out/out.md'), md
+      dest = path.join @opts.debugOutputDir, 'out'
+      fs.writeFileSync path.resolve(dest + '.html'), html
+      fs.writeFileSync path.resolve(dest + '.md'), md
 
     if @opts.outputSplit
       _.each @opts.fileMappings, (classes, fileName) =>
@@ -222,7 +223,7 @@ class Converter
           if html?
             md += toMarkdown html
             md += '\n'
-        dest = "./test/split/#{fileName}.md"
+        dest = path.join @opts.markdownSplitDest, "#{fileName}.md"
         mkdirp path.dirname dest
         fs.writeFileSync dest, md
 
@@ -429,6 +430,8 @@ converter = new Converter html.toString(),
   outputSplit: true
   outputDebug: true
   linkifyDefinitions: true
+  debugOutputDir: './comLawToMarkdown/out'
+  markdownSplitDest: './comLawToMarkdown/split/'
 
 converter.getHtml (e) ->
   converter.run2 (e, html) ->
