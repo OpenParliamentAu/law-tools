@@ -1,6 +1,4 @@
-# This file is used to test html to markdown conversion.
-# To run:
-#     coffee test/htmlToMarkdown.coffee
+# Microsoft Word HTML to Markdown Converter
 
 # Logging.
 onelog = require 'onelog'
@@ -8,6 +6,7 @@ log4js = require 'log4js'
 onelog.use onelog.Log4js
 logger = onelog.get()
 
+# Vendor.
 path = require 'path'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
@@ -17,89 +16,15 @@ jsdom = require 'jsdom'
 url = require 'url'
 natural = require 'natural'
 
-root = 'downloads/comlaw/html/'
-_2012 = 'C2012C00837'
-_2011 = 'C2011C00192'
-
+# Libs.
 {toMarkdown} = require '../lib/to-markdown'
-
-jquery = ['http://code.jquery.com/jquery.js']
-
-test = './out'
-
-getFile = (file) ->
-  path.resolve path.join root, file + '.html'
-
+{CustomFilters} = require './filters'
 util = require './util'
 
-# @method #filter ($, opts)
-#   When defining a custom filter for processing an HTML element this is the
-#   function signature that you must implement.
-#
-#   @this [Object] the current Cheerio element
-#   @param [Function] $ a Cheerio object
-#   @param [Object] opts the hash from the mappings file for the current element class name. If you need to pass additional options to your filter you should add keys to this hash in the mappings file.
-class CustomFilters
+# Constants.
+jquery = 'http://code.jquery.com/jquery.js'
 
-  @tableOfAmend: ($) ->
-    # Remove dots after section numbers.
-    # These elements are in a table so dots are not neccessary.
-    # .TableOfAmend also includes spans with inline styles. We must be careful
-    # to only remove multiple dots or it will mess up the styles.
-    html = $(@).html()
-    html = html.replace /(\.){2,}/g, ''
-    $(@).html html
-
-  @trim: ($) ->
-    $(@).text $(@).text().trim()
-
-  @toc: ($) ->
-    # Remove page numbering.
-    $(@).find('span').each ->
-      $(@).remove()
-
-    # Replace all dots except first after section numbers with en spaces.
-    html = $(@).html()
-    i = 0
-    html = html.replace /(\.)/g, ->
-      if i++ is 0 then '.' else '\u2002'
-
-    $(@).html html
-
-  # Add links to sections.
-  @tocLinkify: ($) ->
-    regex = /^([\w]*)(?=\.)/g
-    section = $(@).text().match(regex)?[0]
-    linkified = "<a href='##{section}'>#{section}</a>"
-    $(@).html $(@).html().replace regex, linkified
-
-  @anchorSection: ($) ->
-    section = $(@).text()
-    $(@).replaceWith "<a id='#{section}'></a>#{section}"
-
-  @actHead: ($) ->
-    # Remove line breaks.
-    $(@).html $(@).html().removeLineBreaks()
-
-  @actHeadLink: ($) ->
-    # Remove toc anchor tags from headings.
-    anchor = $(@).find('a')?[0]
-    if anchor?
-      # Replace element with its inner html.
-      $(anchor).replaceWith $(anchor).html()
-
-  # Optionally add anchor tags to each term being defined.
-  @definition: ($) ->
-    terms = $(@).find('b > i')
-    el = this
-    terms.each ->
-      slug = util.getSlugFromTerm @text()
-      $(el).prepend "<a name='#{slug}'></a>"
-      # NOTE: If we prepend to the <i> tag it gets removed by something so we
-      # don't use the line below:
-      #$(@).prepend "<a name='#{slug}'></a>"
-
-class Converter
+class @Converter
 
   constructor: (@html, @opts = {}, done) ->
 
@@ -109,7 +34,7 @@ class Converter
       @$ = cheerio.load @html
       done()
     else
-      jsdom.env @html, jquery, (e, window) =>
+      jsdom.env @html, [jquery], (e, window) =>
         return done e if e
         @$ = window.$
         done()
@@ -130,6 +55,7 @@ class Converter
         md += '\n'
       # Write html too for debug.
       dest = path.join @opts.debugOutputDir, 'out'
+      mkdirp.sync path.dirname dest
       fs.writeFileSync path.resolve(dest + '.html'), html
       fs.writeFileSync path.resolve(dest + '.md'), md
 
@@ -142,7 +68,7 @@ class Converter
             md += toMarkdown html
             md += '\n'
         dest = path.join @opts.markdownSplitDest, "#{fileName}.md"
-        mkdirp path.dirname dest
+        mkdirp.sync path.dirname dest
         fs.writeFileSync dest, md
 
   # To wrap an element in two tags in the `styles` map you can write:
@@ -155,7 +81,7 @@ class Converter
   #  for tag in tags
   #    replaceTagName $, el, tag
 
-  run2: (done) =>
+  convert: (done) =>
     $ = @$
 
     # PRE-PROCESSING
@@ -182,7 +108,7 @@ class Converter
           # Run custom filters. Filters are applied in the order they are
           # in the mappings file.
           _.each v.filters, (fname) =>
-            return if _.contains @opts.disableFilters, fname
+            return if _.contains @opts.disabledFilters, fname
             fn = CustomFilters[fname]
             unless fn?
               return done new Error "Filter '#{fname}' not implemented"
@@ -317,29 +243,3 @@ class Converter
 
     md = @convertToMarkdown html
     done null, md
-
-
-html = fs.readFileSync getFile(_2012)
-mappings = require './styles/styles-2012'
-fileMappings =
-  '1-info': ['.Section1']
-  '2-contents': ['.Section2']
-  '3-act': ['.Section3', '.Section4']
-  '4-notes': ['.Section5', '.Section6', '.Section7', '.Section8', '.Section9']
-
-converter = new Converter html.toString(),
-  cheerio: true
-  url: "http://www.comlaw.gov.au/Details/#{_2012}/Html"
-  #disableFilters: ['definition']
-  mappings: mappings
-  fileMappings: fileMappings
-  outputSplit: true
-  outputDebug: true
-  linkifyDefinitions: true
-  debugOutputDir: './comLawToMarkdown/out'
-  markdownSplitDest: './comLawToMarkdown/split/'
-
-converter.getHtml (e) ->
-  converter.run2 (e, html) ->
-    throw e if e
-    #console.log html
