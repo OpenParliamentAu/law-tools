@@ -1,0 +1,134 @@
+ActHead 1,c
+ActHead 2,p
+ActHead 3,d
+ActHead 4,sd
+ActHead 5,s
+ActHead 6,as
+ActHead 7,ap
+ActHead 8,ad
+ActHead 9,aat
+Actno
+ActNotes(1)
+ActNotes(1)(a)
+ActNotes(1)(a)(i)
+ActNotes(a)
+AmendTableColHead
+as amended
+as amended ital
+Blocks,bb
+Body Text Index
+BoxHeadBold,bhb
+BoxHeadItalic,bhi
+BoxList,bl
+BoxNote,bn
+BoxPara,bp
+BoxStep,bs
+BoxText,bt
+CharAmPartNo
+CharAmPartText
+CharAmSchNo
+CharAmSchText
+CharBoldItalic
+CharChapNo
+CharChapText
+CharDivNo
+CharDivText
+CharENotesHeading
+CharItalic
+CharNotesItals
+CharNotesReg
+CharPartNo
+CharPartText
+CharSectno
+CharSubdNo
+CharSubdText
+Contents
+CoverActNo
+CT Heading
+CT Note
+CTA -
+CTA --
+CTA ---
+CTA ----
+CTA 1(a)
+CTA 1(a)(i)
+CTA 2(a)
+CTA 2(a)(i)
+CTA 3(a)
+CTA 3(a)(i)
+CTA 4(a)
+CTA 4(a)(i)
+CTA CAPS
+CTA right
+Definition,dd
+EndNote
+ENoteNo
+ETA(para)
+ETA(subitem)
+ETA(subpara)
+ETA(sub-subpara)
+Formula
+header.part.odd
+House
+Item,i
+ItemHead,ih
+LongT
+Mathtype
+note(draft),nd
+note(margin),nm
+note(para),na
+note(ParlAmend),npp
+note(text),n
+NotesSection
+Page1
+PageBreak,pb
+para bullet
+paragraph(sub),aa
+paragraph(sub-sub),aaa
+paragraph,a
+ParlAmend,pp
+Penalty
+Portfolio
+Preamble
+Reading
+ReprintDate
+ScalePlusRef
+SectHead
+Session
+ShortT
+Special ih
+Sponsor
+Subitem,iss
+SubitemHead,issh
+subsection,ss
+subsection2,ss2
+SubsectionHead,ssh
+superscriptstyle
+Table(a),ta
+Table(AA),taaa
+Table(i),taa
+TableA
+TableAHead
+TableAHeadItal
+TableColHead
+TableENotesHeadingAmdt
+TableOfActs(1)
+TableOfActs(2)
+TableOfActsHead
+TableOfAmend
+TableOfAmend0pt
+TableOfAmendHead
+TableOfAmendOpt
+Tabletext,tt
+TLPBoxText(note,right)
+TLPLink
+TLPNote(bullet)
+TLPnote(right),nr
+TLPTableBullet,ttb
+TOAmRenumbered
+TofSects(GroupHeading)
+TofSects(Heading)
+TofSects(Section)
+TofSects(Subdiv)
+UpdateDate
+

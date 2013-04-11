@@ -19,8 +19,8 @@ class @ActPage extends BasePage
     $ = @$
 
     # Check for inline act HTML.
-    id = '#RAD_SPLITTER_PANE_CONTENT_ctl00_MainContent_ctl05_RadPane2'
-    htmlEl = $(id)
+    sel = '#RAD_SPLITTER_PANE_CONTENT_ctl00_MainContent_ctl05_RadPane2 > div > div'
+    htmlEl = $(sel)
     if $(htmlEl).length
       html = $(htmlEl).html()
       dest = path.join @opts.downloadRootDest, 'html', @opts.billId + '.html'

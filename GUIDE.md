@@ -10,3 +10,14 @@ ComLaw
 
 
 AustLii
+
+
+## Drafting
+
+All the drafting templates are available here:
+
+http://www.opc.gov.au/about/word_notes.htm
+
+### Amendements
+
+http://www.opc.gov.au/about/docs/AmendingFormsManual.pdf
