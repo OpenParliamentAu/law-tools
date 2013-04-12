@@ -3,6 +3,10 @@ _ = require 'underscore'
 
 root = exports
 
+emSpace = '\u2003' # &emsp;
+enSpace = '\u2002' # &ensp;
+@nonBreakingSpace = enSpace
+
 String::removeLineBreaks = ->
   @replace /\r?\n|\r/g, ' '
 
@@ -46,14 +50,14 @@ String::replaceLineBreaks = ->
   # Post-processing.
   $newEl = $(newEl)
 
-  # Headings and paragraphs only contain text on a single line.
+  # Paragraphs only contain text on a single line.
   if tagName.toString().match(/p/)?
     $newEl.text $newEl.text().removeLineBreaks()
 
   $newEl
 
 @convertNonBreakingSpaceToEnSpace = (str) ->
-  str.replace /&nbsp;/g, '\u2002'
+  str.replace /&nbsp;/g, root.nonBreakingSpace
 
 @convertRelativeUrlsToAbsolute = ($, rootUrl) ->
   #$('a').each (i, value) ->

@@ -4,8 +4,11 @@
 onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js
+
 logger = onelog.get()
-logger.setLevel 'trace'
+defLogger = onelog.get 'definitions'
+logger.setLevel 'debug'
+#logger.setLevel 'trace'
 
 # Vendor.
 path = require 'path'
@@ -28,51 +31,71 @@ jquery = 'http://code.jquery.com/jquery.js'
 class @Converter
 
   constructor: (@html, @opts = {}) ->
+    _.defaults @opts,
+      root: null
+      convertEachRootTagSeparately: true
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
     if @opts.cheerio
       @$ = cheerio.load @html
+      if @opts.root?
+        @html = @$(@opts.root).html()
+        @$ = cheerio.load @html
       done()
+
     else
+      # TODO: Support @opts.root command.
       jsdom.env @html, [jquery], (e, window) =>
         return done e if e
         @$ = window.$
         done()
 
   preprocessHTML: =>
-    # convert nbsp; to space
     @html = util.convertNonBreakingSpaceToEnSpace @html
+    # Cleanup replacement char from `charset=windows-1252`.
+    @html = @html.replace /�/g, util.nonBreakingSpace
+    # Replace long dash with normal dash.
+    @html = @html.replace /&#8212;/g, ' - '
+    # Replace html dash with normal dash.
+    @html = @html.replace /&#8209;/g, '-'
+    @html
 
   postprocessHTML: (html) =>
 
   convertToMarkdown: (html) =>
     $ = cheerio.load html
 
+    if @opts.outputSplit
+      _.each @opts.fileMappings, (classes, fileName) =>
+        md = ''
+        _.each (classes), (clazz) =>
+          _html = $(clazz).html()
+          if _html?
+            md += toMarkdown _html
+            md += '\n'
+        dest = path.join @opts.markdownSplitDest, "#{fileName}.md"
+        mkdirp.sync path.dirname dest
+        fs.writeFileSync dest, md
+        logger.debug 'Wrote split md file', dest
+
+    # During testing we return the entire md file.
     if @opts.outputDebug
       md = ''
-      $.root().children().each ->
-        md += toMarkdown $(@).html()
-        md += '\n'
+      if @opts.convertEachRootTagSeparately
+        $.root().children().each ->
+          md += toMarkdown $(@).html()
+          md += '\n'
+      else
+        md += toMarkdown $.root().html()
       # Write html too for debug.
       dest = path.join @opts.debugOutputDir, 'out'
       mkdirp.sync path.dirname dest
       fs.writeFileSync path.resolve(dest + '.html'), html
       fs.writeFileSync path.resolve(dest + '.md'), md
       logger.debug 'Wrote a single md and html file', dest
+      return md
 
-    if @opts.outputSplit
-      _.each @opts.fileMappings, (classes, fileName) =>
-        md = ''
-        _.each (classes), (clazz) =>
-          html = $(clazz).html()
-          if html?
-            md += toMarkdown html
-            md += '\n'
-        dest = path.join @opts.markdownSplitDest, "#{fileName}.md"
-        mkdirp.sync path.dirname dest
-        fs.writeFileSync dest, md
-        logger.debug 'Wrote split md file', dest
 
   # To wrap an element in two tags in the `styles` map you can write:
   #
@@ -130,8 +153,7 @@ class @Converter
           # Pad contents with tabs.
           # TODO: Not sure about this.
           unless (not v.padding?)
-            #spaceChar = '\u2003' # &emsp;
-            spaceChar = '\u2002' # &ensp;
+            spaceChar = util.nonBreakingSpace
             padding = ''; padding += spaceChar for x in [1..v.padding]
             $el.prepend padding
 
@@ -177,7 +199,8 @@ class @Converter
     # Finding them is tricky!
     $('.MsoNormal').each ->
       if $(@).html().match(/^\s$/)?
-        $(@).parent().replaceWith '<hr>'
+        if $(@).parent?.type is 'root'
+          $(@).parent().replaceWith '<hr>'
 
     # to-markdown.js bug - Markdown-permitted tags within a table will get
     # converted to markdown but the table is inserted as inline html.
@@ -209,8 +232,8 @@ class @Converter
       _.each definitions, (slug, stemmed) ->
         return unless stemmed.length
         logStr = "  Linked definition: #{stemmed}"
-        logger.trace "  Linking: ", stemmed, slug
-        console.time logStr
+        defLogger.trace "Linking: ", stemmed, slug
+        defLogger.startTimer logStr
         # For each stemmed definition, we try and find it in our
         # stemmed document.
         regex = ///#{stemmed}///gi
@@ -230,7 +253,7 @@ class @Converter
           unstemmedVersions[unstemmedDefinition.join(' ')] = true
 
         # With all unstemmed versions, we can now replace each one with a link.
-        console.time '  Replace phase'
+        defLogger.startTimer '  Replace phase'
         _.each unstemmedVersions, (v, def) ->
           replaceFn = (html) ->
             regex = ///(^|\s)(#{def})(\s|$)///gi
@@ -243,11 +266,10 @@ class @Converter
           # Don't use cheerio (faster).
           #html = replaceFn $.root().html()
           #$ = cheerio.load html
-        console.timeEnd '  Replace phase'
+        defLogger.stopTimer 'TRACE', '  Replace phase'
 
-        console.timeEnd logStr
-
-      logger.trace 'Finished linkifying all definitions'
+        defLogger.stopTimer 'TRACE', logStr
+      defLogger.trace 'Finished linkifying all definitions'
 
     # Undo anchor tag creation in tables.
     # This is part of the to-markdown.js bug mentioned earlier.
@@ -257,16 +279,20 @@ class @Converter
     # Remove newlines in all headings.
     $(':header').each ->
       $(@).html $(@).html().removeLineBreaks()
-      $(@).find 'span'
 
     # Remove empty <p>, unless it contains an image.
     $('p.MsoHeader').each ->
       unless $(@).text().trim().length or $(@).find('img').length
         $(@).remove()
 
+    html = $.root().html()
+
     # Escape square brackets.
-    html = $.root().html().replace /\[/g, '\\['
+    # Unless they are immediately followed by a opening tag.
+    # TODO: This could be made a bit more robust.
+    html = html.replace /\[(?!\<)/g, '\\['
 
     logger.trace 'Converting to Markdown'
     md = @convertToMarkdown html
+
     done null, md

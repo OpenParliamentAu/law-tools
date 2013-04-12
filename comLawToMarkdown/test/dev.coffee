@@ -20,9 +20,12 @@ opts =
   outputSplit: true
   outputDebug: true
   linkifyDefinitions: false
-  debugOutputDir: helpers.curdir 'tmp/singleFile'
-  markdownSplitDest: helpers.curdir 'tmp/multipleFiles/'
+  debugOutputDir: path.join __dirname, 'tmp/singleFile'
+  markdownSplitDest: path.join __dirname, 'tmp/multipleFiles/'
   #disabledFilters: ['definition']
+
+  # Use this when you have multiple sections in the document.
+  convertEachRootTagSeparately: true
 
 # TODO: Change this to environment var or something.
 fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
@@ -30,20 +33,24 @@ fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
 # All paths in this hash are joined with the fixtures dir.
 fixtures =
   marriageAct:
-    htmlFile: 'aged-care-act-1997/C2012C00914.osxword.htm'
+    htmlFile: 'marriage-act-1961/C2012C00837.html'
     fileMappings: 'marriage-act-1961/2012-files.coffee'
     styleMappings: 'marriage-act-1961/2012-styles.coffee'
     opts: {}
-  marriageAct:
+  agedCareAct:
     htmlFile: 'aged-care-act-1997/C2012C00914.osxword.htm'
     fileMappings: 'aged-care-act-1997/2012-files.coffee'
     styleMappings: 'aged-care-act-1997/2012-styles.coffee'
-    opts: {}
+    # DEBUG: Change the root to restrict how much markdown is generated.
+    opts:
+      root: '.WordSection3'
+      convertEachRootTagSeparately: false
 
 main = (done) ->
 
   # DEBUG: Choose which act you want to convert.
   act = fixtures.marriageAct
+  #act = fixtures.agedCareAct
 
   _.extend opts, act.opts
   htmlFilePath = path.join fixturesDir, act.htmlFile

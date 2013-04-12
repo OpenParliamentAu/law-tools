@@ -3,49 +3,72 @@ path = require 'path'
 fs = require 'fs'
 chai = require 'chai'
 chai.should()
+_ = require 'underscore'
 
 # Libs.
 {Converter} = require '../index.coffee'
-mappings = require './fixtures/styles/styles-2012'
-helpers = require './helpers'
 
-# Setup.
-fileMappings =
-  '1-info': ['.Section1']
-  '2-contents': ['.Section2']
-  '3-act': ['.Section3', '.Section4']
-  '4-notes': ['.Section5', '.Section6', '.Section7', '.Section8', '.Section9']
-
-_2012 = 'C2012C00837'
+# Logging config.
+onelog = require 'onelog'
+onelog.getLibrary().setGlobalLogLevel 'WARN'
 
 opts =
   cheerio: true
-  fileName: _2012
-  url: "http://www.comlaw.gov.au/Details/#{_2012}/Html"
-  #disabledFilters: ['definition']
-  mappings: mappings
-  fileMappings: fileMappings
   outputSplit: true
   outputDebug: true
-  linkifyDefinitions: true
-  debugOutputDir: helpers.curdir 'tmp/singleFile'
-  markdownSplitDest: helpers.curdir 'tmp/multipleFiles/'
+  linkifyDefinitions: false
+  debugOutputDir: path.join __dirname, 'out/singleFile'
+  markdownSplitDest: path.join __dirname, 'out/multipleFiles/'
+  #disabledFilters: ['definition']
 
-describe 'Microsoft Word HTML to Markdown Converter', ->
+# TODO: Change this to environment var or something.
+fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
 
-  beforeEach (done) ->
-    @html = fs.readFileSync helpers.getFixture(_2012)
-    @converter = new Converter @html.toString(), opts
-    @converter.getHtml (e) =>
-      return done e if e
-      done()
+# All paths in this hash are joined with the fixtures dir.
+fixtures =
+  marriageAct:
+    htmlFile: 'marriage-act-1961/C2012C00837.html'
+    fileMappings: 'marriage-act-1961/2012-files.coffee'
+    styleMappings: 'marriage-act-1961/2012-styles.coffee'
+    opts: {}
+  agedCareAct:
+    htmlFile: 'aged-care-act-1997/C2012C00914.osxword.htm'
+    fileMappings: 'aged-care-act-1997/2012-files.coffee'
+    styleMappings: 'aged-care-act-1997/2012-styles.coffee'
+    opts: {}
 
-  it 'should run without errors', (done) ->
-    @converter.convert (e, html) ->
-      return done e if e
-      done()
+# DEBUG: Choose which act you want to convert.
+act = fixtures.marriageAct
+#act = fixtures.agedCareAct
 
-  it 'should convert C2012C00837', (done) ->
-    @converter.convert (e, html) ->
-      return done e if e
-      done()
+describe 'The converter', ->
+
+  describe 'should not introduce regressions', ->
+
+    before (done) ->
+      _.extend opts, act.opts
+      htmlFilePath = path.join fixturesDir, act.htmlFile
+      htmlBaseName = path.basename htmlFilePath, '.html'
+      htmlFileNameWithExt = path.basename htmlFilePath
+      fileMappings = require path.join fixturesDir, act.fileMappings
+      styleMappings = require path.join fixturesDir, act.styleMappings
+
+      @html = fs.readFileSync htmlFilePath
+      @converter = new Converter @html.toString(), _.extend opts,
+        fileName: htmlFileNameWithExt
+        url: "http://www.comlaw.gov.au/Details/#{htmlBaseName}/Html"
+        fileMappings: fileMappings
+        mappings: styleMappings
+      @converter.getHtml (e) =>
+        return done e if e
+        done()
+
+    it 'when converting C2012C00837.html', (done) ->
+      @converter.convert (e, md) ->
+        return done e if e
+        expected = fs.readFileSync path.join(fixturesDir, 'marriage-act-1961/C2012C00837.md'), 'utf8'
+        #console.log md.slice 0, 100
+        #console.log '---------'
+        #console.log expected.slice 0, 100
+        md.should.equal expected
+        done()
