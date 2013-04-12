@@ -14,11 +14,10 @@ _ = require 'underscore'
 opts = defaultOpts
 
 # DEBUG: Choose which act you want to convert.
-act = fixtures.marriageAct
-#act = fixtures.agedCareAct
+#act = fixtures.marriageAct
+act = fixtures.agedCareAct
 
 main = (done) ->
-  act = fixtures.marriageAct
   _.extend opts, act.opts
   file = getFileInfo act
   _.extend opts, fileMappings: file.fileMappings

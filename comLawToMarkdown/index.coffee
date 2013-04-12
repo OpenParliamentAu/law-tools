@@ -5,10 +5,10 @@ onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js
 
-logger = onelog.get()
+logger = onelog.get 'converter'
 defLogger = onelog.get 'definitions'
-logger.setLevel 'debug'
-#logger.setLevel 'trace'
+logger.setLevel 'DEBUG'
+defLogger.setLevel 'WARN'
 
 # Vendor.
 path = require 'path'
@@ -187,10 +187,10 @@ class @Converter
       #
       #     The _Marriage Act 1961_as shown
       #
-      ensureSpaceBeforeOrAfterItalicTag = (dir, node) ->
-        nextNode = node[dir]
-        if dir is 'prev'
-          nextNode = util.findPreviousNonEmptyElement $, dir, node
+      ensureSpaceBeforeOrAfterTag = (dir, node, $el) ->
+        #nextNode = node[dir]
+        nextNode = util.findPrevOrNextNonEmptyElement $, dir, node
+
         if nextNode?.type is 'text'
           pos = if dir is 'next' then 0 else nextNode.data.length - 1
           nextChar = nextNode.data.charAt pos
@@ -202,8 +202,8 @@ class @Converter
               else
                 nextNode.data = nextNode.data + ' '
 
-      ensureSpaceBeforeOrAfterItalicTag 'next', @[0]
-      ensureSpaceBeforeOrAfterItalicTag 'prev', @[0]
+      ensureSpaceBeforeOrAfterTag 'next', @[0], @
+      ensureSpaceBeforeOrAfterTag 'prev', @[0], @
 
     # Replace Microsoft Word horizontal lines.
     # Finding them is tricky!
@@ -221,6 +221,18 @@ class @Converter
 
     $('table i').each ->
       $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
+
+    # Process asterisks.
+    # Before processing definitions we must remove asterisks.
+    # Asterisks are placed before words which have been defined.
+    # TODO: Possible data loss - revisit.
+    #   We are removing asterisks and relying on our own linkifying
+    #   We are possibly losing information here. This should be revisited at
+    #   some point.
+    #   However, there is no way of telling how long the definition is from
+    #   the asterisk, so our linkifying may be the only solution.
+    $('span:contains(*)').each ->
+      $(@).remove()
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
@@ -276,9 +288,9 @@ class @Converter
           # Don't use cheerio (faster).
           #html = replaceFn $.root().html()
           #$ = cheerio.load html
-        defLogger.stopTimer 'TRACE', '  Replace phase'
+        defLogger.stopTimer 'trace', '  Replace phase'
 
-        defLogger.stopTimer 'TRACE', logStr
+        defLogger.stopTimer 'trace', logStr
       defLogger.trace 'Finished linkifying all definitions'
 
     # Undo anchor tag creation in tables.
@@ -295,12 +307,28 @@ class @Converter
       unless $(@).text().trim().length or $(@).find('img').length
         $(@).remove()
 
+    # Unwrap elements.
+    $('span').each ->
+      # Unless surrounded by a table.
+      unless util.closest $, @, 'table'
+        $(@).replaceWith $(@).html()
+
+    $('p').each ->
+      $(@).replaceWith $(@).html().removeLineBreaks()
+
+    $('em').each -> $(@).html $(@).html().removeLineBreaks()
+
+    # ---
+
     html = $.root().html()
 
     # Escape square brackets.
     # Unless they are immediately followed by a opening tag.
     # TODO: This could be made a bit more robust.
     html = html.replace /\[(?!\<)/g, '\\['
+
+    html = html.replace /&#8194;/g, util.nonBreakingSpace
+    html = html.replace /&#10;/g, util.nonBreakingSpace
 
     logger.trace 'Converting to Markdown'
     md = @convertToMarkdown html

@@ -28,6 +28,8 @@ describe 'The converter', ->
       @converter = new Converter @html.toString(), _.extend opts,
         fileName: file.name
         url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
+        outputSplit: false
+        debugOutputDir: path.join __dirname, 'out/singleFile'
       @converter.getHtml (e) =>
         return done e if e
         done()

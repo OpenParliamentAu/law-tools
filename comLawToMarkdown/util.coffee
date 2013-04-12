@@ -25,20 +25,43 @@ String::replaceLineBreaks = ->
 # node.next is C (text node)
 #
 # So when we want to find A, we must recurse up until the first non-empty tag.
-@findPreviousNonEmptyElement = ($, dir, node) ->
+# @param [string] stopAtTag stop looking when we come across this tag.
+@findPrevOrNextNonEmptyElement = ($, dir, node, stopAtTag = 'p') ->
   prev = null
   curr = node
   el = null
   until el? or not curr?
     prev = curr
     curr = $(curr).parent()[0]
-    if curr.prev?.data?.length > 0
+    if curr[dir]?.data?.length > 0
       # Found previous element.
-      el = curr.prev
-    if curr.type is 'root'
+      el = curr[dir]
+    if curr.type is 'root' or curr.name is stopAtTag
       # Not found.
       curr = null
   return el
+
+@closest = ($, node, tagName) ->
+  curr = node
+  while curr?
+    curr = $(curr).parent()[0]
+    if curr.type is 'root'
+      curr = null
+    else if curr.name is tagName
+      return curr
+  return null
+
+# Return array of element's parents.
+@parents = ($, node) ->
+  curr = node
+  parents = []
+  while curr?
+    curr = $(curr).parent()[0]
+    if curr.type is 'root'
+      curr = null
+    else
+      parents.push curr
+  return parents
 
 @replaceTagName = ($, $el, tagName) ->
   newEl = $("<#{tagName}></#{tagName}>")
@@ -51,8 +74,8 @@ String::replaceLineBreaks = ->
   $newEl = $(newEl)
 
   # Paragraphs only contain text on a single line.
-  if tagName.toString().match(/p/)?
-    $newEl.text $newEl.text().removeLineBreaks()
+  #if tagName.toString().match(/p/)?
+  #  $newEl.text $newEl.text().removeLineBreaks()
 
   $newEl
 

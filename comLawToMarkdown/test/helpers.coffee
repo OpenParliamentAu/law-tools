@@ -19,7 +19,7 @@ root = @
     styleMappings: 'aged-care-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
-      root: '.WordSection3'
+      root: '.WordSection4'
       convertEachRootTagSeparately: false
 
   incomeTaxAssessmentAct1997:
@@ -38,7 +38,7 @@ root = @
   fs.readdirSync path.join fixturesDir, actSlug
 
 @defaultOpts =
-  linkifyDefinitions: false
+  linkifyDefinitions: true
   debugOutputDir: path.join __dirname, 'tmp/singleFile'
   markdownSplitDest: path.join __dirname, 'tmp/multipleFiles/'
   #disabledFilters: ['definition']
