@@ -143,18 +143,26 @@ class @Converter
         $el = $(el)
         if $el.length
 
+          runFilters = (filters) =>
+            # Filters are applied in the order they are in the mappings file.
+            _.each filters, (fname) =>
+              return if _.contains @opts.disabledFilters, fname
+              fn = CustomFilters[fname]
+              unless fn?
+                return done new Error "Filter '#{fname}' not implemented"
+              fn.apply $el, [$, v]
+
+          # Only process tableFilters if we are inside a table.
+          if util.isInsideTable($, el)
+            runFilters v.tableFilters
+            return
+
           # Remove tag and contents.
           if _.isEmpty(v) or not v?.tag?
             $el.remove()
 
-          # Run custom filters. Filters are applied in the order they are
-          # in the mappings file.
-          _.each v.filters, (fname) =>
-            return if _.contains @opts.disabledFilters, fname
-            fn = CustomFilters[fname]
-            unless fn?
-              return done new Error "Filter '#{fname}' not implemented"
-            fn.apply $el, [$, v]
+          # Run custom filters.
+          runFilters v.filters
 
           # Change tag names.
           unless (not v.tag?) or (v.tag is '')
@@ -169,6 +177,8 @@ class @Converter
 
     logger.trace 'Processing <i></i>'
     $('i').each ->
+
+      return if util.isInsideTable($, @)
 
       # Any <i> tag's text should all be on same line
       # NOTE: Consider new lines.
@@ -187,20 +197,27 @@ class @Converter
       #
       #     The _Marriage Act 1961_as shown
       #
+      spaceLog = onelog.get 'ensureSpaceBeforeOrAfterTag'
+      spaceLog.setLevel 'TRACE'
+      spaceLog.suppress()
       ensureSpaceBeforeOrAfterTag = (dir, node, $el) ->
+        log = (msg...) -> spaceLog.trace(msg...) if $(node).text() is 'prima facie'
         #nextNode = node[dir]
         nextNode = util.findPrevOrNextNonEmptyElement $, dir, node
-
+        log nextNode.data
         if nextNode?.type is 'text'
           pos = if dir is 'next' then 0 else nextNode.data.length - 1
           nextChar = nextNode.data.charAt pos
-
+          log nextChar
           unless util.isAlphanumeric nextChar
+            log 'here'
             if nextChar isnt ' '
               if dir is 'next'
                 nextNode.data = ' ' + nextNode.data
               else
                 nextNode.data = nextNode.data + ' '
+        log nextNode.data
+        log '------------'
 
       ensureSpaceBeforeOrAfterTag 'next', @[0], @
       ensureSpaceBeforeOrAfterTag 'prev', @[0], @
@@ -222,6 +239,9 @@ class @Converter
     $('table i').each ->
       $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
 
+    $('table p').each ->
+      newEl = util.replaceTagName $, $(@), 'div'
+
     # Process asterisks.
     # Before processing definitions we must remove asterisks.
     # Asterisks are placed before words which have been defined.
@@ -231,8 +251,10 @@ class @Converter
     #   some point.
     #   However, there is no way of telling how long the definition is from
     #   the asterisk, so our linkifying may be the only solution.
-    $('span:contains(*)').each ->
-      $(@).remove()
+    els = $('span').filter ->
+      if $(@).text() is '*'
+        return true unless util.isInsideTable($, @)
+    els.each -> $(@).remove()
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
@@ -294,7 +316,7 @@ class @Converter
       defLogger.trace 'Finished linkifying all definitions'
 
     # Undo anchor tag creation in tables.
-    # This is part of the to-markdown.js bug mentioned earlier.
+    # BUG: This is part of the to-markdown.js bug mentioned earlier.
     $('table a').each ->
       $(@).removeAttr 'href'
 
@@ -310,13 +332,19 @@ class @Converter
     # Unwrap elements.
     $('span').each ->
       # Unless surrounded by a table.
-      unless util.closest $, @, 'table'
+      unless util.isInsideTable($, @)
         $(@).replaceWith $(@).html()
 
     $('p').each ->
-      $(@).replaceWith $(@).html().removeLineBreaks()
+      unless util.isInsideTable($, @)
+        $(@).replaceWith $(@).html().removeLineBreaks()
 
     $('em').each -> $(@).html $(@).html().removeLineBreaks()
+
+    # Remove empty tags.
+    $('i').each ->
+      if $(@).text().trim().length is 0
+        $(@).remove()
 
     # ---
 

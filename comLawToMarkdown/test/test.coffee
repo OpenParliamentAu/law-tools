@@ -30,6 +30,7 @@ describe 'The converter', ->
         url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
         outputSplit: false
         debugOutputDir: path.join __dirname, 'out/singleFile'
+        linkifyDefinitions: false # We don't linkify because it takes too long for testing.
       @converter.getHtml (e) =>
         return done e if e
         done()

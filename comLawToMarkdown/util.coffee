@@ -16,6 +16,9 @@ String::replaceLineBreaks = ->
 @isAlphanumeric = (str) ->
   not str.match /^[a-z0-9]+$/i
 
+@isInsideTable = ($, el) ->
+  root.closest $, el, 'table'
+
 # In the case of:
 #
 #     A<b><i>B</i></b> C
@@ -30,6 +33,8 @@ String::replaceLineBreaks = ->
   prev = null
   curr = node
   el = null
+  # First check the element immediately adjacent.
+  return curr[dir] if curr[dir]?.data.length > 0
   until el? or not curr?
     prev = curr
     curr = $(curr).parent()[0]
@@ -65,8 +70,9 @@ String::replaceLineBreaks = ->
 
 @replaceTagName = ($, $el, tagName) ->
   newEl = $("<#{tagName}></#{tagName}>")
-  _.each $el.attribs, (index) ->
-    $(newEl).attr $el.attribs[index].name, $el.attribs[index].value
+  el = $el[0]
+  _.each el.attribs, (v, k) ->
+    $(newEl).attr k, v
   newEl.html $el.html()
   $el.after(newEl).remove()
 

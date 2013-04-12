@@ -29,6 +29,7 @@ main = (done) ->
   converter = new Converter html.toString(), _.extend opts,
     fileName: file.name
     url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
+    linkifyDefinitions: false
   converter.getHtml (e) =>
     return done e if e
     converter.convert (e) ->
