@@ -15,7 +15,9 @@ opts = defaultOpts
 
 # DEBUG: Choose which act you want to convert.
 #act = fixtures.marriageAct
-act = fixtures.agedCareAct
+#act = fixtures.agedCareAct
+#act = fixtures.fairWorkAct2009Vol1
+act = fixtures.incomeTaxAssessmentAct1997
 
 main = (done) ->
   _.extend opts, act.opts

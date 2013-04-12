@@ -9,14 +9,12 @@ root = @
   marriageAct:
     htmlFile: 'marriage-act-1961/C2012C00837.html'
     fileMappings: 'marriage-act-1961/files.coffee'
-    styleMappings: 'marriage-act-1961/styles.coffee'
     opts:
       convertEachRootTagSeparately: true
 
   agedCareAct:
     htmlFile: 'aged-care-act-1997/C2012C00914.osxword.htm'
     fileMappings: 'aged-care-act-1997/files.coffee'
-    styleMappings: 'aged-care-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
       #root: '.WordSection2'
@@ -27,11 +25,18 @@ root = @
   incomeTaxAssessmentAct1997:
     htmlFile: 'income-tax-assessment-act-1997/C2013C00082VOL01.htm'
     fileMappings: 'income-tax-assessment-act-1997/files.coffee'
-    styleMappings: 'income-tax-assessment-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
-      root: '.WordSection4'
-      convertEachRootTagSeparately: false
+      root: 'body'
+      convertEachRootTagSeparately: true
+
+  fairWorkAct2009Vol1:
+    htmlFile: 'fair-work-act-2009/C2013C00070VOL01.htm'
+    fileMappings: 'fair-work-act-2009/files.coffee'
+    opts:
+      outputSplit: false
+      root: 'body'
+      convertEachRootTagSeparately: true
 
 # TODO: Change this to environment var or something.
 @fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
