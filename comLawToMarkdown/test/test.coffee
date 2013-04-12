@@ -4,6 +4,7 @@ fs = require 'fs'
 chai = require 'chai'
 chai.should()
 _ = require 'underscore'
+html = require 'html'
 
 # Libs.
 {Converter} = require '../index.coffee'

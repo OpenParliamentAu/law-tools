@@ -8,6 +8,7 @@ onelog.use onelog.Log4js
 logger = onelog.get 'converter'
 defLogger = onelog.get 'definitions'
 logger.setLevel 'DEBUG'
+logger.setLevel 'TRACE'
 defLogger.setLevel 'WARN'
 
 # Vendor.
@@ -171,9 +172,8 @@ class @Converter
           # Pad contents with tabs.
           # TODO: Not sure about this.
           unless (not v.padding?)
-            spaceChar = util.nonBreakingSpace
-            padding = ''; padding += spaceChar for x in [1..v.padding]
-            $el.prepend padding
+            padding = ''; padding += util.nonBreakingSpace for x in [1..v.padding]
+            $el.before padding
 
     logger.trace 'Processing <i></i>'
     $('i').each ->
@@ -227,7 +227,7 @@ class @Converter
     $('.MsoNormal').each ->
       if $(@).html().match(/^\s$/)?
         if $(@).parent?.type is 'root'
-          $(@).parent().replaceWith '<hr>'
+          $(@).parent().replaceWith '<hr/>'
 
     # to-markdown.js bug - Markdown-permitted tags within a table will get
     # converted to markdown but the table is inserted as inline html.
@@ -253,8 +253,9 @@ class @Converter
     #   the asterisk, so our linkifying may be the only solution.
     els = $('span').filter ->
       if $(@).text() is '*'
-        return true unless util.isInsideTable($, @)
-    els.each -> $(@).remove()
+        return true
+    els.each ->
+      $(@).after ' '
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
@@ -345,6 +346,28 @@ class @Converter
     $('i').each ->
       if $(@).text().trim().length is 0
         $(@).remove()
+
+    # Remove a empty divs.
+    $('div').each ->
+      unless util.isInsideTable($, @)
+        style = $(@).attr 'style'
+        unless $(@).text().trim().length
+          if style?.search('border-bottom') >= 0
+            # A divider! Replace it with a proper one.
+            $(@).replaceWith '<hr/>'
+        else
+          # There is text in this div. Could be a section box.
+          if style?.search('border:solid') >= 0
+            $(@).replaceWith '<hr/>' + $(@).html() + '<hr/>'
+
+    # Don't allow two strong tags next to each other. Separate with a space.
+    $('strong, b').each ->
+      $(@).find('br').remove()
+      $(@).html $(@).html().trim().removeLineBreaks()
+      unless $(@).text().trim().length
+        $(@).remove()
+      if $(@).next()[0].name is 'strong'
+        $(@).after '\u2002'
 
     # ---
 

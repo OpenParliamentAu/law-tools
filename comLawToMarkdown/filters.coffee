@@ -41,7 +41,7 @@ class @CustomFilters
     linkified = "<a href='##{section}'>#{section}</a>"
     $(@).html $(@).html().replace regex, linkified
 
-  @tocHeading: ->
+  @tocHeading: ($) ->
 
   @anchorSection: ($) ->
     section = $(@).text()

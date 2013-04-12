@@ -34,7 +34,7 @@ String::replaceLineBreaks = ->
   curr = node
   el = null
   # First check the element immediately adjacent.
-  return curr[dir] if curr[dir]?.data.length > 0
+  return curr[dir] if curr[dir]?.data?.length > 0
   until el? or not curr?
     prev = curr
     curr = $(curr).parent()[0]

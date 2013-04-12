@@ -19,8 +19,9 @@ root = @
     styleMappings: 'aged-care-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
-      root: '.WordSection4'
-      convertEachRootTagSeparately: false
+      #root: 'body'
+      root: '.WordSection2'
+      convertEachRootTagSeparately: true
 
   incomeTaxAssessmentAct1997:
     htmlFile: 'income-tax-assessment-act-1997/C2013C00082VOL01.htm'
@@ -28,7 +29,7 @@ root = @
     styleMappings: 'income-tax-assessment-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
-      root: '.WordSection3'
+      root: '.WordSection4'
       convertEachRootTagSeparately: false
 
 # TODO: Change this to environment var or something.

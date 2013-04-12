@@ -81,3 +81,8 @@ http://blogs.msdn.com/b/ericwhite/archive/2008/09/19/bulk-convert-doc-to-docx.as
 Other options to explore:
 
 http://www.docx4java.org/trac/docx4j
+
+## Conversion Notes
+
+- For the Aged Care Act we convert all characters we can't find to enspaces.
+  This means some commas and thigns are missing.
