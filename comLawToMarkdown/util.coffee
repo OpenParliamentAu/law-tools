@@ -1,6 +1,8 @@
 natural = require 'natural'
 _ = require 'underscore'
 
+root = exports
+
 String::removeLineBreaks = ->
   @replace /\r?\n|\r/g, ' '
 
@@ -59,20 +61,6 @@ String::replaceLineBreaks = ->
   $('img').each (i, img) ->
     $(@).attr 'src', "#{rootUrl}/#{$(img).attr('src')}"
 
-# Create a mapping of definitions to their stubs.
-# We use this map to search our stemmed legislation for usages of definitions to linkify.
-@extractDefinitions = ($) ->
-  defs = {}
-  # Extract data before manipulating html.
-  $('.Definition').each ->
-    # Optionally add anchor tags to each term being defined.
-    terms = $(@).find('b > i')
-    el = this
-    terms.each ->
-      stemmedText = exports.getStemFromTerm @text()
-      defs[stemmedText] = exports.getSlugFromTerm @text()
-  defs
-
 @getStemFromTerm = (text) ->
   # Stem all words.
   _text = text.trim().toLowerCase()
@@ -84,6 +72,20 @@ String::replaceLineBreaks = ->
   stemmedText = exports.getStemFromTerm text
   slug = stemmedText.replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
   slug
+
+# Create a mapping of definitions to their stubs.
+# We use this map to search our stemmed legislation for usages of definitions to linkify.
+@extractDefinitions = ($) ->
+  defs = {}
+  # Extract data before manipulating html.
+  $('.Definition').each ->
+    # Optionally add anchor tags to each term being defined.
+    terms = $(@).find('b > i')
+    el = this
+    terms.each ->
+      stemmedText = root.getStemFromTerm @text()
+      defs[stemmedText] = root.getSlugFromTerm @text()
+  defs
 
 @getArrayPositionOfStemFromIndex = (stemmedDocArray, index) ->
   # Go through all elements of array letter by letter until we have

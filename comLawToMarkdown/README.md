@@ -41,7 +41,43 @@ use chrome inspector to examine html dom
 ## `to-markdown` module bugs
 
 - strong/em inside a table should not be changed to Markdown format
+-
+
+    <p class="MsoNormal"><img width="152" height="112" src="MarriageAct1961_WD02_image001.gif"></p>
+
+becomes
+
+    <figure>
+    <img src="http://www.comlaw.gov.au/Details/C2012C00837&lt;b id=" firstdiff"="">.html/Html/MarriageAct1961_WD02_image001.gif?v=104541" alt=""&gt;</figure>
 
 ### TODOS
 
 - turn tables into Markdown tables
+
+## Conversion
+
+textutil will not work - removes too much data
+
+libre office exports ok html but the html has problems rendering in chrome. not such an issue.
+
+osx word exports the nicest. and the parser is already implemented for it.
+
+most new bills have msword exported html available on comlaw anyway.
+
+aspose.words produces html without classes - useless. aspose might be useful for reading styles though without showing window.
+
+## Get Styles
+
+c# app using word.interop library running on windows. problem is that it always opens up a copy of word!
+
+aspose.words might help here, or another library.
+
+perhaps use a bulk conversion from doc to docx then use xml lib.
+
+http://blogs.msdn.com/b/ericwhite/archive/2008/09/19/bulk-convert-doc-to-docx.aspx
+
+## Notes
+
+Other options to explore:
+
+http://www.docx4java.org/trac/docx4j

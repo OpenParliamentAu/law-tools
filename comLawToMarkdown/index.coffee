@@ -5,6 +5,7 @@ onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js
 logger = onelog.get()
+logger.setLevel 'trace'
 
 # Vendor.
 path = require 'path'
@@ -26,7 +27,7 @@ jquery = 'http://code.jquery.com/jquery.js'
 
 class @Converter
 
-  constructor: (@html, @opts = {}, done) ->
+  constructor: (@html, @opts = {}) ->
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
@@ -58,6 +59,7 @@ class @Converter
       mkdirp.sync path.dirname dest
       fs.writeFileSync path.resolve(dest + '.html'), html
       fs.writeFileSync path.resolve(dest + '.md'), md
+      logger.debug 'Wrote a single md and html file', dest
 
     if @opts.outputSplit
       _.each @opts.fileMappings, (classes, fileName) =>
@@ -70,6 +72,7 @@ class @Converter
         dest = path.join @opts.markdownSplitDest, "#{fileName}.md"
         mkdirp.sync path.dirname dest
         fs.writeFileSync dest, md
+        logger.debug 'Wrote split md file', dest
 
   # To wrap an element in two tags in the `styles` map you can write:
   #
@@ -82,7 +85,11 @@ class @Converter
   #    replaceTagName $, el, tag
 
   convert: (done) =>
+    unless @html?
+      done new Error 'Must call #getHtml first.'
     $ = @$
+
+    logger.debug 'Converting', @opts.fileName
 
     # PRE-PROCESSING
     # ---
@@ -96,6 +103,8 @@ class @Converter
     # v - new tag information
     # k - html selector
     _.each @opts.mappings, (v, k) =>
+      logger.trace 'Processing mapping', k
+
       els = $(".#{k}")
       _.each els, (el) =>
         $el = $(el)
@@ -126,6 +135,7 @@ class @Converter
             padding = ''; padding += spaceChar for x in [1..v.padding]
             $el.prepend padding
 
+    logger.trace 'Processing <i></i>'
     $('i').each ->
 
       # Any <i> tag's text should all be on same line
@@ -181,6 +191,7 @@ class @Converter
 
     # Linkify definitions.
     if @opts.linkifyDefinitions
+      logger.trace 'Linkifying definitions'
 
       tokenizer = new natural.WordTokenizer
 
@@ -196,6 +207,10 @@ class @Converter
 
       #definitions = marriag: definitions['marriag'] # DEBUG
       _.each definitions, (slug, stemmed) ->
+        return unless stemmed.length
+        logStr = "  Linked definition: #{stemmed}"
+        logger.trace "  Linking: ", stemmed, slug
+        console.time logStr
         # For each stemmed definition, we try and find it in our
         # stemmed document.
         regex = ///#{stemmed}///gi
@@ -215,13 +230,24 @@ class @Converter
           unstemmedVersions[unstemmedDefinition.join(' ')] = true
 
         # With all unstemmed versions, we can now replace each one with a link.
+        console.time '  Replace phase'
         _.each unstemmedVersions, (v, def) ->
-          regex = ///(^|\s)(#{def})(\s|$)///gi
-
+          replaceFn = (html) ->
+            regex = ///(^|\s)(#{def})(\s|$)///gi
+            html.replace regex, ($0, $1, $2, $3) ->
+              "#{$1}<a href='##{slug}'>#{$2}</a>#{$3}"
+          # Use cheerio (slower).
           $('p').each ->
             html = $(@).html()
-            $(@).html html.replace regex, ($0, $1, $2, $3) ->
-              "#{$1}<a href='##{slug}'>#{$2}</a>#{$3}"
+            $(@).html replaceFn html
+          # Don't use cheerio (faster).
+          #html = replaceFn $.root().html()
+          #$ = cheerio.load html
+        console.timeEnd '  Replace phase'
+
+        console.timeEnd logStr
+
+      logger.trace 'Finished linkifying all definitions'
 
     # Undo anchor tag creation in tables.
     # This is part of the to-markdown.js bug mentioned earlier.
@@ -241,5 +267,6 @@ class @Converter
     # Escape square brackets.
     html = $.root().html().replace /\[/g, '\\['
 
+    logger.trace 'Converting to Markdown'
     md = @convertToMarkdown html
     done null, md
