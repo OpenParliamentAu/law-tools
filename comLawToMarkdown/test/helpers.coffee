@@ -19,8 +19,9 @@ root = @
     styleMappings: 'aged-care-act-1997/styles.coffee'
     # DEBUG: Change the root to restrict how much markdown is generated.
     opts:
-      #root: 'body'
-      root: '.WordSection2'
+      #root: '.WordSection2'
+      #convertEachRootTagSeparately: false
+      root: 'body'
       convertEachRootTagSeparately: true
 
   incomeTaxAssessmentAct1997:

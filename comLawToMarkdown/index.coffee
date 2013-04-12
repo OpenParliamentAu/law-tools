@@ -8,7 +8,7 @@ onelog.use onelog.Log4js
 logger = onelog.get 'converter'
 defLogger = onelog.get 'definitions'
 logger.setLevel 'DEBUG'
-logger.setLevel 'TRACE'
+#logger.setLevel 'TRACE'
 defLogger.setLevel 'WARN'
 
 # Vendor.
@@ -70,6 +70,7 @@ class @Converter
     @html = @html.replace /&#8212;/g, ' - '
     # Replace html dash with normal dash.
     @html = @html.replace /&#8209;/g, '-'
+    #@html = @html.replace /\‑/g, '-'
     @html
 
   postprocessHTML: (html) =>
@@ -100,7 +101,8 @@ class @Converter
       else
         md += toMarkdown $.root().html()
       # Write html too for debug.
-      dest = path.join @opts.debugOutputDir, 'out'
+      base = path.basename @opts.fileName, path.extname @opts.fileName
+      dest = path.join @opts.debugOutputDir, base
       mkdirp.sync path.dirname dest
       fs.writeFileSync path.resolve(dest + '.html'), html
       fs.writeFileSync path.resolve(dest + '.md'), md

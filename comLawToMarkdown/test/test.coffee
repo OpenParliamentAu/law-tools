@@ -16,25 +16,28 @@ onelog.getLibrary().setGlobalLogLevel 'WARN'
 
 opts = defaultOpts
 
+setup = (act, done) ->
+  _.extend opts, act.opts
+  file = getFileInfo act
+  _.extend opts, fileMappings: file.fileMappings
+  @html = fs.readFileSync file.path
+  @converter = new Converter @html.toString(), _.extend opts,
+    fileName: file.name
+    url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
+    outputSplit: false
+    debugOutputDir: path.join __dirname, 'out/singleFile'
+    linkifyDefinitions: false # We don't linkify because it takes too long for testing.
+  @converter.getHtml (e) =>
+    return done e if e
+    done()
+  @converter
+
 describe 'The converter', ->
 
   describe 'should not introduce regressions to the marriage-act-1961', ->
 
     before (done) ->
-      act = fixtures.marriageAct
-      _.extend opts, act.opts
-      file = getFileInfo act
-      _.extend opts, fileMappings: file.fileMappings
-      @html = fs.readFileSync file.path
-      @converter = new Converter @html.toString(), _.extend opts,
-        fileName: file.name
-        url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
-        outputSplit: false
-        debugOutputDir: path.join __dirname, 'out/singleFile'
-        linkifyDefinitions: false # We don't linkify because it takes too long for testing.
-      @converter.getHtml (e) =>
-        return done e if e
-        done()
+      setup.call @, fixtures.marriageAct, done
 
     it 'when converting C2012C00837.html', (done) ->
       @converter.convert (e, md) ->
@@ -43,5 +46,17 @@ describe 'The converter', ->
         #console.log md.slice 0, 100
         #console.log '---------'
         #console.log expected.slice 0, 100
+        md.should.equal expected
+        done()
+
+  describe 'should not introduce regressions to the aged-care-act-1997', ->
+
+    before (done) ->
+      setup.call @, fixtures.agedCareAct, done
+
+    it 'when converting C2012C00914.osxword.htm', (done) ->
+      @converter.convert (e, md) ->
+        return done e if e
+        expected = fs.readFileSync path.join(fixturesDir, 'aged-care-act-1997/C2012C00914.osxword.md'), 'utf8'
         md.should.equal expected
         done()

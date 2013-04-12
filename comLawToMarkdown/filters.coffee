@@ -1,4 +1,5 @@
 util = require './util'
+_ = require 'underscore'
 
 # @method #filter ($, opts)
 #   When defining a custom filter for processing an HTML element this is the
@@ -22,21 +23,28 @@ class @CustomFilters
     $(@).text $(@).text().trim()
 
   @toc: ($) ->
-    # Remove page numbering.
-    $(@).find('span').each ->
-      $(@).remove()
+    # Remove dots and page numbering.
+    # TODO: Brittle.
+    spans = $(@).find('span')
+    _.each _.last(spans, 2), (span) ->
+      $(span).remove()
 
     # Replace all dots except first after section numbers with en spaces.
     html = $(@).html()
     i = 0
     html = html.replace /(\.)/g, ->
-      if i++ is 0 then '.' else '\u2002'
+      if i++ is 0 then '.' else util.nonBreakingSpace
 
     $(@).html html
 
   # Add links to sections.
   @tocLinkify: ($) ->
-    regex = /^([\w]*)(?=\.)/g
+    # We need to match sections which have a dash in the middle.
+    # The dash can occasionally be a wierd dash. So we just match everything
+    # up to the dot.
+    # TODO: WARNING: If there are no dots this will break. If there are dots in the
+    # section numbers - this will break.
+    regex = /^([\w\W]*)(?=\.)/g
     section = $(@).text().match(regex)?[0]
     linkified = "<a href='##{section}'>#{section}</a>"
     $(@).html $(@).html().replace regex, linkified
