@@ -33,7 +33,15 @@ class @Converter
   constructor: (@html, @opts = {}) ->
     _.defaults @opts,
       root: null
+      # Use this when you have multiple sections in the document.
       convertEachRootTagSeparately: true
+      cheerio: true
+      outputSplit: true
+      outputDebug: true
+      linkifyDefinitions: false
+      debugOutputDir: path.join __dirname, 'out/singleFile'
+      markdownSplitDest: path.join __dirname, 'out/multipleFiles/'
+      disabledFilters: []
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
@@ -45,10 +53,12 @@ class @Converter
       done()
 
     else
-      # TODO: Support @opts.root command.
       jsdom.env @html, [jquery], (e, window) =>
         return done e if e
         @$ = window.$
+        if @opts.root?
+          @html = @$(@opts.root).html()
+          @$ = cheerio.load @html
         done()
 
   preprocessHTML: =>
@@ -125,7 +135,7 @@ class @Converter
     # change tags to markdown-safe tags
     # v - new tag information
     # k - html selector
-    _.each @opts.mappings, (v, k) =>
+    _.each @opts.styleMappings, (v, k) =>
       logger.trace 'Processing mapping', k
 
       els = $(".#{k}")
