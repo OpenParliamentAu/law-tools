@@ -7,58 +7,27 @@ _ = require 'underscore'
 
 # Libs.
 {Converter} = require '../index.coffee'
+{fixtures, fixturesDir, defaultOpts, getFileInfo} = require './helpers'
 
 # Logging config.
 onelog = require 'onelog'
 onelog.getLibrary().setGlobalLogLevel 'WARN'
 
-opts =
-  cheerio: true
-  outputSplit: true
-  outputDebug: true
-  linkifyDefinitions: false
-  debugOutputDir: path.join __dirname, 'out/singleFile'
-  markdownSplitDest: path.join __dirname, 'out/multipleFiles/'
-  #disabledFilters: ['definition']
-
-# TODO: Change this to environment var or something.
-fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
-
-# All paths in this hash are joined with the fixtures dir.
-fixtures =
-  marriageAct:
-    htmlFile: 'marriage-act-1961/C2012C00837.html'
-    fileMappings: 'marriage-act-1961/2012-files.coffee'
-    styleMappings: 'marriage-act-1961/2012-styles.coffee'
-    opts: {}
-  agedCareAct:
-    htmlFile: 'aged-care-act-1997/C2012C00914.osxword.htm'
-    fileMappings: 'aged-care-act-1997/2012-files.coffee'
-    styleMappings: 'aged-care-act-1997/2012-styles.coffee'
-    opts: {}
-
-# DEBUG: Choose which act you want to convert.
-act = fixtures.marriageAct
-#act = fixtures.agedCareAct
+opts = defaultOpts
 
 describe 'The converter', ->
 
-  describe 'should not introduce regressions', ->
+  describe 'should not introduce regressions to the marriage-act-1961', ->
 
     before (done) ->
+      act = fixtures.marriageAct
       _.extend opts, act.opts
-      htmlFilePath = path.join fixturesDir, act.htmlFile
-      htmlBaseName = path.basename htmlFilePath, '.html'
-      htmlFileNameWithExt = path.basename htmlFilePath
-      fileMappings = require path.join fixturesDir, act.fileMappings
-      styleMappings = require path.join fixturesDir, act.styleMappings
-
-      @html = fs.readFileSync htmlFilePath
+      file = getFileInfo act
+      _.extend opts, fileMappings: file.fileMappings
+      @html = fs.readFileSync file.path
       @converter = new Converter @html.toString(), _.extend opts,
-        fileName: htmlFileNameWithExt
-        url: "http://www.comlaw.gov.au/Details/#{htmlBaseName}/Html"
-        fileMappings: fileMappings
-        mappings: styleMappings
+        fileName: file.name
+        url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
       @converter.getHtml (e) =>
         return done e if e
         done()
