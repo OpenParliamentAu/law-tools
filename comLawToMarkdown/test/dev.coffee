@@ -17,6 +17,7 @@ opts = defaultOpts
 #act = fixtures.marriageAct
 #act = fixtures.agedCareAct
 #act = fixtures.fairWorkAct2009Vol1
+#act = fixtures.fairWorkAct2009Vol2
 act = fixtures.incomeTaxAssessmentAct1997
 
 main = (done) ->
@@ -32,6 +33,7 @@ main = (done) ->
     fileName: file.name
     url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
     linkifyDefinitions: false
+    relativeTableColWidths: true
   converter.getHtml (e) =>
     return done e if e
     converter.convert (e) ->

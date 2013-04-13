@@ -22,7 +22,7 @@ url = require 'url'
 natural = require 'natural'
 
 # Libs.
-{toMarkdown} = require '../lib/to-markdown'
+{toMarkdown} = require './lib/to-markdown/to-markdown'
 {CustomFilters} = require './filters'
 util = require './util'
 
@@ -43,6 +43,9 @@ class @Converter
       debugOutputDir: path.join __dirname, 'out/singleFile'
       markdownSplitDest: path.join __dirname, 'out/multipleFiles/'
       disabledFilters: []
+      prettyTables: true
+      # Should we convert absolute col widths to relative ones.
+      relativeTableColWidths: true
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
@@ -100,13 +103,40 @@ class @Converter
           md += '\n'
       else
         md += toMarkdown $.root().html()
-      # Write html too for debug.
+
       base = path.basename @opts.fileName, path.extname @opts.fileName
       dest = path.join @opts.debugOutputDir, base
       mkdirp.sync path.dirname dest
-      fs.writeFileSync path.resolve(dest + '.html'), html
-      fs.writeFileSync path.resolve(dest + '.md'), md
-      logger.debug 'Wrote a single md and html file', dest
+
+      # Write to three files:
+      htmlDest = path.resolve(dest + '.html')
+      mdDest = path.resolve(dest + '.md')
+      mdHtmlDest = path.resolve(dest + '.md.html')
+
+      fs.writeFileSync htmlDest, html
+      logger.debug 'Wrote HTML to', htmlDest
+      fs.writeFileSync mdDest, md
+      logger.debug 'Wrote Markdown to', mdDest
+
+      # Write rendered markdown html to file.
+      marked = require 'marked'
+      mdHtml = marked md
+      # Inject github styles and header.
+      css = fs.readFileSync path.join __dirname, 'github.css'
+      html = """
+       <!DOCTYPE HTML>
+      <html>
+      <head>
+      <style type='text/css'>#{css}</style>
+      <meta http-equiv="content-type" content="text/html;charset=utf-8">
+      </head>
+      <body style="margin: 20px; width: 600px">#{mdHtml}</body>
+      </html>
+      """
+      # ---
+      fs.writeFileSync mdHtmlDest, html
+      logger.debug 'Wrote rendered Markdown HTML to', mdHtmlDest
+
       return md
 
 
@@ -235,14 +265,16 @@ class @Converter
     # converted to markdown but the table is inserted as inline html.
     # We want to make sure the tags stay as html.
     # HACK: We will change them to inline styles.
-    $('table b').each ->
-      $(@).replaceWith "<span style='font-weight: bold;'>#{$(@).html()}</span>"
+    # TODO: DISABLED
+    if (false)
+      $('table b').each ->
+        $(@).replaceWith "<span style='font-weight: bold;'>#{$(@).html()}</span>"
 
-    $('table i').each ->
-      $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
+      $('table i').each ->
+        $(@).replaceWith "<span style='font-style: italic;'>#{$(@).html()}</span>"
 
-    $('table p').each ->
-      newEl = util.replaceTagName $, $(@), 'div'
+      $('table p').each ->
+        newEl = util.replaceTagName $, $(@), 'div'
 
     # Process asterisks.
     # Before processing definitions we must remove asterisks.
@@ -325,7 +357,7 @@ class @Converter
 
     # Remove newlines in all headings.
     $(':header').each ->
-      $(@).html $(@).html().removeLineBreaks()
+      $(@).html $(@).html().replaceLineBreaks()
 
     # Remove empty <p>, unless it contains an image.
     $('p.MsoHeader').each ->
@@ -340,9 +372,9 @@ class @Converter
 
     $('p').each ->
       unless util.isInsideTable($, @)
-        $(@).replaceWith $(@).html().removeLineBreaks()
+        $(@).replaceWith $(@).html().replaceLineBreaks()
 
-    $('em').each -> $(@).html $(@).html().removeLineBreaks()
+    $('em').each -> $(@).html $(@).html().replaceLineBreaks()
 
     # Remove empty tags.
     $('i').each ->
@@ -365,13 +397,84 @@ class @Converter
     # Don't allow two strong tags next to each other. Separate with a space.
     $('strong, b').each ->
       $(@).find('br').remove()
-      $(@).html $(@).html().trim().removeLineBreaks()
+      $(@).html $(@).html().trim().replaceLineBreaks()
       unless $(@).text().trim().length
         $(@).remove()
       if $(@).next()[0].name is 'strong'
         $(@).after '\u2002'
 
-    # ---
+    # Remove inline styles and class names from tables.
+    if @opts.cleanTables
+
+      #removeAllAttrs = (el) ->
+      #  for name, val of el.attribs
+      #    $(el).removeAttr name
+
+      that = @
+      $('table').each ->
+        $(@).before "<style type='text/css'>table td {vertical-align: top}</style>\n"
+        $(@).removeAttr 'class'
+        $(@).removeAttr 'cellspacing'
+        $(@).removeAttr 'cellpadding'
+        $(@).removeAttr 'style'
+        $(@).removeAttr 'border'
+        $(@).removeAttr 'width' # Not sure.
+        table = @
+
+        # Create colgroup to replace cell widths.
+        colWidths = []
+        $(table).find('tr').each (i, tr) ->
+          # Row must not have colspans.
+          colSpanTds = $(tr).find('td').filter -> $(@).attr('colspan')?
+          unless colSpanTds.length
+            # Row with no colspans.
+            $(tr).find('td').each (i, td) ->
+              colWidths.push $(td).attr 'width'
+            return false # Breaks out of loop.
+          # TODO: If row does have colspans, should we leave them in?
+
+        if colWidths.length
+
+          if that.opts.relativeTableColWidths
+            sum = (arr) ->
+              if arr.length > 0
+                arr.reduce (x, y) ->
+                  x + parseInt(y)
+                , 0
+              else 0
+
+            totalColWidths = sum colWidths
+
+            colWidths = _.map colWidths, (w) ->
+              ((w / totalColWidths) * 100).toFixed(0) + '%'
+
+          colgroup = (for width in colWidths then "  <col width='#{width}'/>").join '\n'
+          table.prepend "\n\n<colgroup>\n#{colgroup}\n</colgroup>"
+
+        # Remove styles and widths from trs and tds.
+        $(@).find('tr, td').each ->
+          $(@).removeAttr 'style'
+          $(@).removeAttr 'valign'
+          $(@).removeAttr 'width'
+
+        # Pretty print html tables.
+        if that.opts.prettyTables
+          html = require 'html'
+          data = $(@).html()
+          prettyData = html.prettyPrint data,
+            indent_size: 2
+            unformatted: ['col', 'colgroup']
+          $(@).html prettyData
+
+      # Unwrap <p> tags.
+      $('table p').each ->
+        $(@).replaceWith $('<div></div>').html $(@).html().trim().replaceLineBreaks().removeMultipleWhiteSpace()
+
+      $('table span').each ->
+        $(@).replaceWith $(@).html()
+
+
+    # --- Start html string modifications.
 
     html = $.root().html()
 
@@ -382,6 +485,9 @@ class @Converter
 
     html = html.replace /&#8194;/g, util.nonBreakingSpace
     html = html.replace /&#10;/g, util.nonBreakingSpace
+
+    # Convert all line-endings to unix.
+    html = html.replace /\r/g, '\n'
 
     logger.trace 'Converting to Markdown'
     md = @convertToMarkdown html

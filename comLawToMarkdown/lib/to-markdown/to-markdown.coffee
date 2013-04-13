@@ -1,3 +1,15 @@
+cheerio = require 'cheerio'
+
+closest = ($, node, tagName) ->
+  curr = node
+  while curr?
+    curr = $(curr).parent()[0]
+    if curr.type is 'root'
+      curr = null
+    else if curr.name is tagName
+      return curr
+  return null
+
 #
 # * to-markdown - an HTML to Markdown converter
 # *
@@ -13,10 +25,30 @@ toMarkdown = (string) ->
     if typeof elProperties.replacement is "string"
       markdown = html.replace(regex, elProperties.replacement)
     else
-      markdown = html.replace(regex, (str, p1, p2, p3) ->
-        elProperties.replacement.call this, str, p1, p2, p3
-      )
-    markdown
+      $ = cheerio.load html
+      that = this
+      tag = elProperties.tag
+      $(tag).each ->
+        # Don't replace any elements within a table.
+        #console.log closest($, @, 'table')
+        unless closest($, @, 'table')?
+          outerHtml = $.html(@)
+          innerHtml = $(@).html()
+          attrs = @[0].attribs
+
+          # Heading level.
+          hLevel = tag.match /h(\d)/
+          other = hLevel[1] if hLevel?
+
+          replacement = elProperties.replacement.call that, outerHtml, attrs, innerHtml, other
+          $(@).replaceWith replacement
+
+      markdown = $.root().html()
+
+      #markdown = html.replace(regex, (str, p1, p2, p3) ->
+      #  elProperties.replacement.call this, str, p1, p2, p3
+    return markdown
+
   attrRegExp = (attr) ->
     new RegExp(attr + "\\s*=\\s*[\"']?([^\"']*)[\"']?", "i")
 
@@ -75,8 +107,10 @@ toMarkdown = (string) ->
     type: "void"
     replacement: "\n"
   ,
-    patterns: "h([1-6])"
-    replacement: (str, hLevel, attrs, innerHTML) ->
+    patterns: ["h1", "h2", "h3", "h4", "h5", "h6"]
+    #patterns: "h([1-6])"
+    #replacement: (str, hLevel, attrs, innerHTML) ->
+    replacement: (str, attrs, innerHTML, hLevel) ->
       hPrefix = ""
       i = 0
 
@@ -91,8 +125,8 @@ toMarkdown = (string) ->
   ,
     patterns: "a"
     replacement: (str, attrs, innerHTML) ->
-      href = attrs.match(attrRegExp("href"))
-      title = attrs.match(attrRegExp("title"))
+      href = if attrs.href then [0, attrs.href] else false #attrs.match(attrRegExp("href"))
+      title = [0, attrs.title] #attrs.match(attrRegExp("title"))
       (if href then "[" + innerHTML + "]" + "(" + href[1] + ((if title and title[1] then " \"" + title[1] + "\"" else "")) + ")" else str)
   ,
     patterns: ["b", "strong"]
@@ -110,9 +144,9 @@ toMarkdown = (string) ->
     patterns: "img"
     type: "void"
     replacement: (str, attrs, innerHTML) ->
-      src = attrs.match(attrRegExp("src"))
-      alt = attrs.match(attrRegExp("alt"))
-      title = attrs.match(attrRegExp("title"))
+      src = [0,attrs.src] #attrs.src #attrs.match(attrRegExp("src"))
+      alt = [0,attrs.alt] #attrs.alt #attrs.match(attrRegExp("alt"))
+      title = [0,attrs.title] #attrs.title #attrs.match(attrRegExp("title"))
       "![" + ((if alt and alt[1] then alt[1] else "")) + "]" + "(" + src[1] + ((if title and title[1] then " \"" + title[1] + "\"" else "")) + ")"
   ]
   i = 0

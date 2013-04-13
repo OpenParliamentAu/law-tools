@@ -7,8 +7,11 @@ emSpace = '\u2003' # &emsp;
 enSpace = '\u2002' # &ensp;
 @nonBreakingSpace = enSpace
 
+String::removeMultipleWhiteSpace = ->
+  @replace /(\s{2,})/g, ' '
+
 String::removeLineBreaks = ->
-  @replace /\r?\n|\r/g, ' '
+  @replace /\r?\n|\r/g, ''
 
 String::replaceLineBreaks = ->
   @replace /\r?\n|\r/g, ' '

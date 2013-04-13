@@ -10,6 +10,10 @@ _ = require 'underscore'
 #   @param [Object] opts the hash from the mappings file for the current element class name. If you need to pass additional options to your filter you should add keys to this hash in the mappings file.
 class @CustomFilters
 
+  @unwrap: ($) ->
+    newEl = $('<div></div>').html $(@).html().removeLineBreaks().removeMultipleWhiteSpace()
+    $(@).replaceWith newEl
+
   @clearEmptyBoldTag: ($) ->
     $(@).find('b').each ->
       unless $(@).text().trim().length
@@ -62,7 +66,7 @@ class @CustomFilters
 
   @actHead: ($) ->
     # Remove line breaks.
-    $(@).html $(@).html().removeLineBreaks()
+    $(@).html $(@).html().replaceLineBreaks()
 
   @actHeadLink: ($) ->
     # Remove toc anchor tags from headings.

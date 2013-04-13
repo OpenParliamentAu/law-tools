@@ -15,6 +15,7 @@ onelog = require 'onelog'
 onelog.getLibrary().setGlobalLogLevel 'WARN'
 
 opts = defaultOpts
+outputDir = path.join __dirname, 'out/singleFile'
 
 setup = (act, done) ->
   _.extend opts, act.opts
@@ -25,7 +26,7 @@ setup = (act, done) ->
     fileName: file.name
     url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"
     outputSplit: false
-    debugOutputDir: path.join __dirname, 'out/singleFile'
+    debugOutputDir: outputDir
     linkifyDefinitions: false # We don't linkify because it takes too long for testing.
   @converter.getHtml (e) =>
     return done e if e
@@ -35,9 +36,46 @@ setup = (act, done) ->
 convert = (expectedMdFile, done) ->
   @converter.convert (e, md) ->
     return done e if e
-    expected = fs.readFileSync path.join(fixturesDir, expectedMdFile), 'utf-8'
-    md.should.equal expected
+
+    htmlFileName = path.basename(expectedMdFile, '.md') + '.html' # .html
+    mdHtmlFileName = path.basename(expectedMdFile) + '.html' # .md.html
+
+    expectedMdPath = path.join fixturesDir, expectedMdFile
+    expectedMdText = fs.readFileSync expectedMdPath, 'utf-8'
+
+    originalHTMLPath = path.join path.dirname(expectedMdPath), htmlFileName
+    cleanedHTMLPath = path.join outputDir, htmlFileName
+
+    generatedMdPath = path.join outputDir, path.basename expectedMdFile
+    generatedMdHtmlPath = path.join outputDir, path.basename mdHtmlFileName
+    generatedMdText = md
+
+    if generatedMdText isnt expectedMdText
+
+      console.log """
+--------------------------------------------------------------------------------
+Regression detected.
+
+1. Inspect Markdown diff (merge changes if they are expected):
+  opendiff #{expectedMdPath} #{generatedMdPath} -merge #{expectedMdPath}
+
+2. Inspect rendered Markdown in Marked.app or browser:
+  open -a Marked.app #{generatedMdPath}
+  open #{generatedMdHtmlPath}
+
+3. Inspect original HTML in browser (what the rendered Markdown should resemble).
+  open #{originalHTMLPath}
+
+4. Inspect cleaned HTML in text editor:
+  lime #{cleanedHTMLPath}
+
+5. If the changes are expected, copy generated file to fixtures dir:
+  cp #{generatedMdPath} #{expectedMdPath}
+--------------------------------------------------------------------------------
+"""
+      return done new Error "Regression detected."
     done()
+
 
 describe 'The converter', ->
 

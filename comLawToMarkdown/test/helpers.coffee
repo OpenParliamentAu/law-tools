@@ -10,6 +10,7 @@ root = @
     htmlFile: 'marriage-act-1961/C2012C00837.html'
     fileMappings: 'marriage-act-1961/files.coffee'
     opts:
+      cleanTables: true
       convertEachRootTagSeparately: true
 
   agedCareAct:
@@ -38,6 +39,15 @@ root = @
       root: 'body'
       convertEachRootTagSeparately: true
 
+  fairWorkAct2009Vol2:
+    htmlFile: 'fair-work-act-2009/C2013C00070VOL02.htm'
+    fileMappings: 'fair-work-act-2009/files.coffee'
+    opts:
+      cleanTables: true
+      outputSplit: false
+      root: '.WordSection3'
+      convertEachRootTagSeparately: false
+
 # TODO: Change this to environment var or something.
 @fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
 
@@ -49,7 +59,8 @@ root = @
   debugOutputDir: path.join __dirname, 'tmp/singleFile'
   markdownSplitDest: path.join __dirname, 'tmp/multipleFiles/'
   #disabledFilters: ['definition']
-  styleMappings: require path.join root.fixturesDir, 'styles.coffee'
+  #styleMappings: require path.join root.fixturesDir, 'styles.coffee'
+  styleMappings: require path.join __dirname, '../styles/styles.coffee'
 
 @getFileInfo = (act) ->
   htmlFilePath = path.join root.fixturesDir, act.htmlFile
