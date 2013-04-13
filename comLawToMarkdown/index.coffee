@@ -114,9 +114,9 @@ class @Converter
       mdHtmlDest = path.resolve(dest + '.md.html')
 
       fs.writeFileSync htmlDest, html
-      logger.debug 'Wrote HTML to', htmlDest
+      logger.debug "Wrote HTML to #{htmlDest}\n  open #{htmlDest}"
       fs.writeFileSync mdDest, md
-      logger.debug 'Wrote Markdown to', mdDest
+      logger.debug "Wrote Markdown to #{mdDest}\n  lime #{htmlDest}"
 
       # Write rendered markdown html to file.
       marked = require 'marked'
@@ -135,7 +135,7 @@ class @Converter
       """
       # ---
       fs.writeFileSync mdHtmlDest, html
-      logger.debug 'Wrote rendered Markdown HTML to', mdHtmlDest
+      logger.debug "Wrote rendered Markdown HTML to #{mdHtmlDest}\n  open #{mdHtmlDest}"
 
       return md
 

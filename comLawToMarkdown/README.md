@@ -1,5 +1,21 @@
 ## Usage
 
+14/04/2013
+
+In `test/dev.coffee` set `act` to the act you want to compile.
+
+Run `nodemon test/dev.coffee`.
+
+Hack!
+
+Regression test with `mocha -w`.
+
+If there are errors, follow the steps to resolve the regressions.
+
+Commit!
+
+---
+
 Run `nodemon htmlToMarkdown.coffee`
 
 ### Get list of styles from Word Document
