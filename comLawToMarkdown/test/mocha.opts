@@ -4,5 +4,4 @@
 --timeout 5000
 --globals ADD_GLOBALS_HERE
 --growl
---watch
 test/test.coffee

@@ -32,60 +32,29 @@ setup = (act, done) ->
     done()
   @converter
 
-convert = ->
-
+convert = (expectedMdFile, done) ->
+  @converter.convert (e, md) ->
+    return done e if e
+    expected = fs.readFileSync path.join(fixturesDir, expectedMdFile), 'utf-8'
+    md.should.equal expected
+    done()
 
 describe 'The converter', ->
 
   describe 'should not introduce regressions in', ->
 
-    describe 'marriage-act-1961', ->
+    it 'when converting marriage act', (done) ->
+      setup.call @, fixtures.marriageAct, =>
+        convert.call @, 'marriage-act-1961/C2012C00837.md', done
 
-      before (done) ->
-        setup.call @, fixtures.marriageAct, done
+    it 'when converting aged care act', (done) ->
+      setup.call @, fixtures.agedCareAct, =>
+        convert.call @, 'aged-care-act-1997/C2012C00914.osxword.md', done
 
-      it 'when converting C2012C00837.html', (done) ->
-        @converter.convert (e, md) ->
-          return done e if e
-          expected = fs.readFileSync path.join(fixturesDir, 'marriage-act-1961/C2012C00837.md'), 'utf8'
-          #console.log md.slice 0, 100
-          #console.log '---------'
-          #console.log expected.slice 0, 100
-          md.should.equal expected
-          done()
+    it 'when converting fair work act', (done) ->
+      setup.call @, fixtures.fairWorkAct2009Vol1, =>
+        convert.call @, 'fair-work-act-2009/C2013C00070VOL01.md', done
 
-    describe 'aged-care-act-1997', ->
-
-      before (done) ->
-        setup.call @, fixtures.agedCareAct, done
-
-      it 'when converting C2012C00914.osxword.htm', (done) ->
-        @converter.convert (e, md) ->
-          return done e if e
-          expected = fs.readFileSync path.join(fixturesDir, 'aged-care-act-1997/C2012C00914.osxword.md'), 'utf8'
-          md.should.equal expected
-          done()
-
-    describe 'fair-work-act-2009', ->
-
-      before (done) ->
-        setup.call @, fixtures.fairWorkAct2009Vol1, done
-
-      it 'when converting C2012C00914.osxword.htm', (done) ->
-        @converter.convert (e, md) ->
-          return done e if e
-          expected = fs.readFileSync path.join(fixturesDir, 'fair-work-fact-2009/C2013C00070VOL01.md'), 'utf8'
-          md.should.equal expected
-          done()
-
-    #describe 'income-tax-assessment-act-1997', ->
-    #
-    #  before (done) ->
-    #    setup.call @, fixtures.incomeTaxAssessmentAct1997, done
-    #
-    #  it 'when converting C2013C00070VOL01.htm', (done) ->
-    #    @converter.convert (e, md) ->
-    #      return done e if e
-    #      expected = fs.readFileSync path.join(fixturesDir, 'income-tax-assessment-act-1997/C2013C00082VOL01.md'), 'utf8'
-    #      md.should.equal expected
-    #      done()
+    #it 'when converting income tax assessment act 1997', (done) ->
+    #  setup.call @, fixtures.incomeTaxAssessmentAct1997, done
+    #  convert.call @, 'income-tax-assessment-act-1997/C2013C00082VOL01.md', done
