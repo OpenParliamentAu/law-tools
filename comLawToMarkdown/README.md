@@ -86,3 +86,12 @@ http://www.docx4java.org/trac/docx4j
 
 - For the Aged Care Act we convert all characters we can't find to enspaces.
   This means some commas and thigns are missing.
+
+## CSS
+
+To have wrapped paragraph text appear beyond first letter
+
+p {
+  padding-left: 18em
+  text-indent: -9em
+}

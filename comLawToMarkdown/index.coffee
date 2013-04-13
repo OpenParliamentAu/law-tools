@@ -412,7 +412,9 @@ class @Converter
 
       that = @
       $('table').each ->
-        $(@).before "<style type='text/css'>table td {vertical-align: top}</style>\n"
+        # NOTE: The following line won't work because I'm pretty sure Github
+        # doesn't allow inline style tags.
+        #$(@).before "<style type='text/css'>table td {vertical-align: top}</style>\n"
         $(@).removeAttr 'class'
         $(@).removeAttr 'cellspacing'
         $(@).removeAttr 'cellpadding'

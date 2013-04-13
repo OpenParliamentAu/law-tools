@@ -17,8 +17,8 @@ opts = defaultOpts
 #act = fixtures.marriageAct
 #act = fixtures.agedCareAct
 #act = fixtures.fairWorkAct2009Vol1
-#act = fixtures.fairWorkAct2009Vol2
-act = fixtures.incomeTaxAssessmentAct1997
+act = fixtures.fairWorkAct2009Vol2
+#act = fixtures.incomeTaxAssessmentAct1997
 
 main = (done) ->
   _.extend opts, act.opts
