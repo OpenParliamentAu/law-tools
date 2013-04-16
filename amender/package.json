@@ -1,5 +1,8 @@
 {
   "name": "openparliamentau-amender",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "pegjs": "~0.7.0"
+  }
 }

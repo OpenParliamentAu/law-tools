@@ -4,7 +4,13 @@
 
 ## Test
 
-`mocha`
+### Integration
+
+`make`
+
+### Unit
+
+`make arg='-g Unit'`
 
 ## Ideas
 

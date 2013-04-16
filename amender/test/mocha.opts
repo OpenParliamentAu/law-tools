@@ -1,0 +1,7 @@
+--compilers coffee:coffee-script
+--reporter list
+--recursive
+--timeout 5000
+--globals ADD_GLOBALS_HERE
+--growl
+test/test.coffee
