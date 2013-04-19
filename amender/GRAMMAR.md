@@ -18,6 +18,10 @@ POSITION UNIT (of UNIT)
 Paragraph 13(2)(a)
 Subsection 13(2)
 Subsection 62(1) (note)
+Part III of the Schedule (table item 1)
+Parts V to VD
+Clause 1 of Schedule 1 (definition of accreditation day)
+Section 54-3
 ```
 
 ## POSITION

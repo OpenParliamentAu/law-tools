@@ -7,30 +7,43 @@ chai.Assertion.showDiff = false # Mocha support is broken, does not respect this
 chai.should()
 expect = chai.expect
 
+# Libs.
 {Amender} = require '../index'
 {Parser} = require '../parser'
+{AmendmentParser} = require '../amendmentParser'
 
-fixturesDir = path.join __dirname, 'fixtures'
-fixture = (p) -> path.join fixturesDir, p
+# Helpers.
+fixturesDir = '/Users/Vaughan/dev/opendemocracy-fixtures/amender'
+fixture = (dir, p) -> path.join fixturesDir, dir, p
 diffTool = 'ksdiff'
 diffCmd = (actual, expected) -> "#{diffTool} #{actual} #{expected}"
 
-describe 'Amender - Integration', ->
+headerGrammar = './grammar/header.pegjs'
+actionGrammar = './grammar/action.pegjs'
+
+read = (file) -> fs.readFileSync file, 'utf-8'
+
+# Entire Act Tests
+# ================
+
+describe 'Integration', ->
 
   before ->
     @amender = new Amender
 
   it 'Marriage Equality Amendment Bill 2013', (done) ->
-    fileName = 'C2012C00837'
-    actMd = fs.readFileSync fixture("#{fileName}-before.md"), 'utf-8'
-    actHtml = fs.readFileSync fixture("#{fileName}-before.html"), 'utf-8'
-    amendment = fs.readFileSync fixture("#{fileName}-amend.html"), 'utf-8'
-    expectedPath = fixture("#{fileName}-after.md")
-    expected = fs.readFileSync expectedPath, 'utf-8'
-    actualPath = path.join __dirname, 'testOutput', fileName + '.md'
+    actDir = 'marriage-equality-amendment-act-2013'
+    actMd = read fixture actDir, 'before.md'
+    actHtml = read fixture actDir, 'before-original.html'
+    amendment = read fixture actDir, 'amend.html'
+    expectedPath = fixture actDir, 'after.md'
+    expected = read expectedPath
+    actualPath = path.join __dirname, 'testOutput', 'after-actual' + '.md'
     act =
       markdown: actMd
-      html: actHtml
+      #html: actHtml
+      originalHtml: actHtml
+
     @amender.amend act, amendment, (e, md) =>
       return done e if e
       fs.writeFileSync actualPath, md, 'utf8'
@@ -40,110 +53,51 @@ describe 'Amender - Integration', ->
         return done new Error 'Not the same'
       done()
 
-parse = (str, print) ->
+
+# Unit Tests
+# ==========
+
+parse = (item) ->
   try
-    ast = @parser.parse str
-    if print then console.log '\n', util.inspect ast, false, null
-    ast[0]
+    @parser.parse item
   catch e
     console.error e
     throw e
 
-describe 'Amender - Unit', ->
+# @param [Boolean] if true, print the parse output to console.
+test = (fixtureKey, print = false) ->
+  amendment = parse.call @, @fixtures[fixtureKey].item
+  if print then console.log '\n', util.inspect amendment, false, null
+  amendment.should.eql @fixtures[fixtureKey].expected
+
+describe 'Parser', ->
 
   describe 'marriage equality amendment act 2013', ->
 
     before ->
-      grammar = fs.readFileSync './grammar.pegjs', 'utf-8'
-      @parser = new Parser grammar
+      grammar =
+        header: read headerGrammar
+        action: read actionGrammar
+      @parser = new AmendmentParser grammar
+      @fixtures = require './fixtures/marriage-equality-amendment-act'
 
-    it '1', ->
-      ast = parse.call @, """
-        1 Subsection 5(1)(2) (definition of marriage)
-        Repeal the definition, substitute:
-        marriage means the union of two people, to the exclusion of all others, voluntarily entered into for life.
-        """
-      expected =
-        itemHeading:
-          itemNo: "1"
-          unit:
-            unitType: "Subsection"
-            unitNo: "5"
-            subUnitNos: ["1", "2"]
-            unitDescriptor: "definition of marriage"
-        action:
-          line:
-            action: "repeal+substitute"
-          body: "marriage means the union of two people, to the exclusion of all others, voluntarily entered into for life."
-      ast.should.eql expected
+    it '#1', ->
+      test.call @, 1
 
-    it '2', ->
-      ast = parse.call @, """
-        2  Subsection 45(2)
-        After “or husband”, insert “, or partner”.
-        """
-      expected =
-        itemHeading:
-          itemNo: "2"
-          unit:
-            unitType: "Subsection"
-            unitNo: "45"
-            subUnitNos: ["2"]
-            unitDescriptor: ""
-        action:
-          line:
-            action: 'insert'
-            position: "After"
-            subject: "or husband"
-            object: ", or partner"
-          body: ""
-      ast.should.eql expected
+    it '#2', ->
+      test.call @, 2
 
-    it '3', ->
-      ast = parse.call @, """
-        3  Subsection 46(1)
-        Omit “a man and a woman”, substitute “two people”.
-        """
-      expected =
-        itemHeading:
-          itemNo: "3"
-          unit:
-            unitType: "Subsection"
-            unitNo: "46"
-            subUnitNos: ["1"]
-            unitDescriptor: ""
-        action:
-          line:
-            action: "omit+substitute"
-            omit: "a man and a woman"
-            substitute: "two people"
-          body: ""
-      ast.should.eql expected
+    it '#3', ->
+      test.call @, 3
 
-    it '6', ->
-      ast = parse.call @, """
-        6  Section 88EA
-        Repeal the section.
-        """
-      expected =
-        itemHeading:
-          itemNo: "6"
-          unit:
-            unitType: "Section"
-            unitNo: "88EA"
-            subUnitNos: []
-            unitDescriptor: ""
-        action:
-          line:
-            action: "repeal"
-          body: ""
-      ast.should.eql expected
+    it '#6', ->
+      test.call @, 6
 
-        #4  Section 47
-        #After “Part”, insert “or in any other law”.
-        #5  Subsection 72(2)
-        #After “or husband”, insert “, or partner”.
+    #4  Section 47
+    #After “Part”, insert “or in any other law”.
+    #5  Subsection 72(2)
+    #After “or husband”, insert “, or partner”.
 
-        #7  Part III of the Schedule (table item 1)
-        #Omit “a husband and wife”, substitute “two people”.
-        #"""
+    #7  Part III of the Schedule (table item 1)
+    #Omit “a husband and wife”, substitute “two people”.
+    #"""
