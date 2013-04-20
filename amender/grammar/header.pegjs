@@ -16,7 +16,8 @@ unit
   { return {unitType:ut, unitNo: un, subUnitNos: sun, unitDescriptor: ud} }
 
 ofUnit
-  = unitType 's'? _ (unitNo / romanUnitNo) _ 'of' _ unit
+  = ut:unitType _ un:(romanUnitNo / unitNo) _ 'of' _ u:unit
+  { return {ofUnit: true, unitType: ut, unitNo: un, unit: u} }
 
 nonUnitHeader
   = nuh:(
@@ -41,14 +42,14 @@ unitType
   / 'schedule'i
   / 'part'i
   / 'clause'i
-  )
+  ) // TODO: 's'?
 
 // e.g. 1
 unitNo
   = un:[0-9a-zA-z\-]+ { return un.join('') }
 
 romanUnitNo
-  = [IVXLCDM]+ { return { roman: un.join('') } }
+  = un:[IVXLCDM]+ { return { roman: un.join('') } }
 
 // e.g. (1)(a)
 subUnitNo

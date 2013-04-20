@@ -46,6 +46,7 @@ class @Converter
       prettyTables: true
       # Should we convert absolute col widths to relative ones.
       relativeTableColWidths: true
+      styleMappings: require path.join __dirname, 'styles/styles.coffee'
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
@@ -80,6 +81,13 @@ class @Converter
 
   convertToMarkdown: (html) =>
     $ = cheerio.load html
+
+    if @opts.justMd
+      md = ''
+      $.root().children().each ->
+        md += toMarkdown $(@).html()
+        md += '\n'
+      return md
 
     if @opts.outputSplit
       _.each @opts.fileMappings, (classes, fileName) =>

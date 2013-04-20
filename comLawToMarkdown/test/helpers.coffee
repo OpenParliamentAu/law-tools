@@ -21,7 +21,7 @@ root = @
       #convertEachRootTagSeparately: false
       root: 'body'
       convertEachRootTagSeparately: true
-x
+
   incomeTaxAssessmentAct1997:
     htmlFile: 'income-tax-assessment-act-1997/C2013C00082VOL01.htm'
     fileMappings: 'income-tax-assessment-act-1997/files.coffee'
