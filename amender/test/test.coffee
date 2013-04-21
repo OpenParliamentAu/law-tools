@@ -11,6 +11,7 @@ expect = chai.expect
 {Amender} = require '../index'
 {Parser} = require '../parser'
 {AmendmentParser} = require '../amendmentParser'
+{Converter} = require '../../comLawToMarkdown'
 
 # Helpers.
 fixturesDir = '/Users/Vaughan/dev/opendemocracy-fixtures/amender'
@@ -26,24 +27,42 @@ read = (file) -> fs.readFileSync file, 'utf-8'
 # Entire Act Tests
 # ================
 
-describe 'Integration', ->
+generateExpectedMd = (html, cb) ->
+  converter = new Converter html,
+    # For aged care amendment act.
+    root: 'body'
+    convertEachRootTagSeparately: true
 
-  before ->
-    @amender = new Amender
+    outputSplit: false
+    outputDebug: false
+    justMd: true
+    cleanTables: true
+    linkifyDefinitions: false
+    url: "http://www.comlaw.gov.au/Details/C2012C00837/Html"
+  converter.getHtml (e) ->
+    return cb e if e
+    converter.convert cb
 
-  it 'Marriage Equality Amendment Bill 2013', (done) ->
-    actDir = 'marriage-equality-amendment-act-2013'
-    actMd = read fixture actDir, 'before.md'
-    actHtml = read fixture actDir, 'before-original.html'
-    amendment = read fixture actDir, 'amend.html'
-    expectedPath = fixture actDir, 'after.md'
-    expected = read expectedPath
-    actualPath = path.join __dirname, 'testOutput', 'after-actual' + '.md'
-    act =
-      markdown: actMd
-      #html: actHtml
-      originalHtml: actHtml
+fixtures =
+  'marriage-equality-amendment-act-2013':
+    actDir: 'marriage-equality-amendment-act-2013'
+  'aged-care-amendment-act-2011':
+    actDir: 'aged-care-amendment-act-2011'
 
+testEntireAct = (fixtureKey, _generateExpectedMd, done) ->
+  actDir = fixtures[fixtureKey].actDir
+  #actMd = read fixture actDir, 'before.md'
+  actHtml = read fixture actDir, 'before-original.html'
+  amendment = read fixture actDir, 'amend.html'
+  expectedHtmlPath = fixture actDir, 'after.html'
+  expectedPath = fixture actDir, 'after.md'
+  actualPath = path.join __dirname, 'testOutput', 'after-actual' + '.md'
+  act =
+    #markdown: actMd
+    #html: actHtml
+    originalHtml: actHtml
+
+  finish = (expected) =>
     @amender.amend act, amendment, (e, md) =>
       return done e if e
       fs.writeFileSync actualPath, md, 'utf8'
@@ -53,6 +72,28 @@ describe 'Integration', ->
         return done new Error 'Not the same'
       done()
 
+  if _generateExpectedMd
+    expectedHtml = read expectedHtmlPath
+    generateExpectedMd expectedHtml, (e, expectedMd) ->
+      return done e if e
+      console.log expectedMd
+      fs.writeFileSync expectedPath, expectedMd
+      finish expectedMd
+  else
+    expectedMd = read expectedPath
+    finish expectedMd
+
+
+describe 'Integration', ->
+
+  before ->
+    @amender = new Amender
+
+  it 'Marriage Equality Amendment Bill 2013', (done) ->
+    testEntireAct.call @, 'marriage-equality-amendment-act-2013', false, done
+
+  it 'Aged Care Amendment Act 2011', (done) ->
+    testEntireAct.call @, 'aged-care-amendment-act-2011', true, done
 
 # Unit Tests
 # ==========

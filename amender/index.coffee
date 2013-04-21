@@ -93,12 +93,14 @@ class @Amender
     @outputHtml
 
   toMarkdown: (html, cb) =>
+
     converter = new Converter html,
       outputSplit: false
       outputDebug: false
       justMd: true
       cleanTables: true
       linkifyDefinitions: false
+      url: "http://www.comlaw.gov.au/Details/C2012C00837/Html"
     converter.getHtml (e) ->
       return cb e if e
       converter.convert cb

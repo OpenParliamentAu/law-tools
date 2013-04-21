@@ -173,6 +173,10 @@ class @Converter
     # make all urls absolute
     util.convertRelativeUrlsToAbsolute $, @opts.url
 
+    # unwrap/remove all anchor tags.
+    $('a').each ->
+      $(@).replaceWith $(@).html()
+
     # change tags to markdown-safe tags
     # v - new tag information
     # k - html selector

@@ -17,6 +17,11 @@ onelog.getLibrary().setGlobalLogLevel 'WARN'
 opts = defaultOpts
 outputDir = path.join __dirname, 'out/singleFile'
 
+#difftool = 'opendiff'
+difftool = 'ksdiff'
+editor = 'lime'
+markdownPreviewTool = 'open -a Marked.app'
+
 setup = (act, done) ->
   _.extend opts, act.opts
   file = getFileInfo act
@@ -57,19 +62,19 @@ convert = (expectedMdFile, done) ->
 Regression detected.
 
 1. Inspect Markdown diff (merge changes if they are expected):
-  opendiff #{expectedMdPath} #{generatedMdPath} -merge #{expectedMdPath}
+  #{difftool} #{expectedMdPath} #{generatedMdPath} -merge #{expectedMdPath}
 
 2. Inspect rendered Markdown in Marked.app or browser:
-  open -a Marked.app #{generatedMdPath}
+  #{markdownPreviewTool} #{generatedMdPath}
   open #{generatedMdHtmlPath}
 
 3. Inspect original HTML in browser (what the rendered Markdown should resemble).
   open #{originalHTMLPath}
 
 4. Inspect cleaned HTML in text editor:
-  lime #{cleanedHTMLPath}
+  #{editor} #{cleanedHTMLPath}
 
-5. If the changes are expected, copy generated file to fixtures dir:
+5. If the changes are expected, copy generated file to fixtures dir or merge with diff tool from above:
   cp #{generatedMdPath} #{expectedMdPath}
 --------------------------------------------------------------------------------
 """

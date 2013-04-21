@@ -41,12 +41,10 @@ class @Amendment
     while curr?
       prev = curr
       curr = curr.next()
-      unless curr.length and curr isnt prev
+      unless curr.length and curr isnt prev and not curr.hasClass className
         curr = null
       else
         els.push curr
-        if curr.hasClass className
-          curr = null
     logger.debug "Found #{els.length} elements before next #{className} or last sibling"
     els
 
@@ -220,11 +218,3 @@ class @Amendment
       a + ' ' + b
     else
       a + b
-
-  handleOfUnit: ($) =>
-    unit = @amendment.unit
-
-    # First find target unit.
-
-    console.log unit
-    $.html()
