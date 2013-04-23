@@ -22,6 +22,8 @@ unitType
   / 'schedule'i
   / 'part'i
   / 'clause'i
+  / 'heading'i
+  / 'item'i
   ) 's'?
 
 // Action
@@ -42,6 +44,10 @@ omit
   = 'Omit' _ omit:quotedText ',' _ 'substitute' _ substitute:quotedText '.'
   { return {type: 'omit+substitute', omit: omit, substitute: substitute} }
 
+simpleOmit
+  = 'Omit' _ omit:quotedText '.'
+  { return {type: 'omit', omit: omit} }
+
 position
   = (
     'after'i
@@ -59,7 +65,7 @@ simpleInsert
   = 'Insert:' { return {type: 'simpleInsert'}; }
 
 actionLine
-  = repeal / repealUnit / omit / insert / simpleInsert
+  = repeal / repealUnit / simpleOmit / omit / insert / simpleInsert
 
 char
   = .

@@ -3,6 +3,25 @@ onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js
 logger = onelog.get 'Amender Test'
+#log4js.configure
+#  appenders: [
+#    {
+#      type: 'console'
+#      category: ['Amender Test', 'Amendment', 'AmendmentParser']
+#    }
+#  ]
+#log4js.configure
+#  appenders: [
+#    {
+#      type: 'console'
+#      category: ['Amender Test', 'Amendment', 'AmendmentParser']
+#      layout:
+#        type: 'pattern'
+#        pattern: "%m%n"
+#    }
+#  ]
+
+log4js.setGlobalLogLevel 'OFF'
 
 # Vendor.
 fs = require 'fs'
@@ -76,6 +95,7 @@ recode = (file) ->
   ret = ret.replace /[ÒÓ]/g, '"'
   ret = ret.replace /Õ/g, ' '
   ret = ret.replace /&#8209;/g, '-'
+  #ret = ret.replace /&#146;/g, '\''
   ret
 
 # opts.recode will convert from 'ISO-8859-1' to 'UTF-8' and replace
@@ -120,7 +140,8 @@ Regression detected.
 
   finish = (expected) =>
     @amender.amend act, amendment,
-      onlyProcessRange: [8, 8]
+      #onlyProcessRange: [8, 9]
+      onlyProcessRange: null
     , (e, md, html) =>
       return done e if e
       fs.writeFileSync actualPath, md, 'utf8'

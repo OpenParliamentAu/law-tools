@@ -7,8 +7,4 @@ class @Parser
     @parser = PEG.buildParser grammar
 
   parse: (item) =>
-    try
-      @parser.parse item
-    catch e
-      console.error e
-      throw e
+    @parser.parse item

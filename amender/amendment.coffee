@@ -6,6 +6,36 @@ _ = require 'underscore'
 fs = require 'fs'
 path = require 'path'
 
+# Maps unit types to classes used in `html`.
+unitMappings =
+  'chapter': 'chapter' # not right!
+  'part': 'ActHead2'
+  'division': 'division'
+  'section':  'ActHead5'
+  'subsection': 'subsection'
+  'subparagraph': 'paragraphsub'
+  'subdivision': 'ActHead4'
+  'paragraph': 'paragraph'
+  'clause': 'ActHead5'
+
+# All unit referencing starts at section.
+units = [
+  'chapter', 'part', 'division', 'subdivision', 'section', 'subsection', 'paragraph', 'subparagraph', 'clause'
+]
+
+# For mapping string to methods in `Action` class.
+actionMap =
+  'repeal+substitute': 'repealAndSubstitute'
+  'omit+substitute': 'omitAndSubstitute'
+  'insert': 'insert'
+  'repeal': 'repeal'
+  'simpleInsert': 'simpleInsert'
+
+getClassNamesAboveUnit = (unit) ->
+  a = _.initial units, _.indexOf(units, unit)
+  a = _.map a, (i) -> unitMappings[i]
+  a
+
 class @Amendment
 
   constructor: (@amendment, @opts) ->
@@ -32,14 +62,17 @@ class @Amendment
 
   # Get all elements up until an element with the same class name is
   # found or end of siblings.
-  @getElementsUntilClass = ($, startEl, className) ->
+  @getElementsUntilClass = ($, startEl, className, untilClasses) ->
+    #untilClasses = getClassNamesAboveUnit className
     curr = $(startEl)
     prev = null
     els = []
     while curr?
       prev = curr
       curr = curr.next()
-      unless curr.length and curr isnt prev and not curr.hasClass className
+      #end1 = _.any untilClasses, (i) -> curr.hasClass(className)
+      end = curr.hasClass(className)
+      unless curr.length and curr isnt prev and not end # and not end1
         curr = null
       else
         els.push curr
@@ -71,32 +104,8 @@ class @Amendment
     unit = @amendment.unit
     $ = cheerio.load html
 
-    # For mapping string to methods in `Action` class.
-    actionMap =
-      'repeal+substitute': 'repealAndSubstitute'
-      'omit+substitute': 'omitAndSubstitute'
-      'insert': 'insert'
-      'repeal': 'repeal'
-      'simpleInsert': 'simpleInsert'
-
     action = @amendment.action
     action.type = actionMap[@amendment.action.type]
-
-    # Maps unit types to classes used in `html`.
-    unitMappings =
-      'part': 'part'
-      'division': 'division'
-      'section':  'ActHead5'
-      'subsection': 'subsection'
-      'subparagraph': 'paragraphsub'
-      'subdivision': 'ActHead4'
-      'paragraph': 'paragraph'
-      'clause': 'ActHead5'
-
-    # All unit referencing starts at section.
-    units = [
-      'chapter', 'part', 'division', 'subdivision', 'section', 'subsection', 'paragraph', 'subparagraph', 'clause'
-    ]
 
     logger.trace unit
 
@@ -140,14 +149,16 @@ class @Amendment
       currentUnit = stack.pop()
       logger.debug "Finding #{currentUnit.type}", currentUnit.number
       switch currentUnit.type.toLowerCase()
+
         when 'subdivision'
           # TODO: CharSubdNo includes `subdivision` text.
           el = Amendment.findUnitFromInnerSelector $, '.ActHead4', '.CharSubdNo', currentUnit.number, 'Subdivision'
-          console.log $(el).html()
           els = Amendment.getElementsUntilClass $, el, 'ActHead4'
+
         when 'part'
           el = Amendment.findSubUnit $, els, currentUnit.number, 'ActHead2'
           els = Amendment.getElementsUntilClass $, el, 'ActHead2'
+
         when 'schedule'
           chapters = $('.ActHead1').filter ->
             text = $(@).find('.CharChapNo').text()
@@ -159,26 +170,84 @@ class @Amendment
           els = Amendment.getElementsUntilClass $, el, 'ActHead1'
         when 'section', 'clause'
           el = Amendment.findUnitFromInnerSelector $, '.ActHead5', '.CharSectno', currentUnit.number
-          #console.log $(el).map -> $(@).text()
           els = Amendment.getElementsUntilClass $, el, 'ActHead5'
+
         when 'subsection'
-          # Now that we have this section's elements. Find subUnitNo.
-          el = Amendment.findSubUnit $, els, currentUnit.number, 'subsection'
-          # This will get any `subsection2` tags. These are just differently
-          # formatted subsections.
-          els = Amendment.getElementsUntilClass $, el, 'subsection'
-        when 'paragraph'
-          # Multiple paragraphs.
-          if currentUnit.number instanceof Array
+          _unitType = 'subsection'
+
+          # We are working with a range of subsections.
+          # TODO: This is similar to paragraph. Extract to util.
+          range = currentUnit.number.range
+          array = currentUnit.number instanceof Array
+          if range? or array
+            numbers = if range?
+              _.range range.from, range.to
+            else if array
+              currentUnit.number
             multiple = true
             affected = []
-            for number in currentUnit.number
-              el = Amendment.findSubUnit $, els, number, 'paragraph'
-              pels = Amendment.getElementsUntilClass $, el, 'paragraph'
+            for number in numbers
+              el = Amendment.findSubUnit $, els, number, _unitType
+              pels = Amendment.getElementsUntilClass $, el, _unitType
               affected.push {el: el, els: pels}
-          else
-            el = Amendment.findSubUnit $, els, currentUnit.number, 'paragraph'
-            els = Amendment.getElementsUntilClass $, el, 'paragraph'
+            break
+
+          # Now that we have this section's elements. Find subUnitNo.
+          el = Amendment.findSubUnit $, els, currentUnit.number, _unitType
+
+          # If we don't find the subsection, it might not be numbered
+          # because it is the only one. (They sometimes to this).
+          subsections = $(els).filter -> $(@).hasClass(_unitType)
+          el = subsections[0] if subsections.length is 1
+
+          # This will get any `subsection2` tags. These are just differently
+          # formatted subsections.
+          els = Amendment.getElementsUntilClass $, el, _unitType
+
+
+          if not els.length and not el?
+            # We have not found the subsection. It might actually be a
+            # section reference, because the subsection was not included in the
+            # numbering.
+
+            currentUnit.type = 'section'
+            stack.push currentUnit
+            break
+
+        when 'paragraph'
+
+          oldEls = els
+          multiple = false
+          find = (_unitType, _els) ->
+            # Multiple paragraphs.
+            if currentUnit.number instanceof Array
+              multiple = true
+              affected = []
+              for number in currentUnit.number
+                el = Amendment.findSubUnit $, _els, number, _unitType
+                pels = Amendment.getElementsUntilClass $, el, _unitType
+                affected.push {el: el, els: pels}
+            else
+              el = Amendment.findSubUnit $, _els, currentUnit.number, _unitType
+              els = Amendment.getElementsUntilClass $, el, _unitType
+
+          find 'paragraph', els
+
+          unless el?
+            # Could be a BoxPara.
+
+            # BoxPara is surrounded in a classless border. We add its children
+            # to our array of elements we will search.
+            aEls = []
+            _.each oldEls, (item) ->
+              unless item.attr('class')?
+                for child in $(item).children()
+                  aEls.push child
+              else
+                aEls.push item
+            #console.log $(aEls).map -> $.html @
+            find 'BoxPara', aEls
+
 
     # Process descriptor.
     # i.e. (definition of marriage)
@@ -224,6 +293,8 @@ class @Amendment
             Amendment.insert $, el, els, action, action.position.toLowerCase()
           when 'omitAndSubstitute'
             Amendment.omitAndSubstitute $, el, els, action
+          when 'simpleOmit'
+            Amendment.simpleOmit $, el, els, action
           when 'repeal'
             if multiple
               for a in affected
@@ -249,8 +320,11 @@ class @Amendment
     $(el).remove()
     $(els).each -> $(@).remove()
 
+  @simpleOmit: ($, el, els, action) ->
+    $(el).html $(el).html().replace action.omit, ''
+    $(els).each -> $(@).html $(@).html().replace action.omit, ''
+
   @omitAndSubstitute: ($, el, els, action) ->
-    console.log $(el).html()
     $(el).html $(el).html().replace action.omit, action.substitute
     $(els).each -> $(@).html $(@).html().replace action.omit, action.substitute
 

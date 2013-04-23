@@ -58,11 +58,15 @@ subUnitNo
   = '(' sun:[0-9a-zA-Z]+ ')' { return sun.join('') }
 
 subUnitNos
-  = multipleSubUnitNos / subUnitNo
+  = multipleSubUnitNos / rangeSubUnitNos / subUnitNo
 
 multipleSubUnitNos
   = a:subUnitNo _ 'and' _ b:subUnitNo
   { return [a, b]; }
+
+rangeSubUnitNos
+  = a:subUnitNo _ 'to' _ b:subUnitNo
+  { return {range: {from: a, to: b}}; }
 
 // e.g. (definition of marriage)
 unitDescriptor
