@@ -1,1 +1,5 @@
 downloads/**
+
+# IntelliJ
+.idea/workspace.xml
+.idea/tasks.xml
