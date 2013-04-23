@@ -2,13 +2,62 @@
 
 *Updates a Australian Federal Parliament Consolidated Act from an Amendment Bill*
 
-## Goals
+## Usage
 
-The goal is to allow the general public to track the progress of bills through parliament.
+`npm install`
 
-The strategy is to produce Markdown diffs for amendments currently before parliament.
+```
+{Amender} = require 'amendment'
+amender = new Amender
+act =
+  originalHtml: <html string of previous consolidated act scraped from comlaw.gov.au>
+amendment = <html string of amendment act scraped from comlaw.gov.au>
+amender.amend act, amendment, (e, md, html) ->
+  throw e if e
+  console.log md
+```
 
-## Method
+## Why?
+
+The progress of bills through each house of parliament can be represented using branches and forking on GitHub.
+
+We want to view diffs of bills before parliament to show the changes in context and allow discussion from the general public (analagous to code reviews in the programming world), as well as providing links to relevant parlimentary debates, committee reports, and status updates.
+
+Currently ComLaw only creates consolidated acts after a bill is assented. This means we can't easily create diffs for bills currently before parliament - the time when they are most useful.
+
+So the options are manually modifying consolidated acts or automating the process.
+
+## How?
+
+Amendment bills are written in plain English. For example:
+
+```
+Schedule 3—Spent legislation
+Part 1—Amendments
+Aged Care Act 1997
+1  Subparagraph 16‑2(3)(g)(iii)
+Omit “paid; or”, substitute “paid;”.
+```
+
+Amendments are drafted by the OPC. The OPC follows certain directions in drafting bills and uses consistent "forms" for amendments. For example above is referred to as the `omit` amendment form.
+
+This allows us to parse amendments with relative ease.
+
+After we have parsed the amendments, the next stage is locating the target unit and applying the amendment.
+
+### Method
+
+```
+for each schedule
+  for each part
+    for each act
+      for each item
+        1. parse heading, action, body
+        2. locate unit
+        3. apply
+```
+
+## Discussion
 
 First we parse the amendment act to work out the unit to be changed and the changes we need to make.
 
@@ -16,10 +65,10 @@ Then we must apply the change.
 
 There are several places we can apply changes:
 
-- Word (.doc)
-- Word -> Word 2007 (.docx) (XML)
-- Word -> HTML
-- Word -> HTML -> Markdown
+ - Word (.doc)
+ - Word -> Word 2007 (.docx) (XML)
+ - Word -> HTML
+ - Word -> HTML -> Markdown
 
 Our choice depends upon our ability to locate the unit to be changed.
 
@@ -33,7 +82,7 @@ A disadvantage is that diffs can only be generated against the latest consolidat
 
 ### Integration
 
-`make`
+`make test`
 
 ### Parser
 
@@ -49,4 +98,4 @@ An idea is to add as much semantic information as possible to the intermediate H
 
 ## Glossary
 
-Office of Parliamentary Counsel (OPC) - Responsible for drafting consolidated acts when new amendments are passed.
+ - Office of Parliamentary Counsel (OPC) - Responsible for drafting consolidated acts when new amendments are passed.
