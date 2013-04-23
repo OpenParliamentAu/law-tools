@@ -29,9 +29,28 @@ class @Amender
     @data = {}
 
   # This is the main function.
-  amend: (@act, @amendmentActHtml, done) =>
+  amend: (@act, @amendmentActHtml, @opts, done) =>
+    unless done? then done = @opts; @opts = {};
+    _.defaults @opts,
+      onlyProcessFirstN: null
+      onlyProcessNth: null
+      onlyProcessRange: null
+
+    # Pre-process amendment act html.
+    @amendmentActHtml = @amendmentActHtml.replace /&#210;/g, '"'
+
+    # TODO: Don't do this. Do something else.
+    @act.originalHtml = @act.originalHtml.replace  /&#8209;/g, '‑'
+    @act.originalHtml = @act.originalHtml.replace  /‑/g, '‑'
+    @act.originalHtml = @act.originalHtml.replace  /[ ]/g, ' '
+    @amendmentActHtml = @amendmentActHtml.replace  /&#8209;/g, '‑'
+    @amendmentActHtml = @amendmentActHtml.replace  /‑/g, '‑'
+    #@amendmentActHtml = @amendmentActHtml.replace /&nbsp;/g, '\u2002'
+    # ---
+
     @$ = cheerio.load @amendmentActHtml
     $ = @$
+
     @outputHtml = @act.originalHtml
 
     # Bill meta-data.
@@ -40,10 +59,10 @@ class @Amender
       @data.house = @$('House').text()
 
     items = @getAllItems()
-    html = @processAmendments items
-    @toMarkdown html, (e, md) ->
+    modifiedOriginalHtml = @processAmendments items
+    @toMarkdown modifiedOriginalHtml, (e, md, intermediateHtml) ->
       return done e if e
-      done null, md
+      done null, md, modifiedOriginalHtml, intermediateHtml
 
   # First we get all the amendment items.
   # They are separated by `.ItemHead` elements.
@@ -73,8 +92,15 @@ class @Amender
   processAmendments: (amendments) =>
 
     # Process amendments.
-    _.each _.first(amendments, 7), (els) =>
-      @processAmendment els
+    amendments = if @opts.onlyProcessNth
+      [amendments[@opts.onlyProcessNth - 1]]
+    else if @opts.onlyProcessFirstN
+      _.first amendments, @opts.onlyProcessNth
+    else if @opts.onlyProcessRange
+      amendments.slice @opts.onlyProcessRange[0] - 1, @opts.onlyProcessRange[1]
+    else amendments
+
+    _.each amendments, (els) => @processAmendment els
 
     # Return html.
     @outputHtml
@@ -84,10 +110,19 @@ class @Amender
     $ = @$
     # First, parse unit and action.
     parser = new AmendmentParser grammar
+
+    prepareBody = ->
+      body = ''
+      if els.length > 2
+        for i in [2..els.length - 1]
+          body += $.html (els)[i]
+          body += '\n\n'
+      body
+
     amendment = new Amendment parser.parse
       line1: $(els[0]).text()
       line2: $(els[1]).html()
-      line3: $(els[2]).html()
+      line3: prepareBody()
     # Applies the amendment to some html and returns the new html.
     @outputHtml = amendment.apply @outputHtml
     @outputHtml

@@ -11,6 +11,8 @@ class @AmendmentParser
 
     parse: (item) =>
       amendment = {}
+      # Replace unwanted chars.
+      item.line1 = item.line1.replace /\n/, ' '
       logger.debug 'Parsing header:', item.line1
       parser = new Parser @grammar.header
       header = parser.parse item.line1
@@ -25,5 +27,6 @@ class @AmendmentParser
       logger.debug 'Parsing action:', item.line2
       parser = new Parser @grammar.action
       amendment.action = parser.parse item.line2
+      amendment.action.position = header.position if header.position?
       amendment.body = item.line3
       amendment

@@ -504,6 +504,7 @@ class @Converter
     html = html.replace /\r/g, '\n'
 
     logger.trace 'Converting to Markdown'
+
     md = @convertToMarkdown html
 
-    done null, md
+    done null, md, html

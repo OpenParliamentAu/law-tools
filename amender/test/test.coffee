@@ -1,7 +1,16 @@
+# Logging.
+onelog = require 'onelog'
+log4js = require 'log4js'
+onelog.use onelog.Log4js
+logger = onelog.get 'Amender Test'
+
+# Vendor.
 fs = require 'fs'
 path = require 'path'
 util = require 'util'
+require 'colors'
 
+# Chai.
 chai = require 'chai'
 chai.Assertion.showDiff = false # Mocha support is broken, does not respect this option.
 chai.should()
@@ -16,23 +25,31 @@ expect = chai.expect
 # Helpers.
 fixturesDir = '/Users/Vaughan/dev/opendemocracy-fixtures/amender'
 fixture = (dir, p) -> path.join fixturesDir, dir, p
-diffTool = 'ksdiff'
-diffCmd = (actual, expected) -> "#{diffTool} #{actual} #{expected}"
+read = (file, format = 'utf-8') -> fs.readFileSync file, format
 
+# Diff.
+#diffTool = 'ksdiff'
+diffTool = 'compare2'
+diffCmd = (a, b, c) ->
+  if c?
+    "#{diffTool} #{a} #{b} #{c} -3 -swap".cyan
+  else
+    "#{diffTool} #{a} #{b} -swap".cyan
+#diffCmd = (a, b, c) -> "#{diffTool} #{a} #{b} #{c if c? else ''}".cyan
+
+# Grammar.
 headerGrammar = './grammar/header.pegjs'
 actionGrammar = './grammar/action.pegjs'
 
-read = (file) -> fs.readFileSync file, 'utf-8'
 
 # Entire Act Tests
 # ================
 
-generateExpectedMd = (html, cb) ->
+generateMdFromHtml = (html, cb) ->
   converter = new Converter html,
     # For aged care amendment act.
     root: 'body'
     convertEachRootTagSeparately: true
-
     outputSplit: false
     outputDebug: false
     justMd: true
@@ -49,34 +66,87 @@ fixtures =
   'aged-care-amendment-act-2011':
     actDir: 'aged-care-amendment-act-2011'
 
-testEntireAct = (fixtureKey, _generateExpectedMd, done) ->
+#
+recode = (file) ->
+  {Iconv} = require 'iconv'
+  str = fs.readFileSync file
+  iconv = new Iconv 'ISO-8859-1', 'UTF-8'
+  buffer = iconv.convert str
+  ret = buffer.toString()
+  ret = ret.replace /[ÒÓ]/g, '"'
+  ret = ret.replace /Õ/g, ' '
+  ret = ret.replace /&#8209;/g, '-'
+  ret
+
+# opts.recode will convert from 'ISO-8859-1' to 'UTF-8' and replace
+# a few problematic characters.
+testEntireAct = (fixtureKey, opts, done) ->
+  unless done? then done = opts; opts = {}
   actDir = fixtures[fixtureKey].actDir
   #actMd = read fixture actDir, 'before.md'
-  actHtml = read fixture actDir, 'before-original.html'
-  amendment = read fixture actDir, 'amend.html'
+  actHtmlPath = fixture actDir, 'before-original.html'
+  #actHtml = read actHtmlPath
+  actHtml = recode actHtmlPath
+  if opts.recode
+    amendment = recode fixture actDir, 'amend.html'
+  else
+    amendment = read fixture actDir, 'amend.html'
   expectedHtmlPath = fixture actDir, 'after.html'
   expectedPath = fixture actDir, 'after.md'
+  beforePath = fixture actDir, 'before.md'
   actualPath = path.join __dirname, 'testOutput', 'after-actual' + '.md'
+  actualModifiedOriginalHtmlPath = path.join __dirname, 'testOutput', 'after-actual' + '.html'
+  actualIntermediateHtmlPath = path.join __dirname, 'testOutput', 'after-actual-inter' + '.html'
   act =
     #markdown: actMd
     #html: actHtml
     originalHtml: actHtml
 
+  printDiff = ->
+    console.log """
+--------------------------------------------------------------------------------
+Regression detected.
+
+1. Inspect Markdown diff (merge changes if they are expected):
+  #{diffCmd actualPath, expectedPath}
+
+  #{diffCmd actualPath, expectedPath, beforePath}
+
+2. Inspect original HTML diff (original html > modified html > intermediate html):
+  #{diffCmd actHtmlPath, actualModifiedOriginalHtmlPath, actualIntermediateHtmlPath}
+
+--------------------------------------------------------------------------------
+"""
+
   finish = (expected) =>
-    @amender.amend act, amendment, (e, md) =>
+    @amender.amend act, amendment,
+      onlyProcessRange: [8, 8]
+    , (e, md, html) =>
       return done e if e
       fs.writeFileSync actualPath, md, 'utf8'
-      console.log "Wrote to", actualPath
+      fs.writeFileSync actualModifiedOriginalHtmlPath, html, 'utf8'
+      fs.writeFileSync actualIntermediateHtmlPath, html, 'utf8'
+      logger.debug "Wrote to", actualPath
+      logger.debug "Wrote to", actualModifiedOriginalHtmlPath
+      logger.debug "Wrote to", actualIntermediateHtmlPath
       unless md is expected
-        console.log diffCmd actualPath, expectedPath
-        return done new Error 'Not the same'
+        printDiff()
+        return done new Error 'Regression detected.'
       done()
 
-  if _generateExpectedMd
-    expectedHtml = read expectedHtmlPath
-    generateExpectedMd expectedHtml, (e, expectedMd) ->
+  # Generate original act as markdown.
+  # We can compare the after-actual.md to see what has actually changed.
+  if opts.generateBeforeMd and not fs.existsSync beforePath
+    beforeHtml = read fixture actDir, 'before-original.html'
+    generateMdFromHtml beforeHtml, (e, beforeMd) ->
       return done e if e
-      console.log expectedMd
+      fs.writeFileSync beforePath, beforeMd
+
+  # Only generate markdown fixture if it doesn't already exist.
+  if opts.generateExpectedMd and not fs.existsSync expectedPath
+    expectedHtml = read expectedHtmlPath
+    generateMdFromHtml expectedHtml, (e, expectedMd) ->
+      return done e if e
       fs.writeFileSync expectedPath, expectedMd
       finish expectedMd
   else
@@ -90,10 +160,16 @@ describe 'Integration', ->
     @amender = new Amender
 
   it 'Marriage Equality Amendment Bill 2013', (done) ->
-    testEntireAct.call @, 'marriage-equality-amendment-act-2013', false, done
+    testEntireAct.call @, 'marriage-equality-amendment-act-2013',
+      generateExpectedMd: false
+    , done
 
   it 'Aged Care Amendment Act 2011', (done) ->
-    testEntireAct.call @, 'aged-care-amendment-act-2011', true, done
+    testEntireAct.call @, 'aged-care-amendment-act-2011',
+      generateExpectedMd: true
+      generateBeforeMd: true
+      recode: true
+    , done
 
 # Unit Tests
 # ==========

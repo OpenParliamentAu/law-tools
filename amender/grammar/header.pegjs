@@ -3,8 +3,8 @@ start
 
 // e.g. 1 Subsection 5(1) (definition of marriage)
 itemHeading
-  = itemNo:[0-9]+ _ u:(nonUnitHeader / ofUnit / unit)
-  { return {itemNo: itemNo.join(''), unit: u} }
+  = itemNo:[0-9]+ _ p:position? _? u:(nonUnitHeader / ofUnit / unit)
+  { return {itemNo: itemNo.join(''), unit: u, position: p} }
 
 // Unit
 // ----
@@ -12,7 +12,7 @@ itemHeading
 // Identifies the affected unit.
 // e.g. Subsection 5(1) (definition of marriage)
 unit
-  = ('the' _)? ut:unitType _ un:unitNo? sun:subUnitNo* _? ud:unitDescriptor?
+  = ('the' _)? ut:unitType 's'? _ un:unitNo? sun:subUnitNos* _? ud:unitDescriptor?
   { return {unitType:ut, unitNo: un, subUnitNos: sun, unitDescriptor: ud} }
 
 ofUnit
@@ -31,6 +31,8 @@ unitType
     'chapter'i
   / 'section'i
   / 'subsection'i
+  / 'division'i
+  / 'subdivision'i
   / 'paragraph'i
   / 'subparagraph'i
   / 'note'i
@@ -42,11 +44,11 @@ unitType
   / 'schedule'i
   / 'part'i
   / 'clause'i
-  ) // TODO: 's'?
+  ) // 's'?
 
 // e.g. 1
 unitNo
-  = un:[0-9a-zA-z\-]+ { return un.join('') }
+  = un:[0-9a-zA-z\-\u2011]+ { return un.join('') }
 
 romanUnitNo
   = un:[IVXLCDM]+ { return { roman: un.join('') } }
@@ -55,10 +57,23 @@ romanUnitNo
 subUnitNo
   = '(' sun:[0-9a-zA-Z]+ ')' { return sun.join('') }
 
+subUnitNos
+  = multipleSubUnitNos / subUnitNo
+
+multipleSubUnitNos
+  = a:subUnitNo _ 'and' _ b:subUnitNo
+  { return [a, b]; }
+
 // e.g. (definition of marriage)
 unitDescriptor
   = '(' ud:[0-9a-zA-Z \xA0]+ ')' { return ud.join('') }
 
 // One or more whitespace.
 _
-  = [ \t\xA0]+
+  = [ \t\xA0\u2002]+
+
+position
+  = (
+    'after'i
+  / 'before'i
+  )

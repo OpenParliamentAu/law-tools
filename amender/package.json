@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "pegjs": "~0.7.0"
+    "pegjs": "~0.7.0",
+    "iconv": "~2.0.5",
+    "colors": "~0.6.0-1"
   }
 }

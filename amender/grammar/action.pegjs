@@ -6,18 +6,23 @@ start
 
 unitType
   = (
-    'part'i
-  / 'chapter'i
+    'chapter'i
   / 'section'i
   / 'subsection'i
+  / 'division'i
+  / 'subdivision'i
   / 'paragraph'i
+  / 'subparagraph'i
   / 'note'i
   / 'penalty'i
   / 'table'i
   / 'table item'i
   / 'table cell'i
   / 'definition'i
-  )
+  / 'schedule'i
+  / 'part'i
+  / 'clause'i
+  ) 's'?
 
 // Action
 // ------
@@ -31,7 +36,7 @@ repealUnit
   { return {type: 'repeal'} }
 
 quotedText
-  = '“' s:string '”' { return s }
+  = ('“' / '"') s:string ('”' / '"') { return s }
 
 omit
   = 'Omit' _ omit:quotedText ',' _ 'substitute' _ substitute:quotedText '.'
@@ -48,15 +53,20 @@ insert
   = p:position? _ subject:quotedText ',' _ 'insert' _ object:quotedText '.'
   { return {type: 'insert', position: p, subject: subject, object: object} }
 
+// For when position to insert is specified in the header.
+// e.g. Insert:
+simpleInsert
+  = 'Insert:' { return {type: 'simpleInsert'}; }
+
 actionLine
-  = repeal / repealUnit / omit / insert
+  = repeal / repealUnit / omit / insert / simpleInsert
 
 char
   = .
 
 // Use this to capture quoted text.
 string
-  = chars:[^“”]+ { return chars.join(""); }
+  = chars:[^“”"]+ { return chars.join(""); }
 
 text
   = chars:char+ { return chars.join(""); }
