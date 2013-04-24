@@ -1,5 +1,39 @@
 # Open Parliament Tools
 
+_Scripts to initially populate the law repository and keep it up to date._
+
+All modules written in CoffeeScript for Node.js.
+
+Separate modules are used for different parts of functionality.
+
+`index.coffee` provides an api to common operations involving the other modules.
+
+## Usage
+
+```
+require './index'
+
+
+```
+
+## comlaw-scrape
+
+Downloads all acts from http://www.comlaw.gov.au.
+
+## lawdown
+
+Converts Word-exported act html to Markdown.
+
+## amender
+
+Updates a Australian Federal Parliament Consolidated Act from an Amendment Bill
+
+
+
+
+
+---
+
 A Node.js screen scraper for accessing legislation from the Parliament of Australia.
 
 ## Why?

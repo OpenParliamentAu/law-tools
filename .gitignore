@@ -1,4 +1,6 @@
+node_modules
 downloads/**
+tmp
 
 # IntelliJ
 .idea/workspace.xml

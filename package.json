@@ -1,0 +1,14 @@
+{
+  "name": "op-tools",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "onelog": "~0.1.3",
+    "xtend": "~2.0.3",
+    "querystring": "~0.2.0",
+    "mkdirp": "~0.3.5",
+    "underscore": "~1.4.4",
+    "cheerio": "~0.11.0",
+    "request": "~2.20.0"
+  }
+}
