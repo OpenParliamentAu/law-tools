@@ -1,4 +1,6 @@
+#
 # A scraper for http://www.comlaw.gov.au/
+#
 
 # Logging.
 onelog = require 'onelog'
@@ -18,22 +20,42 @@ fs = require 'fs'
 {ActSeriesPage} = require './actSeriesPage'
 {BillDownloadPage} = require './billDownloadPage'
 {ActPage} = require './actPage'
+{Converter} = require './converter'
 
 # Constants.
 comlawRoot = 'http://www.comlaw.gov.au'
 
 class @ComLaw
 
+  # Download act meta-data for each act in a series for given ComLawId.
   @actSeries: (id, opts, done) ->
-    done = opts unless done?
+    unless done? then done = opts; opts = {}
     seriesUrl = "#{comlawRoot}/Series/#{id}"
     actSeries = new ActSeries url: seriesUrl
     actSeries.scrape (e, data) ->
       return done e if e
       done null, data
 
+  # For a given ComLawId.
+  # - Try to scrape HTML.
+  # - Try to scrape RTF.
+  # Returns (err, actData).
+  #   actData has same keys as titles from ComLaw html data table.
+  @downloadAct: (id, opts, done) ->
+    unless done? then done = opts; opts = {}
+    detailsUrl = "#{comlawRoot}/Details/#{id}"
+    page = new ActPage
+      url: detailsUrl
+      billId: id
+      downloadRootDest: opts.downloadDir
+    page.scrape done
+
+  @convertToMarkdown: (id, actData, dest, done) =>
+    Converter.convertToMarkdown id, actData, dest, done
+
+  # Download .doc file for act and convert to Markdown.
   @downloadActFiles: (id, opts, done) ->
-    done = opts unless done?
+    unless done? then done = opts; opts = {}
     downloadUrl = "#{comlawRoot}/Details/#{id}/Download"
     downloadRootDest = 'downloads/comlaw/'
     page = new BillDownloadPage
@@ -51,51 +73,9 @@ class @ComLaw
         logger.debug 'Converted', src, 'to', dest
         done null, dest
 
-  @downloadActHTML: (id, opts, done) ->
-    done = opts unless done?
-    detailsUrl = "#{comlawRoot}/Details/#{id}"
-    downloadRootDest = 'downloads/comlaw/'
-    page = new ActPage
-      url: detailsUrl
-      billId: id
-      downloadRootDest: downloadRootDest
-    page.scrape (e, data) ->
-      return done e if e
-      return done() unless data?
-      dest = path.resolve path.join downloadRootDest, 'markdown', id  + '.md'
-
-      # HTML.
-      if data.html?
-        CustomFileConverter.convertHTMLtoMarkdown data.html, dest, (e) ->
-          return done e if e
-          logger.debug "Converted HTML bill #{id} to", dest
-          done null, dest
-
-      else if data.rtf?
-        CustomFileConverter.convertRTFtoMarkdown data.rtf, dest, (e) ->
-           return done e if e
-           logger.debug "Converted rtf bill #{id} to", dest
-           done null, dest
-
-      else
-        done null, null
-
   @downloadAllBillsFromIDOnwards: ->
     "http://www.comlaw.gov.au/Browse/Results/ByID/Bills/Asmade/C2013B000/0"
     # TODO
-
-# This is a converter I have written to manually convert Word HTML.
-class CustomFileConverter
-
-  @convertHTMLtoMarkdown: (html, dest, done) =>
-    {toMarkdown} = require './to-markdown'
-    out = toMarkdown html
-    fs.writeFileSync dest, out
-    done()
-
-  @convertRTFtoMarkdown: (html, dest, done) =>
-    logger.error 'TODO'
-    done()
 
 class FileConverter
 

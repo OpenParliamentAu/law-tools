@@ -10,10 +10,11 @@ async = require 'async'
 path = require 'path'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
+cheerio = require 'cheerio'
 
 # Libs.
 # TODO: Remove relative dependency.
-{BasePage} = require './../lib/basePage'
+{BasePage} = require '../comlaw/basePage'
 
 root = exports
 
@@ -24,7 +25,7 @@ class @ConsolidatedActsPage extends BasePage
     done null, acts
 
   extractActs: =>
-    $ = @$ = require('cheerio').load @body, lowerCaseTags: true
+    $ = @$ = cheerio.load @body, lowerCaseTags: true
     acts = []
     logger.debug "Bills found:", $('li').length
     _.each $('ul > li'), (li) ->

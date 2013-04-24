@@ -10,9 +10,14 @@ fs = require 'fs'
 class @ActPage extends BasePage
 
   scraper: (done) =>
-    @downloadBillHTMLOrRTF (e, html) =>
+    @downloadBillHTMLOrRTF (e, data) =>
       return done e if e
-      done null, html
+      done null, data
+
+  saveFile: (data, ext) =>
+    dest = path.join @opts.downloadRootDest, @opts.billId + ext
+    mkdirp.sync path.dirname dest
+    fs.writeFileSync dest, data
 
   # done(e, text) - does not write to files, returns text.
   downloadBillHTMLOrRTF: (done) =>
@@ -23,28 +28,27 @@ class @ActPage extends BasePage
     htmlEl = $(sel)
     if $(htmlEl).length
       html = $(htmlEl).html()
-      dest = path.join @opts.downloadRootDest, 'html', @opts.billId + '.html'
-      mkdirp.sync path.dirname dest
-      fs.writeFileSync dest, html
+      @saveFile html, '.html'
+      logger.debug 'Found html'
       return done null, {html}
+    else
+      # If there is no html, check for rtf download link.
+      # TODO: There might only be a PDF.
+      rtfDownloadLink = $("[id*='hlPrimaryDoc']")
+      if $(rtfDownloadLink).length
+        href = rtfDownloadLink.attr 'href'
+        @downloadFileInMemory href, (e, data) =>
+          return done e if e
+          @saveFile data, '.rtf'
+          logger.debug 'Found rtf'
+          done null, rtf: data
+      else
 
-    # If there is no html, check for rtf download link.
-    # TODO: There might only be a PDF.
-    rtfDownloadLink = $("[id*='hlPrimaryDoc']")
-    if $(rtfDownloadLink).length
-      href = rtfDownloadLink.attr 'href'
-      dest = path.join @opts.downloadRootDest, 'rtf', @opts.billId + '.rtf'
-      @downloadFileInMemory dest, href, (e, file) =>
-        return done e if e
-        done null, rtf: file
-      return
+        # If no HTML or RTF then skip.
+        logger.warn "Skipping act #{@opts.billId}. No HTML or RTF found."
+        return done null, null
 
-    # If no HTML or RTF then skip.
-    logger.warn "Skipping act #{@opts.billId}. No HTML or RTF found."
-    return done null, null
-
-  downloadFileInMemory: (dest, url, done) =>
-    mkdirp.sync path.dirname dest
+  downloadFileInMemory: (url, done) =>
     request url, (e, r, b) ->
       return done e, b
 

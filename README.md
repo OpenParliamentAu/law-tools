@@ -10,10 +10,10 @@ Separate modules are used for different parts of functionality.
 
 ## Usage
 
+To run the entire process:
+
 ```
-require './index'
-
-
+coffee main
 ```
 
 ## comlaw-scrape
