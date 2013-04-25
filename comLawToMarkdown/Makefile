@@ -1,7 +1,7 @@
 test:
 
 	NODE_PATH='' nodemon \
-	  -e 'coffee' \
+	  -e 'pegjs|coffee' \
 	  --watch test \
 	  --watch . \
 	  node_modules/.bin/mocha \

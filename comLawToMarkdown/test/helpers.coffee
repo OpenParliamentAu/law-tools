@@ -44,11 +44,10 @@ root = @
       root: 'body'
       convertEachRootTagSeparately: true
 
-# TODO: Change this to environment var or something.
-@fixturesDir = path.resolve '/Users/Vaughan/dev/opendemocracy-fixtures'
+@fixturesDir = path.resolve process.env['OPENPARL_FIXTURES']
 
 @getAllFixturesForAct = (actSlug) ->
-  fs.readdirSync path.join fixturesDir, actSlug
+  fs.readdirSync path.join root.fixturesDir, actSlug
 
 @defaultOpts =
   linkifyDefinitions: true

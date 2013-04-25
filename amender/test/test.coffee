@@ -42,7 +42,8 @@ expect = chai.expect
 {Converter} = require '../../comLawToMarkdown'
 
 # Helpers.
-fixturesDir = '/Users/Vaughan/dev/opendemocracy-fixtures/amender'
+
+fixturesDir = path.join process.env['OPENPARL_FIXTURES'], 'amender'
 fixture = (dir, p) -> path.join fixturesDir, dir, p
 read = (file, format = 'utf-8') -> fs.readFileSync file, format
 
