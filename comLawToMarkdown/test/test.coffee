@@ -4,7 +4,6 @@ fs = require 'fs'
 chai = require 'chai'
 chai.should()
 _ = require 'underscore'
-html = require 'html'
 
 # Libs.
 {Converter} = require '../index.coffee'
@@ -19,8 +18,12 @@ outputDir = path.join __dirname, 'out/singleFile'
 
 #difftool = 'opendiff'
 difftool = 'ksdiff'
+difftool = 'compare2'
 editor = 'lime'
 markdownPreviewTool = 'open -a Marked.app'
+diffCmd = (a, b) ->
+  "#{difftool} #{a} #{b}"
+  #"#{difftool} #{a} #{b} -merge #{expectedMdPath}"
 
 setup = (act, done) ->
   _.extend opts, act.opts
@@ -62,7 +65,7 @@ convert = (expectedMdFile, done) ->
 Regression detected.
 
 1. Inspect Markdown diff (merge changes if they are expected):
-  #{difftool} #{expectedMdPath} #{generatedMdPath} -merge #{expectedMdPath}
+  #{diffCmd expectedMdPath, generatedMdPath}
 
 2. Inspect rendered Markdown in Marked.app or browser:
   #{markdownPreviewTool} #{generatedMdPath}

@@ -22,7 +22,7 @@ makeRepoFromActSeries = (workDir, done) ->
   ComLaw.actSeries marriageAct, (e, acts) ->
     throw e if e
     unless acts?.length then return logger.debug 'No acts found'
-    # DEBUG
+    # DEBUG: Choose how many acts you want to listen to.
     acts = _.first acts, 2
     async.eachSeries acts, (actData, cb) ->
       ComLaw.downloadAct actData.ComlawId,

@@ -1,4 +1,8 @@
+#
 # This file is for messing around with.
+#
+
+logger = require('onelog').get 'convertAct'
 
 # Vendor.
 path = require 'path'
@@ -9,15 +13,17 @@ _ = require 'underscore'
 
 # Libs.
 {Converter} = require '../index.coffee'
-{fixtures, fixturesDir, defaultOpts, getFileInfo} = require './helpers'
+{fixtures, fixturesDir, defaultOpts, getFileInfo} = require '../test/helpers'
 
 opts = defaultOpts
 
+#
 # DEBUG: Choose which act you want to convert.
-#act = fixtures.marriageAct
+#
+act = fixtures.marriageAct
 #act = fixtures.agedCareAct
 #act = fixtures.fairWorkAct2009Vol1
-act = fixtures.fairWorkAct2009Vol2
+#act = fixtures.fairWorkAct2009Vol2
 #act = fixtures.incomeTaxAssessmentAct1997
 
 main = (done) ->
@@ -29,6 +35,7 @@ main = (done) ->
   # _.extend opts, mappings: styleMappings
 
   html = fs.readFileSync file.path
+
   converter = new Converter html.toString(), _.extend opts,
     fileName: file.name
     url: "http://www.comlaw.gov.au/Details/#{file.base}/Html"

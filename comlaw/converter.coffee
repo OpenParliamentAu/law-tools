@@ -4,7 +4,7 @@ fs = require 'fs'
 path = require 'path'
 mkdirp = require 'mkdirp'
 
-{toMarkdown} = require './to-markdown'
+{toMarkdown} = require '../comLawToMarkdown/lib/to-markdown/to-markdown'
 
 class @Converter
 
