@@ -6,10 +6,11 @@ async = require 'async'
 _ = require 'underscore'
 
 {ComLaw} = require '..'
-{Git} = require '../git'
+{Git} = require 'git-tools'
 
 marriageAct = 'C1961A00012'
-marriageAct = 'C2004A00467'
+aNewTaxSystemAct1999 = 'C2004A00467'
+act = aNewTaxSystemAct1999
 
 getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE
 
@@ -19,14 +20,17 @@ makeRepoFromActSeries = (comLawId, workDir, done) ->
 
   ComLaw.downloadActSeriesAndConvertToMarkdown comLawId, workDir,
     # DEBUG: Choose how many acts you want to be in your repo.
-    first: 20
+    first: 2
   , (e, acts) ->
     return done e if e
-    Git.makeGitRepoFromActs acts.reverse(), {workDir: repoDir}, (e) ->
+    Git.makeGitRepoFromActs acts.reverse(),
+      workDir: repoDir
+      version: ComLaw.getVersion()
+    , (e) ->
       return done e if e
       logger.info 'Finished!'
 
 workDir = path.join getUserHome(), 'tmp/makeRepoFromActSeries'
 mkdirp.sync workDir
-makeRepoFromActSeries marriageAct, workDir, (e) ->
+makeRepoFromActSeries act, workDir, (e) ->
   throw e if e

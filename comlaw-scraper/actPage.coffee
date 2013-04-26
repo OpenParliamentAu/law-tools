@@ -22,6 +22,7 @@ class @ActPage extends BasePage
     dest = path.join @opts.downloadRootDest, @opts.billId + ext
     mkdirp.sync path.dirname dest
     fs.writeFileSync dest, data
+    return dest
 
   # done(e, text) - does not write to files, returns text.
   downloadBillHTMLOrRTF: (done) =>
@@ -32,9 +33,13 @@ class @ActPage extends BasePage
     htmlEl = $(sel)
     if $(htmlEl).length
       html = $(htmlEl).html()
-      @saveFile html, '.html'
+      savedTo = @saveFile html, '.html'
       logger.debug 'Found html'
-      return done null, {html}
+      return done null,
+        files:
+          html: savedTo
+        data:
+          html: html
     else
       # If there is no html, check for rtf download link.
       # TODO: There might only be a PDF.
@@ -43,9 +48,13 @@ class @ActPage extends BasePage
         href = rtfDownloadLink.attr 'href'
         @downloadFileInMemory href, (e, data) =>
           return done e if e
-          @saveFile data, '.rtf'
+          savedTo = @saveFile data, '.rtf'
           logger.debug 'Found rtf'
-          done null, rtf: data
+          done null,
+            files:
+              rtf: savedTo
+            data:
+              rtf: rtf
       else
 
         # If no HTML or RTF then skip.

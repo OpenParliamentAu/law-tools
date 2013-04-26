@@ -29,6 +29,11 @@ comlawRoot = 'http://www.comlaw.gov.au'
 
 class @ComLaw
 
+  @getVersion: ->
+    # Get package version.
+    pjson = require './package.json'
+    pjson.version
+
   # Download act meta-data for each act in a series for given ComLawId.
   @actSeries: (id, opts, done) ->
     unless done? then done = opts; opts = {}
@@ -91,28 +96,77 @@ class @ComLaw
       done null, data
 
   @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->
-    unless done? then done = opts; opts = {}
-    downloadedFilesDir = path.join workDir, 'files'
-    markdownDir = path.join workDir, 'md'
+    ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->
+      return done e if e
+      ComLaw.convertActsToMarkdown acts, manifestDest, baseDir, done
 
+  @downloadActSeries: (comLawId, workDir, opts, done) ->
+    unless done? then done = opts; opts = {}
+    # Each act series is saved in its own folder.
+    baseDir = path.join workDir, comLawId
+    mkdirp.sync baseDir
+    downloadedFilesDir = path.join baseDir, 'files'
+    # Manifest contains meta-data for all acts in the series
+    # and the path to any downloaded files for each act.
+    manifestDest =  path.join baseDir, 'manifest.json'
+
+    # 1. Download all acts in act series.
     ComLaw.actSeries comLawId, (e, acts) ->
-      throw e if e
+      return done e if e
       unless acts?.length then return logger.debug 'No acts found'
       if opts.first then acts = _.first acts, opts.first
+
+      # 2. For each act, download its contents in html or rtf.
+      # Add properties to `acts` for the path to the files and meta-data.
       async.eachSeries acts, (actData, cb) ->
         ComLaw.downloadAct actData.ComlawId,
           downloadDir: downloadedFilesDir
-        , (e, act) ->
+        , (e, data) ->
           return cb e if e
-          markdownDest = path.join markdownDir, actData.ComlawId + '.md'
-          ComLaw.convertToMarkdown actData.ComlawId, act, markdownDest, (e) ->
-            return cb e if e
-            # Attach the generated Markdown file to the act.
-            actData.masterFile = markdownDest
-            cb()
+          # Path to downloaded files. HTML or RTF.
+          actData.files = data.files
+          cb()
       , (e) ->
         return done e if e
+
+        # 3. Save act series to a json manifest file.
+        fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
+        logger.info 'Wrote manfiest.json to:', manifestDest
+
         logger.info 'Successfully finished downloading act series and files'
         logger.info acts
-        done null, acts
 
+        done null, acts, manifestDest, baseDir
+
+  @convertActsToMarkdown: (acts, manifestDest, baseDir, done) ->
+    # Convert all acts in series to Markdown from act manifest.
+    async.eachSeries acts, (actData, cb) ->
+      ComLaw.convertToMarkdownFromManifest actData, baseDir, cb
+    , (e) ->
+      return done e if e
+
+      # Update manifest with path to Markdown files.
+      fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
+
+      logger.info "Finished converting #{acts.length} acts to Markdown"
+
+      done null, acts
+
+  @convertToMarkdownFromManifest: (actData, baseDir, done) ->
+    markdownDir = path.join baseDir, 'md'
+    mkdirp.sync markdownDir
+    markdownDest = path.join markdownDir, actData.ComlawId + '.md'
+
+    # Read files.
+    data = {}
+    if actData.files.html?
+      data.html = fs.readFileSync actData.files.html, 'utf-8'
+    if actData.files.rtf?
+      data.rtf = fs.readFileSync actData.files.rtf, 'utf-8'
+
+    # Convert.
+    ComLaw.convertToMarkdown actData.ComlawId, data, markdownDest, (e) ->
+      return done e if e
+      # Attach the generated Markdown file to the act.
+      actData.masterFile = markdownDest
+      done()

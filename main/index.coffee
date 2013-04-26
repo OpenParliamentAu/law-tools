@@ -1,5 +1,8 @@
+require 'coffee-trace'
 path = require 'path'
 _ = require 'underscore'
+async = require 'async'
+fs = require 'fs'
 
 {AustLII} = require 'austlii'
 {ComLaw} = require 'comlaw-scraper'
@@ -8,28 +11,86 @@ getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPRO
 workDir = path.join getUserHome(), 'tmp/main'
 tmp = (p) -> path.join workDir, p
 
-run = (done) ->
+# Save a file containing all consolidated acts with ComLawIds.
+getAllActSeriesWithComLawIds = (opts, done) ->
+  _.defaults opts,
+    pagesOfActSeries: null
+    noOfActSeries: null
+    force: false
 
   # 1. Get list of all principal acts of parliament.
   # DEBUG: Currently getting only first page (Bills starting with `A`).
-  AustLII.saveConsolidatedActs tmp('acts.json'), {first: 1}, (e, actSeries) ->
+  AustLII.saveConsolidatedActs tmp('actSeries.json'),
+    first: opts.consolidatedActPages
+    force: opts.force
+  , (e, actSeries) ->
     return done e if e
 
     # 2. Download bill series for each act of parliament.
-    actSeries = _.first actSeries, 1 # DEBUG: Only one act.
+    if opts.noOfActSeries?
+      actSeries = _.first actSeries, opts.noOfActSeries
     async.eachSeries actSeries, (act, cb) ->
+      # Skip if we already have the id for this act series.
+      return cb() if act.comLawId?
       # Find bill series web page by act name.
-      ComLaw.getComLawIdFromActTitle actSeries.title, (e, id) ->
+      ComLaw.getComLawIdFromActTitle act.title, (e, id) ->
         return done e if e
-        unless id? then return done('Could not find ComLawId from act name')
-        ComLaw.downloadActSeriesAndConvertToMarkdown id, workDir, {first: 2}, (e, acts) ->
-          cb e, acts
+        unless id?
+          act.comLawId = null
+          return cb('Could not find ComLawId from act name')
+        act.comLawId = id
+        cb()
+
+    , (e) ->
+      return done e if e
+      fs.writeFileSync tmp('actSeries.json'), JSON.stringify(actSeries, null, 2)
+      done null, actSeries
+
+# Download act series for `comLawId`.
+step2 = (comLawId, opts, done) ->
+  _.defaults opts,
+    first: null
+    force: false
+
+  ComLaw.downloadActSeriesAndConvertToMarkdown comLawId, workDir,
+    first: opts.first
+    force: opts.force
+  , (e, acts) ->
+    cb e, acts
+
+step3 = (comLawId) ->
+  opts = {}
+  ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->
+
+step4 = (done) ->
+  ComLaw.convertActsToMarkdown acts, manifestDest, baseDir, done
+
+run = (done) ->
+  step1
+    consolidatedActPages: 1
+    noOfActSeries: 1
+    force: true
+  , (e, actSeries) ->
+    async.eachSeries actSeries, (cb) ->
+      return cb() unless actSeries.comLawId?
+      step2
+        first: 2
+        force: true
+      , actSeries.comLawId, cb
     , (e) ->
       return done e if e
       done()
 
-run (e) ->
-  throw e if e
-  console.log 'Success'
+getAllActSeriesWithComLawIds
+  consolidatedActPages: 1
+  noOfActSeries: 1
+  force: true
+, defer e
+throw e if e
+console.log 'Success'
+
+#run (e) ->
+#  throw e if e
+#  console.log 'Success'
 
 # TODO: For each principal act, find amendments currently before parliament.

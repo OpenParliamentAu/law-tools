@@ -1,6 +1,6 @@
 main:
 
-	NODE_PATH='..' coffee .
+	NODE_PATH='..' iced .
 
 test:
 

@@ -37,10 +37,13 @@ class @ConsolidatedActsPage extends BasePage
 
 class @AustLII
 
-  @getConsolidatedActs = (first, done) ->
-    unless done? then done = first; first = null
+  # AustLII has the easiest to scrape index of consolidated acts.
+  # This method returns a json array of all act titles.
+  @getConsolidatedActs = (opts, done) ->
+    unless done? then done = opts; opts = null
+    _.defaults opts, first: null
     letters = (String.fromCharCode(x + 65) for x in [0..25])
-    letters = _.first letters, first if first?
+    letters = _.first(letters, opts.first) if opts.first
     acts = []
     async.eachSeries letters, (letter, done) ->
       url = "http://www.austlii.edu.au/au/legis/cth/consol_act/toc-#{letter}.html"
@@ -55,8 +58,19 @@ class @AustLII
 
   @saveConsolidatedActs = (dest, opts, done) ->
     unless done? then done = opts; opts = {}
-    _.defaults opts, first: null
-    AustLII.getConsolidatedActs opts.first, (e, acts) ->
+    _.defaults opts,
+      # Get first N pages of consolidated acts.
+      first: null
+      # If false, if file already exists we will use it.
+      # If true, we will always download new list of consolidated acts.
+      # Generally used for debugging.
+      force: false
+
+    unless opts.force
+      if fs.existsSync(dest)
+        return done null, require dest
+
+    AustLII.getConsolidatedActs {first: opts.first}, (e, acts) ->
       return done e if e
       mkdirp.sync path.dirname dest
       fs.writeFileSync dest, JSON.stringify(acts, null, 2)
