@@ -20,31 +20,29 @@ getAllActSeriesWithComLawIds = (opts, done) ->
 
   # 1. Get list of all principal acts of parliament.
   # DEBUG: Currently getting only first page (Bills starting with `A`).
-  AustLII.saveConsolidatedActs tmp('actSeries.json'),
+  await AustLII.saveConsolidatedActs tmp('actSeries.json'),
     first: opts.consolidatedActPages
     force: opts.force
-  , (e, actSeries) ->
-    return done e if e
+  , defer e, actSeries
+  return done e if e
 
-    # 2. Download bill series for each act of parliament.
-    if opts.noOfActSeries?
-      actSeries = _.first actSeries, opts.noOfActSeries
-    async.eachSeries actSeries, (act, cb) ->
-      # Skip if we already have the id for this act series.
-      return cb() if act.comLawId?
+  # 2. Download bill series for each act of parliament.
+  if opts.noOfActSeries?
+    actSeries = _.first actSeries, opts.noOfActSeries
+    
+  for act in actSeries
+    # Skip if we already have the id for this act series.
+    unless act.comLawId?
       # Find bill series web page by act name.
-      ComLaw.getComLawIdFromActTitle act.title, (e, id) ->
-        return done e if e
-        unless id?
-          act.comLawId = null
-          return cb('Could not find ComLawId from act name')
-        act.comLawId = id
-        cb()
-
-    , (e) ->
+      await ComLaw.getComLawIdFromActTitle act.title, defer e, id
       return done e if e
-      fs.writeFileSync tmp('actSeries.json'), JSON.stringify(actSeries, null, 2)
-      done null, actSeries
+      unless id?
+        act.comLawId = null
+        return done 'Could not find ComLawId from act name'
+      act.comLawId = id
+
+  fs.writeFileSync tmp('actSeries.json'), JSON.stringify(actSeries, null, 2)
+  done null, actSeries
 
 # Download act series for `comLawId`.
 step2 = (comLawId, opts, done) ->
@@ -81,7 +79,7 @@ run = (done) ->
       return done e if e
       done()
 
-getAllActSeriesWithComLawIds
+await getAllActSeriesWithComLawIds
   consolidatedActPages: 1
   noOfActSeries: 1
   force: true
