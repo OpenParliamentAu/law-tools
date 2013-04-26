@@ -1,6 +1,6 @@
 chai = require 'chai'
 chai.should()
-{toMarkdown} = require '../to-markdown'
+{toMarkdown} = require 'to-markdown'
 
 fixture =
 """<b>X</b><em>Y</em>

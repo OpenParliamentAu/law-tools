@@ -7,6 +7,10 @@ fs = require 'fs'
 
 {BasePage} = require './basePage'
 
+# The page which contains download links for all documents associated with
+# a bill.
+#
+# e.g. http://www.comlaw.gov.au/Details/C2007C00602/Download
 class @BillDownloadPage extends BasePage
 
   scraper: (done) =>

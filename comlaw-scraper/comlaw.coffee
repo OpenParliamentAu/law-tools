@@ -14,10 +14,12 @@ async = require 'async'
 mkdirp = require 'mkdirp'
 path = require 'path'
 fs = require 'fs'
+_ = require 'underscore'
 
 # Libs.
 {ActSeries} = require './actSeries'
 {ActSeriesPage} = require './actSeriesPage'
+{SearchResultsPage} = require './searchResultsPage'
 {BillDownloadPage} = require './billDownloadPage'
 {ActPage} = require './actPage'
 {Converter} = require './converter'
@@ -54,6 +56,7 @@ class @ComLaw
     Converter.convertToMarkdown id, actData, dest, done
 
   # Download .doc file for act and convert to Markdown.
+  # TODO: Uses FileConverter which we do not use.
   @downloadActFiles: (id, opts, done) ->
     unless done? then done = opts; opts = {}
     downloadUrl = "#{comlawRoot}/Details/#{id}/Download"
@@ -68,7 +71,7 @@ class @ComLaw
       return done() unless data.destRelPath?
       src = path.resolve data.destRelPath
       dest = path.resolve path.join downloadRootDest, 'markdown', id  + '.md'
-      FileConverter.convertFileToMarkdown src, dest, (e) ->
+      Converter.FileConverter.convertFileToMarkdown src, dest, (e) ->
         return done e if e
         logger.debug 'Converted', src, 'to', dest
         done null, dest
@@ -77,22 +80,39 @@ class @ComLaw
     "http://www.comlaw.gov.au/Browse/Results/ByID/Bills/Asmade/C2013B000/0"
     # TODO
 
-class FileConverter
-
-  @convertFileToMarkdown: (src, dest, done) =>
-    mkdirp.sync path.dirname dest
-    cmd = "textutil -convert html #{src} -stdout" +
-          " | pandoc -f html -t markdown -o #{dest}"
-    child = exec cmd, (e, stdout, stderr) ->
+  @getComLawIdFromActTitle: (actTitle, done) ->
+    q = encodeURIComponent actTitle
+    searchUrl = "#{comlawRoot}/Search/#{q}"
+    searchResultsPage = new SearchResultsPage url: searchUrl
+    searchResultsPage.scrape (e, data) ->
       return done e if e
-      #logger.debug stdout, stderr
-      done()
+      data = data.acts[0]['Title Link']
+      data = data.replace 'http://www.comlaw.gov.au/Details/', ''
+      done null, data
 
-  @convertFileToText: (src, dest, done) =>
-    mkdirp.sync path.dirname dest
-    cmd = "docsplit text #{src} -o #{dest}"
-    child = exec cmd, (e, stdout, stderr) ->
-      return done e if e
-      #logger.debug stdout, stderr
-      done()
+  @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->
+    unless done? then done = opts; opts = {}
+    downloadedFilesDir = path.join workDir, 'files'
+    markdownDir = path.join workDir, 'md'
+
+    ComLaw.actSeries comLawId, (e, acts) ->
+      throw e if e
+      unless acts?.length then return logger.debug 'No acts found'
+      if opts.first then acts = _.first acts, opts.first
+      async.eachSeries acts, (actData, cb) ->
+        ComLaw.downloadAct actData.ComlawId,
+          downloadDir: downloadedFilesDir
+        , (e, act) ->
+          return cb e if e
+          markdownDest = path.join markdownDir, actData.ComlawId + '.md'
+          ComLaw.convertToMarkdown actData.ComlawId, act, markdownDest, (e) ->
+            return cb e if e
+            # Attach the generated Markdown file to the act.
+            actData.masterFile = markdownDest
+            cb()
+      , (e) ->
+        return done e if e
+        logger.info 'Successfully finished downloading act series and files'
+        logger.info acts
+        done null, acts
 

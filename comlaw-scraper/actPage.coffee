@@ -7,6 +7,10 @@ fs = require 'fs'
 
 {BasePage} = require './basePage'
 
+# A page showing details about a single act.
+#
+# This page may contain HTML or RTF, but does not have direct links to download
+# DOC files.
 class @ActPage extends BasePage
 
   scraper: (done) =>

@@ -14,10 +14,10 @@ logger.setLevel 'OFF'
 #logger.setLevel 'TRACE'
 
 # Libs.
-{toMarkdown} = require '../comLawToMarkdown/lib/to-markdown/to-markdown'
+{toMarkdown} = require 'to-markdown'
+{Converter} = require 'comlaw-to-markdown'
 {AmendmentParser} = require './amendmentParser'
 {Amendment} = require './amendment'
-{Converter} = require '../comLawToMarkdown'
 
 # Constants.
 grammar =

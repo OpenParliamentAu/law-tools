@@ -2,11 +2,13 @@
 
 _Scripts to initially populate the law repository and keep it up to date._
 
+---
+
 All modules written in CoffeeScript for Node.js.
 
 Separate modules are used for different parts of functionality.
 
-`index.coffee` provides an api to common operations involving the other modules.
+`main/index.coffee` provides an api to common operations involving the other modules.
 
 ## Usage
 
@@ -16,11 +18,11 @@ To run the entire process:
 coffee main
 ```
 
-## comlaw-scrape
+## comlaw-scraper
 
 Downloads all acts from http://www.comlaw.gov.au.
 
-## lawdown
+## comlaw-to-markdown
 
 Converts Word-exported act html to Markdown.
 
@@ -28,7 +30,9 @@ Converts Word-exported act html to Markdown.
 
 Updates a Australian Federal Parliament Consolidated Act from an Amendment Bill
 
+## to-markdown
 
+Forked version of `to-markdown` with minor changes.
 
 
 

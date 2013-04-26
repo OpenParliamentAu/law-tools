@@ -2,6 +2,7 @@
   "name": "op-comlaw",
   "version": "0.0.1",
   "private": true,
+  "main": "comlaw.coffee",
   "dependencies": {
     "onelog": "~0.1.3",
     "xtend": "~2.0.3",

@@ -1,6 +1,10 @@
+main:
+
+	NODE_PATH='..' coffee .
+
 test:
 
-	NODE_PATH='' nodemon \
+	NODE_PATH='..' nodemon \
 	  -e 'pegjs|coffee' \
 	  --watch test \
 	  --watch . \

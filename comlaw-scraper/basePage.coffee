@@ -6,6 +6,10 @@ url = require 'url'
 extend = require 'xtend'
 _ = require 'underscore'
 
+# Represents a scrapeable page.
+#
+# Takes care of common operations and exposes a common API for each page we
+# need to scrape.
 class @BasePage
 
   constructor: (@opts) ->

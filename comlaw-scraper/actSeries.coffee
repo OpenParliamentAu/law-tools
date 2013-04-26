@@ -19,6 +19,9 @@ comlawRoot = 'http://www.comlaw.gov.au'
 
 {ActSeriesPage} = require './actSeriesPage'
 
+# An entire act series which may extend across multiple pages.
+#
+# Handles paginition which uses POST form submissions.
 class @ActSeries
 
   getData: => @data

@@ -22,7 +22,7 @@ url = require 'url'
 natural = require 'natural'
 
 # Libs.
-{toMarkdown} = require './lib/to-markdown/to-markdown'
+{toMarkdown} = require 'to-markdown'
 {CustomFilters} = require './filters'
 util = require './util'
 
@@ -47,14 +47,18 @@ class @Converter
       # Should we convert absolute col widths to relative ones.
       relativeTableColWidths: true
       styleMappings: require path.join __dirname, 'styles/styles.coffee'
+      cleanTables: false
+      cheerioOpts:
+        lowerCaseTags: true
+        lowerCaseAttributeNames: true
 
   getHtml: (done) =>
     @html = @preprocessHTML @html
     if @opts.cheerio
-      @$ = cheerio.load @html
+      @$ = cheerio.load @html, @opts.cheerioOpts
       if @opts.root?
         @html = @$(@opts.root).html()
-        @$ = cheerio.load @html
+        @$ = cheerio.load @html, @opts.cheerioOpts
       done()
 
     else
@@ -63,7 +67,7 @@ class @Converter
         @$ = window.$
         if @opts.root?
           @html = @$(@opts.root).html()
-          @$ = cheerio.load @html
+          @$ = cheerio.load @html, @opts.cheerioOpts
         done()
 
   preprocessHTML: =>
@@ -75,12 +79,24 @@ class @Converter
     # Replace html dash with normal dash.
     @html = @html.replace /&#8209;/g, '-'
     #@html = @html.replace /\‑/g, '-'
+
+    # Non-breaking spaces come in two varieties.
+    # Char code 160, and 8194.
+    # Different documents use different codes.
+    # Replacing with regular spaces breaks our indentation.
+    # The best solution is to replace both with en spaces.
+    #
+    # Ascii space 160.
+    @html = @html.replace /[ ]/g, util.nonBreakingSpace
+    # Ascii code 8194.
+    @html = @html.replace /[ ]/g, util.nonBreakingSpace
+
     @html
 
   postprocessHTML: (html) =>
 
   convertToMarkdown: (html) =>
-    $ = cheerio.load html
+    $ = cheerio.load html, @opts.cheerioOpts
 
     if @opts.justMd
       md = ''
@@ -160,7 +176,7 @@ class @Converter
 
   convert: (done) =>
     unless @html?
-      done new Error 'Must call #getHtml first.'
+      done new Error '`this.html` was null. Must call #getHtml first. Check `root` option too.'
     $ = @$
 
     logger.debug 'Converting', @opts.fileName
@@ -248,7 +264,7 @@ class @Converter
         log = (msg...) -> spaceLog.trace(msg...) if $(node).text() is 'prima facie'
         #nextNode = node[dir]
         nextNode = util.findPrevOrNextNonEmptyElement $, dir, node
-        log nextNode.data
+        log nextNode?.data
         if nextNode?.type is 'text'
           pos = if dir is 'next' then 0 else nextNode.data.length - 1
           nextChar = nextNode.data.charAt pos
@@ -260,7 +276,7 @@ class @Converter
                 nextNode.data = ' ' + nextNode.data
               else
                 nextNode.data = nextNode.data + ' '
-        log nextNode.data
+        log nextNode?.data
         log '------------'
 
       ensureSpaceBeforeOrAfterTag 'next', @[0], @
@@ -356,7 +372,7 @@ class @Converter
             $(@).html replaceFn html
           # Don't use cheerio (faster).
           #html = replaceFn $.root().html()
-          #$ = cheerio.load html
+          #$ = cheerio.load html, @opts.cheerioOpts
         defLogger.stopTimer 'trace', '  Replace phase'
 
         defLogger.stopTimer 'trace', logStr

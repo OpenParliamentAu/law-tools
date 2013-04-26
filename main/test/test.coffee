@@ -7,7 +7,7 @@ logger = onelog.get()
 _ = require 'underscore'
 async = require 'async'
 
-{ComLaw} = require '../comlaw'
+{ComLaw} = require 'comlaw-scraper'
 
 marriageAct = 'C1961A00012'
 
