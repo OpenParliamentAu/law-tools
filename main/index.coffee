@@ -1,11 +1,69 @@
+# Vendor.
 require 'coffee-trace'
 path = require 'path'
 _ = require 'underscore'
 async = require 'async'
 fs = require 'fs'
 
+# Libs.
 {AustLII} = require 'austlii'
 {ComLaw} = require 'comlaw-scraper'
+
+run = (workDir, done) ->
+
+  # We split the scraping process into separate steps and create JSON
+  # files to store meta-data and file locations at each step. We call
+  # these files **manifest** files.
+
+  # First we get a list of all current consolidated acts from AustLII.
+  #
+  # We then search on ComLaw to retrieve the id of the principal act
+  # for each consolidated act.
+  #
+  # We need the principal act id to be able to conveniently find it's
+  # **series**.
+  #
+  # We are then left with a collection of all act series.
+
+  await getAllActSeriesWithTheirComLawIds
+    actSeriesStartingWithLetter: 'a'
+    noOfActSeriesToProcess: 2
+    force: false
+  , defer e, actSeriesCollection
+
+  # For each act series we download all the files for each act in the
+  # series.
+  #
+  # Their is a manifest file for each act series. We save the location
+  # of this file in our **act series manifest** file.
+
+  for actSeries in actSeriesCollection
+    if actSeries.comLawId?
+      await ComLaw.downloadActSeries actSeries.comLawId
+      , workDir,
+        first: 2
+        force: false
+      , defer e, acts, manifestDest, baseDir
+      actSeries.manifestFile = manifestDest
+      actSeries.baseDir = baseDir
+      return done e if e
+  saveActSeriesToFile actSeriesCollection
+
+  return # DEBUG
+
+  # For each act series we now convert the HTML to Markdown.
+
+  for actSeries in actSeriesCollection
+    await ComLaw.convertActsToMarkdown acts, actSeries.manifestFile
+    , actSeries.baseDir, defer e
+    return done e if e
+
+  # We are now done!
+
+  done()
+
+# Helpers
+# -------
 
 getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE
 workDir = path.join getUserHome(), 'tmp/main'
@@ -23,7 +81,6 @@ getAllActSeriesWithTheirComLawIds = (opts, done) ->
     force: false
 
   # 1. Get list of all principal acts of parliament.
-  # DEBUG: Currently getting only first page (Bills starting with `A`).
   await AustLII.saveConsolidatedActs actSeriesManifestPath,
     letter: opts.actSeriesStartingWithLetter
     force: opts.force
@@ -47,44 +104,6 @@ getAllActSeriesWithTheirComLawIds = (opts, done) ->
 
   saveActSeriesToFile actSeriesCollection
   done null, actSeriesCollection
-
-# Download act series for `comLawId`.
-downloadFilesForEachActInActSeries = (comLawId, workDir, opts, done) ->
-  _.defaults opts,
-    first: null
-    force: false
-  ComLaw.downloadActSeries comLawId, workDir,
-    first: opts.first
-    force: opts.force
-  , done
-
-run = (workDir, done) ->
-
-  await getAllActSeriesWithTheirComLawIds
-    actSeriesStartingWithLetter: 'a'
-    noOfActSeriesToProcess: 2
-    force: false
-  , defer e, actSeriesCollection
-
-  for actSeries in actSeriesCollection
-    if actSeries.comLawId?
-      await downloadFilesForEachActInActSeries actSeries.comLawId, workDir,
-        {first: 2, force: true}
-      , defer e, acts, manifestDest, baseDir
-      actSeries.manifestFile = manifestDest
-      actSeries.baseDir = baseDir
-      return done e if e
-
-  saveActSeriesToFile actSeriesCollection
-
-  return # DEBUG
-
-  for actSeries in actSeriesCollection
-    await ComLaw.convertActsToMarkdown acts, actSeries.manifestFile
-    , actSeries.baseDir, defer e
-    return done e if e
-
-  done()
 
 await run workDir, defer e
 throw e if e
