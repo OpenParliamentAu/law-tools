@@ -14,7 +14,15 @@ class @SearchResultsPage extends BasePage
 
   extractActs: =>
     tableId = '#ctl00_MainContent_RadGrid1_ctl00'
-    acts = @extractTable tableId
+    acts = @extractTable tableId, SearchResultsPage.extractViewSeriesLink
+    console.log acts
     # Clean act title.
     _.each acts, (act) -> act.Title = act.Title.replace /\r\n.*$/, ''
     {acts}
+
+  @extractViewSeriesLink: ($, $col, newRow) ->
+    if el = $col.find("input[value='View Series']")
+      onClickAttr = el.attr('onclick')
+      matches = onClickAttr?.match /"\.\.\/Series\/(.*)"/
+      if matches?.length
+        newRow['seriesComLawId'] = matches[1]

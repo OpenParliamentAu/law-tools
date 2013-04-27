@@ -10,85 +10,84 @@ fs = require 'fs'
 getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE
 workDir = path.join getUserHome(), 'tmp/main'
 tmp = (p) -> path.join workDir, p
+actSeriesManifestPath = tmp('actSeriesCollection.json')
+
+saveActSeriesToFile = (actSeries) ->
+  fs.writeFileSync actSeriesManifestPath, JSON.stringify(actSeries, null, 2)
 
 # Save a file containing all consolidated acts with ComLawIds.
-getAllActSeriesWithComLawIds = (opts, done) ->
+getAllActSeriesWithTheirComLawIds = (opts, done) ->
   _.defaults opts,
-    pagesOfActSeries: null
-    noOfActSeries: null
+    actSeriesStartingWithLetter: null
+    noOfActSeriesToProcess: null
     force: false
 
   # 1. Get list of all principal acts of parliament.
   # DEBUG: Currently getting only first page (Bills starting with `A`).
-  await AustLII.saveConsolidatedActs tmp('actSeries.json'),
-    first: opts.consolidatedActPages
+  await AustLII.saveConsolidatedActs actSeriesManifestPath,
+    letter: opts.actSeriesStartingWithLetter
     force: opts.force
-  , defer e, actSeries
+  , defer e, actSeriesCollection
   return done e if e
 
   # 2. Download bill series for each act of parliament.
-  if opts.noOfActSeries?
-    actSeries = _.first actSeries, opts.noOfActSeries
-    
-  for act in actSeries
+  if opts.noOfActSeriesToProcess?
+    actSeriesCollection = _.first actSeriesCollection, opts.noOfActSeriesToProcess
+
+  for actSeries in actSeriesCollection
     # Skip if we already have the id for this act series.
-    unless act.comLawId?
+    unless actSeries.comLawId?
       # Find bill series web page by act name.
-      await ComLaw.getComLawIdFromActTitle act.title, defer e, id
+      await ComLaw.getComLawIdFromActTitle actSeries.title, defer e, id
       return done e if e
       unless id?
-        act.comLawId = null
+        actSeries.comLawId = null
         return done 'Could not find ComLawId from act name'
-      act.comLawId = id
+      actSeries.comLawId = id
 
-  fs.writeFileSync tmp('actSeries.json'), JSON.stringify(actSeries, null, 2)
-  done null, actSeries
+  saveActSeriesToFile actSeriesCollection
+  done null, actSeriesCollection
 
 # Download act series for `comLawId`.
-step2 = (comLawId, opts, done) ->
+downloadFilesForEachActInActSeries = (comLawId, workDir, opts, done) ->
   _.defaults opts,
     first: null
     force: false
-
-  ComLaw.downloadActSeriesAndConvertToMarkdown comLawId, workDir,
+  ComLaw.downloadActSeries comLawId, workDir,
     first: opts.first
     force: opts.force
-  , (e, acts) ->
-    cb e, acts
+  , done
 
-step3 = (comLawId) ->
-  opts = {}
-  ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->
+run = (workDir, done) ->
 
-step4 = (done) ->
-  ComLaw.convertActsToMarkdown acts, manifestDest, baseDir, done
+  await getAllActSeriesWithTheirComLawIds
+    actSeriesStartingWithLetter: 'a'
+    noOfActSeriesToProcess: 2
+    force: false
+  , defer e, actSeriesCollection
 
-run = (done) ->
-  step1
-    consolidatedActPages: 1
-    noOfActSeries: 1
-    force: true
-  , (e, actSeries) ->
-    async.eachSeries actSeries, (cb) ->
-      return cb() unless actSeries.comLawId?
-      step2
-        first: 2
-        force: true
-      , actSeries.comLawId, cb
-    , (e) ->
+  for actSeries in actSeriesCollection
+    if actSeries.comLawId?
+      await downloadFilesForEachActInActSeries actSeries.comLawId, workDir,
+        {first: 2, force: true}
+      , defer e, acts, manifestDest, baseDir
+      actSeries.manifestFile = manifestDest
+      actSeries.baseDir = baseDir
       return done e if e
-      done()
 
-await getAllActSeriesWithComLawIds
-  consolidatedActPages: 1
-  noOfActSeries: 1
-  force: true
-, defer e
+  saveActSeriesToFile actSeriesCollection
+
+  return # DEBUG
+
+  for actSeries in actSeriesCollection
+    await ComLaw.convertActsToMarkdown acts, actSeries.manifestFile
+    , actSeries.baseDir, defer e
+    return done e if e
+
+  done()
+
+await run workDir, defer e
 throw e if e
 console.log 'Success'
-
-#run (e) ->
-#  throw e if e
-#  console.log 'Success'
 
 # TODO: For each principal act, find amendments currently before parliament.

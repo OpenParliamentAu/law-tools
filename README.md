@@ -4,7 +4,7 @@ _Scripts to initially populate the law repository and keep it up to date._
 
 ---
 
-All modules written in CoffeeScript for Node.js.
+All modules written in IcedCoffeeScript for Node.js.
 
 Separate modules are used for different parts of functionality.
 
@@ -12,29 +12,48 @@ Separate modules are used for different parts of functionality.
 
 ## Usage
 
+`npm install -g iced-coffee-script`
+
 To run the entire process:
 
 ```
-coffee main
+cd main
+make
 ```
 
-## comlaw-scraper
+## Modules
+
+### comlaw-scraper
 
 Downloads all acts from http://www.comlaw.gov.au.
 
-## comlaw-to-markdown
+### comlaw-to-markdown
 
-Converts Word-exported act html to Markdown.
+Takes acts which have been exported from Microsoft Word into HTML, and converts them into Markdown format.
 
-## amender
+### amender
 
-Updates a Australian Federal Parliament Consolidated Act from an Amendment Bill
+Updates a Australian Federal Parliament Consolidated Act from an Amendment Bill.
 
-## to-markdown
+### to-markdown
 
 Forked version of `to-markdown` with minor changes.
 
+Converts HTML into Markdown.
 
+### git-tools
+
+Creates git repo(s) from Acts.
+
+### austlii
+
+Scrapes http://austlii.edu.au. Currently only used for retrieving a list of all consolidated acts.
+
+## parlinfo
+
+Scrapes http://parlinfo.aph.gov.au.
+
+This will be used for monitoring bills before parliament.
 
 ---
 

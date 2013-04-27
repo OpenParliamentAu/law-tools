@@ -34,7 +34,7 @@ class @ActSeries
     @_noMorePages = false
 
   noMorePages: ($, el) =>
-    @_noMorePages = $(el).attr('onclick')?
+    @_noMorePages = not el? or $(el).attr('onclick')?
 
   scrapeFirstPage: (done) =>
     page = new ActSeriesPage url: @seriesUrl
@@ -52,7 +52,7 @@ class @ActSeries
   # We emulate a form submit event to acheive this.
   # Trust me, this is the only way!
   #
-  # body - html from the last visited page
+  # @param [String] body - html from the last visited page
   scrapeNextPage: (body, done) =>
     logger.debug 'Scraping next page with length:', body.length
     $ = cheerio.load body

@@ -91,8 +91,9 @@ class @ComLaw
     searchResultsPage = new SearchResultsPage url: searchUrl
     searchResultsPage.scrape (e, data) ->
       return done e if e
-      data = data.acts[0]['Title Link']
-      data = data.replace 'http://www.comlaw.gov.au/Details/', ''
+      #data = data.acts[0]['Title Link']
+      #data = data.replace 'http://www.comlaw.gov.au/Details/', ''
+      data = data.acts[0]['seriesComLawId']
       done null, data
 
   @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->

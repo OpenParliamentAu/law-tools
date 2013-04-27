@@ -78,7 +78,10 @@ class @BasePage
 
   # Extracts rows of data from an html table.
   # Values are labelled by table headings.
-  extractTable: (tableId) =>
+  # @param [Function] fn
+  #   This callback executes for each column of each row.
+  #   Add additional keys to `newRow`.
+  extractTable: (tableId, fn = ->) =>
     $ = @$
     rows = []
     headings = $("#{tableId} > thead > tr > th").map (i, th) -> $(th).text()
@@ -94,5 +97,7 @@ class @BasePage
           link = $(links[0]).attr 'href'
           link = url.resolve @opts.url, link
           newRow[headings[i] + ' Link'] = link
+        # Allow custom parsing.
+        fn $, $(col), newRow
       rows.push newRow
     rows

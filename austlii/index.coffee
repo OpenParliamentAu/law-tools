@@ -41,9 +41,13 @@ class @AustLII
   # This method returns a json array of all act titles.
   @getConsolidatedActs = (opts, done) ->
     unless done? then done = opts; opts = null
-    _.defaults opts, first: null
-    letters = (String.fromCharCode(x + 65) for x in [0..25])
-    letters = _.first(letters, opts.first) if opts.first
+    _.defaults opts,
+      # Get consolidated acts starting with this letter.
+      letter: null
+    if opts.letter
+      letters = [opts.letter]
+    else
+      letters = (String.fromCharCode(x + 65) for x in [0..25])
     acts = []
     async.eachSeries letters, (letter, done) ->
       url = "http://www.austlii.edu.au/au/legis/cth/consol_act/toc-#{letter}.html"
@@ -59,8 +63,8 @@ class @AustLII
   @saveConsolidatedActs = (dest, opts, done) ->
     unless done? then done = opts; opts = {}
     _.defaults opts,
-      # Get first N pages of consolidated acts.
-      first: null
+      # Get consolidated acts starting with this letter.
+      letter: null
       # If false, if file already exists we will use it.
       # If true, we will always download new list of consolidated acts.
       # Generally used for debugging.
@@ -70,7 +74,7 @@ class @AustLII
       if fs.existsSync(dest)
         return done null, require dest
 
-    AustLII.getConsolidatedActs {first: opts.first}, (e, acts) ->
+    AustLII.getConsolidatedActs {letter: opts.letter}, (e, acts) ->
       return done e if e
       mkdirp.sync path.dirname dest
       fs.writeFileSync dest, JSON.stringify(acts, null, 2)
