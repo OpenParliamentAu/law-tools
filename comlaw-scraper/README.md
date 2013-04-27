@@ -6,7 +6,7 @@ _A scraper for http://www.comlaw.gov.au_
 
 **Scrape an entire act series and create a repo from it**
 
-    NODE_PATH='..' coffee examples/makeRepoFromActSeries.coffee
+    NODE_PATH='..' iced examples
 
 ---
 

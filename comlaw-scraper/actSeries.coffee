@@ -1,10 +1,7 @@
 # Logging.
-onelog = require 'onelog'
-log4js = require 'log4js'
-onelog.use onelog.Log4js, methods: 'setLevel'
-logger = onelog.get()
-log4js.setGlobalLogLevel 'DEBUG'
+logger = require('onelog').get()
 
+# Vendor.
 request = require 'request'
 cheerio = require 'cheerio'
 _ = require 'underscore'
@@ -15,13 +12,17 @@ fs = require 'fs'
 path = require 'path'
 mkdirp = require 'mkdirp'
 
-comlawRoot = 'http://www.comlaw.gov.au'
-
+# Libs.
 {ActSeriesPage} = require './actSeriesPage'
 
+# Constants.
+comlawRoot = 'http://www.comlaw.gov.au'
+
+#
 # An entire act series which may extend across multiple pages.
 #
 # Handles paginition which uses POST form submissions.
+#
 class @ActSeries
 
   getData: => @data

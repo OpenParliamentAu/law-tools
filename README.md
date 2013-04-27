@@ -13,6 +13,7 @@ Separate modules are used for different parts of functionality.
 ## Usage
 
 `npm install -g iced-coffee-script`
+`npm install`
 
 To run the entire process:
 

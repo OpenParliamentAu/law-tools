@@ -2,14 +2,12 @@
 
 # Logging.
 onelog = require 'onelog'
-log4js = require 'log4js'
-onelog.use onelog.Log4js
 
 logger = onelog.get 'converter'
 defLogger = onelog.get 'definitions'
-logger.setLevel 'DEBUG'
+#logger.setLevel 'DEBUG'
 #logger.setLevel 'TRACE'
-defLogger.setLevel 'WARN'
+#defLogger.setLevel 'WARN'
 
 # Vendor.
 path = require 'path'

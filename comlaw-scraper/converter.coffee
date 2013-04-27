@@ -10,9 +10,9 @@ root = @
 
 #{toMarkdown} = require 'to-markdown'
 {Converter} = require 'comlaw-to-markdown'
+{Util} = require 'op-util'
 
-getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE
-workDir = path.join getUserHome(), 'tmp/comlaw-converter'
+workDir = path.join Util.getUserHome(), 'tmp/comlaw-converter'
 
 class @Converter
 

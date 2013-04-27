@@ -1,12 +1,5 @@
-#
-# A scraper for http://www.comlaw.gov.au/
-#
-
 # Logging.
-onelog = require 'onelog'
-log4js = require 'log4js'
-onelog.use onelog.Log4js
-logger = onelog.get()
+logger = require('onelog').get()
 
 # Vendor.
 async = require 'async'
@@ -27,6 +20,9 @@ _ = require 'underscore'
 # Constants.
 comlawRoot = 'http://www.comlaw.gov.au'
 
+#
+# A scraper for http://www.comlaw.gov.au/
+#
 class @ComLaw
 
   @getVersion: ->
@@ -132,10 +128,10 @@ class @ComLaw
 
         # 3. Save act series to a json manifest file.
         fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
-        logger.info 'Wrote manfiest.json to:', manifestDest
+        logger.debug 'Wrote manfiest.json to:', manifestDest
 
-        logger.info 'Successfully finished downloading act series and files'
-        logger.info acts
+        logger.debug 'Successfully finished downloading act series and files'
+        logger.debug acts
 
         done null, acts, manifestDest, baseDir
 
@@ -149,7 +145,7 @@ class @ComLaw
       # Update manifest with path to Markdown files.
       fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
 
-      logger.info "Finished converting #{acts.length} acts to Markdown"
+      logger.debug "Finished converting #{acts.length} acts to Markdown"
 
       done null, acts
 

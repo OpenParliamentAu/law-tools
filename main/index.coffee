@@ -1,13 +1,30 @@
+# Logging.
+onelog = require 'onelog'
+log4js = require 'log4js'
+onelog.use onelog.Log4js, methods: 'setLevel'
+log4js.setGlobalLogLevel 'INFO'
+logger = onelog.get()
+log4js.configure
+  appenders: [
+    type: 'console'
+    layout:
+      type: 'pattern'
+      pattern: '%m'
+  ]
+
 # Vendor.
 require 'coffee-trace'
 path = require 'path'
 _ = require 'underscore'
 async = require 'async'
 fs = require 'fs'
+colors = require 'colors'
 
 # Libs.
 {AustLII} = require 'austlii'
 {ComLaw} = require 'comlaw-scraper'
+{Util} = require 'op-util'
+
 
 run = (workDir, done) ->
 
@@ -25,9 +42,11 @@ run = (workDir, done) ->
   #
   # We are then left with a collection of all act series.
 
+  logger.info 'Phase 1 - Getting all act series and principal act ids '.bold
   await getAllActSeriesWithTheirComLawIds
     actSeriesStartingWithLetter: 'a'
     noOfActSeriesToProcess: 2
+    # Do not use already downloaded data.
     force: false
   , defer e, actSeriesCollection
 
@@ -37,6 +56,7 @@ run = (workDir, done) ->
   # Their is a manifest file for each act series. We save the location
   # of this file in our **act series manifest** file.
 
+  logger.info 'Phase 2 - Downloading files for each act series'.bold
   for actSeries in actSeriesCollection
     if actSeries.comLawId?
       await ComLaw.downloadActSeries actSeries.comLawId
@@ -47,26 +67,32 @@ run = (workDir, done) ->
       actSeries.manifestFile = manifestDest
       actSeries.baseDir = baseDir
       return done e if e
+    logger.info "✓ #{actSeries.title}".green
   saveActSeriesToFile actSeriesCollection
-
-  return # DEBUG
 
   # For each act series we now convert the HTML to Markdown.
 
+  logger.info 'Phase 3 - Converting HTML to Markdown'.bold
   for actSeries in actSeriesCollection
     await ComLaw.convertActsToMarkdown acts, actSeries.manifestFile
     , actSeries.baseDir, defer e
     return done e if e
+    logger.info "✓ #{actSeries.title}".green
+
+  # For each act series we now add it to the master repo.
+
+  logger.info 'Phase 4 - Creating repo and adding each act series'.bold
+  logger.warn 'TODO'
 
   # We are now done!
 
   done()
 
+
 # Helpers
 # -------
 
-getUserHome = -> process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE
-workDir = path.join getUserHome(), 'tmp/main'
+workDir = path.join Util.getUserHome(), 'tmp/main'
 tmp = (p) -> path.join workDir, p
 actSeriesManifestPath = tmp('actSeriesCollection.json')
 
@@ -105,8 +131,12 @@ getAllActSeriesWithTheirComLawIds = (opts, done) ->
   saveActSeriesToFile actSeriesCollection
   done null, actSeriesCollection
 
+
+# Main
+# ----
+
 await run workDir, defer e
 throw e if e
-console.log 'Success'
+logger.info 'Your scrape has finished!'
 
 # TODO: For each principal act, find amendments currently before parliament.
