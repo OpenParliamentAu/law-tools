@@ -16,9 +16,17 @@ _ = require 'underscore'
 {BillDownloadPage} = require './billDownloadPage'
 {ActPage} = require './actPage'
 {Converter} = require './converter'
+pjson = require './package.json'
 
 # Constants.
 comlawRoot = 'http://www.comlaw.gov.au'
+
+# Helpers.
+writeManifest = (manifestDest, acts) ->
+  fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
+
+readManifest = (manifestDest) ->
+  require manifestDest
 
 #
 # A scraper for http://www.comlaw.gov.au/
@@ -27,7 +35,6 @@ class @ComLaw
 
   @getVersion: ->
     # Get package version.
-    pjson = require './package.json'
     pjson.version
 
   # Download act meta-data for each act in a series for given ComLawId.
@@ -35,9 +42,9 @@ class @ComLaw
     unless done? then done = opts; opts = {}
     seriesUrl = "#{comlawRoot}/Series/#{id}"
     actSeries = new ActSeries url: seriesUrl
-    actSeries.scrape (e, data) ->
-      return done e if e
-      done null, data
+    await actSeries.scrape defer e, data
+    return done e if e
+    done null, data
 
   # For a given ComLawId.
   # - Try to scrape HTML.
@@ -51,7 +58,10 @@ class @ComLaw
       url: detailsUrl
       billId: id
       downloadRootDest: opts.downloadDir
-    page.scrape done
+    page.scrape (e, data) ->
+      if e?
+        console.error 'downloadActError:', e
+      done e, data
 
   @convertToMarkdown: (id, actData, dest, done) =>
     Converter.convertToMarkdown id, actData, dest, done
@@ -107,35 +117,46 @@ class @ComLaw
     downloadedFilesDir = path.join baseDir, 'files'
     # Manifest contains meta-data for all acts in the series
     # and the path to any downloaded files for each act.
-    manifestDest =  path.join baseDir, 'manifest.json'
+    manifestDest = path.join baseDir, 'manifest.json'
 
-    # 1. Download all acts in act series.
-    ComLaw.actSeries comLawId, (e, acts) ->
+    # Unless we have already downloaded all the meta-data,
+    # download all act meta-data in act series and save to manifest.
+    unless fs.existsSync manifestDest
+      await ComLaw.actSeries comLawId, defer e, acts
       return done e if e
-      unless acts?.length then return logger.debug 'No acts found'
-      if opts.first then acts = _.first acts, opts.first
+    else
+      acts = readManifest manifestDest
 
-      # 2. For each act, download its contents in html or rtf.
-      # Add properties to `acts` for the path to the files and meta-data.
-      async.eachSeries acts, (actData, cb) ->
-        ComLaw.downloadAct actData.ComlawId,
-          downloadDir: downloadedFilesDir
-        , (e, data) ->
-          return cb e if e
-          # Path to downloaded files. HTML or RTF.
-          actData.files = data.files
-          cb()
-      , (e) ->
-        return done e if e
+    unless acts?.length
+      logger.debug 'No acts found'
+      return done null, [], manifestDest, baseDir
 
-        # 3. Save act series to a json manifest file.
-        fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
-        logger.debug 'Wrote manfiest.json to:', manifestDest
+    if opts.first then acts = _.first acts, opts.first
 
-        logger.debug 'Successfully finished downloading act series and files'
-        logger.debug acts
+    # For each act, download its contents in html or rtf.
+    # Add properties to `acts` for the path to the files and meta-data.
+    for actData in acts
+      continue if actData.files? # Skip if we have already processed it.
+      await ComLaw.downloadAct actData.ComlawId,
+        downloadDir: downloadedFilesDir
+      , defer e, data
+      if e and e.type is 'CheerioParseError'
+        logger.warn 'CheerioParseError'
+        continue
+      else if e
+        return done e
+      continue unless data?
+      actData.files = data.files
+      actData.versionScraper = ComLaw.getVersion()
+      await process.nextTick defer()
 
-        done null, acts, manifestDest, baseDir
+    # Save act series to a json manifest file.
+    writeManifest manifestDest, acts
+    logger.debug 'Wrote manfiest.json to:', manifestDest
+    logger.debug 'Successfully finished downloading act series and files'
+    logger.debug acts
+
+    done null, acts, manifestDest, baseDir
 
   @convertActsToMarkdown: (acts, manifestDest, baseDir, done) ->
     # Convert all acts in series to Markdown from act manifest.
@@ -145,10 +166,8 @@ class @ComLaw
       return done e if e
 
       # Update manifest with path to Markdown files.
-      fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
-
+      writeManifest manifestDest, acts
       logger.debug "Finished converting #{acts.length} acts to Markdown"
-
       done null, acts
 
   @convertToMarkdownFromManifest: (actData, baseDir, done) ->
@@ -164,8 +183,8 @@ class @ComLaw
       data.rtf = fs.readFileSync actData.files.rtf, 'utf-8'
 
     # Convert.
-    ComLaw.convertToMarkdown actData.ComlawId, data, markdownDest, (e) ->
-      return done e if e
-      # Attach the generated Markdown file to the act.
-      actData.masterFile = markdownDest
-      done()
+    await ComLaw.convertToMarkdown actData.ComlawId, data, markdownDest, defer e
+    return done e if e
+    # Attach the generated Markdown file to the act.
+    actData.masterFile = markdownDest
+    done()

@@ -35,7 +35,8 @@ class @ActSeries
     @_noMorePages = false
 
   noMorePages: ($, el) =>
-    @_noMorePages = not el? or $(el).attr('onclick')?
+    table = $('ctl00_MainContent_SeriesCompilations_RadGrid1_ctl00')
+    @_noMorePages = not table.length or $(el).attr('onclick')?
 
   scrapeFirstPage: (done) =>
     page = new ActSeriesPage url: @seriesUrl

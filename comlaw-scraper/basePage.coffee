@@ -15,6 +15,8 @@ class @BasePage
   constructor: (@opts) ->
     _.defaults @opts,
       url: ''
+      # Whether we should parse with Cheerio after user calls `scrape`.
+      parseAfterScrape: true
     @data = {}
     @hasScraped = false
     # This should be set to jquery/cheerio object for document.
@@ -25,6 +27,7 @@ class @BasePage
 
   # virtual - Override this.
   scraper: (done) =>
+    done new Error 'You must implement BasePage#scraper method.'
 
   scrape: (done) =>
     @getHtml (e) =>
@@ -44,13 +47,20 @@ class @BasePage
       @body = @opts.html
       @gotBody = true
       return cb null, @opts.html
-    cb new Error 'Must set url or html' unless @opts.url
+    return cb new Error 'Must set url or html' unless @opts.url
     logger.debug "Scraping #{@opts.url}"
     request @opts.url, (e, r, b) =>
+      if e then console.error 'gethtml', e
       return cb e if e
       @body = b
       @gotBody = true
-      try @$ = cheerio.load(b) catch e then return cb e
+      if @opts.parseAfterScrape
+        try
+          @$ = cheerio.load(b)
+        catch e
+          console.error 'Cheerio threw an error while attempting to load html'
+          console.error require('util').inspect e, {showHidden: true, depth: null}
+          return cb {type: 'CheerioParseError'}
       cb null, b
 
   getData: =>

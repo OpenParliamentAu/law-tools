@@ -17,4 +17,15 @@ class @ActSeriesPage extends BasePage
     acts = @extractTable actSeriesTableId
     # Clean act title.
     _.each acts, (act) -> act.Title = act.Title.replace /\r\n.*$/, ''
+
+    # If we mistakenly load a non-principal act, we want to follow the link
+    # to the principal act...
+
+    # TODO
+    #principalActEl = $ '#ctl00_MainContent_pnlPrincipal'
+    #if principalActEl.length
+    #  acts.push
+    #    Title: principalActEl.find('#ctl00_MainContent_hlPrincipal')?.text()
+    #    ComlawId: principalActEl.find('ctl00_MainContent_lblPrincipalID')?.text()
+
     {acts}

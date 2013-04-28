@@ -16,10 +16,11 @@ program = require 'commander'
 
 marriageAct = 'C1961A00012'
 aNewTaxSystemAct1999 = 'C2004A00467'
-act = aNewTaxSystemAct1999
+aboriginalAffairs = 'C2004A03898'
+_act = aboriginalAffairs
 
 # Choose how many acts you want to be in your repo.
-noOfActsToIncludeInRepo = 2
+noOfActsToIncludeInRepo = null
 
 
 # Creates a master repo and adds the Marriage Act Series.
@@ -47,7 +48,7 @@ addActSeriesToMasterRepo = (comLawId, workDir, done) ->
   logger.info 'Successfully updated repo at:', repoPath
 
 
-# Makes a repo from the Marriage Act 1961 series.
+# Makes a repo from act series.
 makeRepoFromActSeries = (comLawId, workDir, done) ->
   repoDir = path.join workDir, 'repos'
 
@@ -73,9 +74,10 @@ example = program.args[0] or 'separate-repos'
 logger.info 'Running example:', example
 switch program.args[0]
   when 'separate-repos'
-    await makeRepoFromActSeries act, workDir, defer e
+    await makeRepoFromActSeries _act, workDir, defer e
   when 'master-repo'
-    await addActSeriesToMasterRepo act, workDir, defer e
+    await addActSeriesToMasterRepo _act, workDir, defer e
   else
-    await makeRepoFromActSeries act, workDir, defer e
+    await makeRepoFromActSeries _act, workDir, defer e
+
 throw e if e

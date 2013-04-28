@@ -28,9 +28,12 @@ class @ActPage extends BasePage
   downloadBillHTMLOrRTF: (done) =>
     $ = @$
 
+    console.log 'Does Cheerio context exist?', $?
+
     # Check for inline act HTML.
     sel = '#RAD_SPLITTER_PANE_CONTENT_ctl00_MainContent_ctl05_RadPane2 > div > div'
     htmlEl = $(sel)
+    console.log 'Does inline act html exist?', $(htmlEl).length
     if $(htmlEl).length
       html = $(htmlEl).html()
       savedTo = @saveFile html, '.html'
@@ -50,11 +53,11 @@ class @ActPage extends BasePage
           return done e if e
           savedTo = @saveFile data, '.rtf'
           logger.debug 'Found rtf'
-          done null,
+          return done null,
             files:
               rtf: savedTo
             data:
-              rtf: rtf
+              rtf: data
       else
 
         # If no HTML or RTF then skip.

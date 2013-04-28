@@ -1,8 +1,10 @@
+#require 'coffee-trace'
+
 # Logging.
 onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js, methods: 'setLevel'
-log4js.setGlobalLogLevel 'INFO'
+log4js.setGlobalLogLevel 'DEBUG'
 logger = onelog.get()
 log4js.configure
   appenders: [
@@ -13,7 +15,6 @@ log4js.configure
   ]
 
 # Vendor.
-#require 'coffee-trace'
 path = require 'path'
 _ = require 'underscore'
 async = require 'async'
@@ -41,6 +42,8 @@ class FederalLawScraper
   # **series**.
   #
   # We are then left with a collection of all act series.
+  #
+  # Running time is ~15 minutes.
 
   @phase1: (done) ->
     logger.info 'Phase 1 - Getting all act series and principal act ids '.bold
@@ -48,7 +51,7 @@ class FederalLawScraper
       actSeriesStartingWithLetter: null
       noOfActSeriesToProcess: null
       # Do not use already downloaded data.
-      force: true
+      force: false
     , defer e, actSeriesCollection
     saveActSeriesToFile actSeriesCollection
     done e, actSeriesCollection
@@ -65,13 +68,11 @@ class FederalLawScraper
     for actSeries in actSeriesCollection
       if actSeries.comLawId?
         await ComLaw.downloadActSeries actSeries.comLawId
-        , workDir,
-          first: null
-          force: false
+        , workDir, {first: null, force: false}
         , defer e, acts, manifestDest, baseDir
+        return done e if e
         actSeries.manifestFile = manifestDest
         actSeries.baseDir = baseDir
-        return done e if e
       logger.info "✓ #{actSeries.title}".green
       saveActSeriesToFile actSeriesCollection
     done e, actSeriesCollection
@@ -101,16 +102,16 @@ class FederalLawScraper
 
   @all: (workDir, done) ->
 
-    await phase1 defer e, actSeriesCollection
+    await FederalLawScraper.phase1 defer e, actSeriesCollection
     return done e if e
 
-    await phase2 defer e, actSeriesCollection
+    await FederalLawScraper.phase2 defer e, actSeriesCollection
     return done e if e
 
-    await phase3 defer e, actSeriesCollection
+    await FederalLawScraper.phase3 defer e, actSeriesCollection
     return done e if e
 
-    await phase4 defer e, actSeriesCollection
+    await FederalLawScraper.phase4 defer e, actSeriesCollection
     return done e if e
 
     # We are now done!
