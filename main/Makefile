@@ -1,6 +1,6 @@
 main:
 
-	NODE_PATH='..' iced .
+	NODE_PATH='..' iced . $(arg)
 
 test:
 

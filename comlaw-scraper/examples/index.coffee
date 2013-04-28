@@ -21,6 +21,7 @@ act = aNewTaxSystemAct1999
 # Choose how many acts you want to be in your repo.
 noOfActsToIncludeInRepo = 2
 
+
 # Creates a master repo and adds the Marriage Act Series.
 addActSeriesToMasterRepo = (comLawId, workDir, done) ->
   repoPath = path.join workDir, 'masterRepo'
@@ -31,9 +32,20 @@ addActSeriesToMasterRepo = (comLawId, workDir, done) ->
   return done e if e
   await Git.makeGitRepo repoPath, defer e, repo
   return done e if e
-  await Git.addActsToGitRepo repo, acts, {version: 'test'}, defer e
+
+  # Organize acts by:
+  #   <lowercased-first-letter-of-act-name>/<cleaned-act-name>
+  principalActName = Git.getPrincipalActName acts
+  folderName = principalActName.charAt(0).toLowerCase()
+  subdir = path.join folderName, principalActName
+
+  await Git.addActsToGitRepo repo, acts,
+    version: 'test'
+    subdir: subdir
+  , defer e
   return done e if e
   logger.info 'Successfully updated repo at:', repoPath
+
 
 # Makes a repo from the Marriage Act 1961 series.
 makeRepoFromActSeries = (comLawId, workDir, done) ->
@@ -49,8 +61,6 @@ makeRepoFromActSeries = (comLawId, workDir, done) ->
     version: ComLaw.getVersion()
   , defer e
   return done e if e
-  logger.debug 'Finished creating repo!'
-
 
 # Main
 # ----

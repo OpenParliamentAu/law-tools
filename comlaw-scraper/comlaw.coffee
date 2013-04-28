@@ -89,8 +89,10 @@ class @ComLaw
       return done e if e
       #data = data.acts[0]['Title Link']
       #data = data.replace 'http://www.comlaw.gov.au/Details/', ''
-      data = data.acts[0]['seriesComLawId']
-      done null, data
+      seriesComLawId = data.acts[0]?['seriesComLawId']
+      unless seriesComLawId?
+        logger.warn 'Could not find seriesComLawId for page:', searchUrl
+      done null, seriesComLawId
 
   @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->
     ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->

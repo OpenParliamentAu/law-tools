@@ -15,7 +15,6 @@ class @SearchResultsPage extends BasePage
   extractActs: =>
     tableId = '#ctl00_MainContent_RadGrid1_ctl00'
     acts = @extractTable tableId, SearchResultsPage.extractViewSeriesLink
-    console.log acts
     # Clean act title.
     _.each acts, (act) -> act.Title = act.Title.replace /\r\n.*$/, ''
     {acts}

@@ -8,24 +8,13 @@ path = require 'path'
 mkdirp = require 'mkdirp'
 async = require 'async'
 
-# TODO: Brittle.
-parseActTitle = (title) ->
-  a = (/(.*)/g.exec title)[0]
-  a.replace /[ ]/g, '-'
-
 class @Git
 
   # Ensure git repo exists.
   @makeGitRepo: (repoPath, done) ->
     mkdirp.sync repoPath
-    try
-      repo = git repoPath
-    catch e
-      logger.warn 'Repo not found. Creating new repo.'
-    console.log repo
-    unless repo?
-      await git.init repoPath, defer e, repo
-      return done e if e
+    await git.init repoPath, defer e, repo
+    return done e if e
     done null, repo
 
   # Add acts to git repo.
@@ -38,7 +27,12 @@ class @Git
       # Copy file.
       return cb('No master file found') unless act.masterFile?
       src = act.masterFile
-      dest = path.join repo.path, 'index.md'
+      # Use subdir.
+      if opts.subdir?
+        dest = path.join repo.path, opts.subdir, 'index.md'
+      else
+        dest = path.join repo.path, 'index.md'
+      mkdirp.sync path.dirname dest
       fs.createReadStream(src).pipe fs.createWriteStream(dest)
 
       # Make commit.
@@ -70,6 +64,16 @@ class @Git
       return done e if e
       done()
 
+  @getPrincipalActName: (acts) ->
+    # TODO: Brittle.
+    parseActTitle = (title) ->
+      a = (/(.*)/g.exec title)[0]
+      a.replace /[ ]/g, '-'
+
+    principalAct = acts[0]
+    principalActTitle = parseActTitle principalAct.Title
+    principalActTitle = principalActTitle.replace /[^a-zA-Z0-9_\-\.]/g, '-'
+
   # Creates a repo for an act.
   #
   # @param [Object] acts - Must be sorted from earliest to latest.
@@ -83,9 +87,7 @@ class @Git
     # Create directory which will contain repo.
     # We name the dir after the title of the principal act.
     # The dir is overidden if it exists.
-    principalAct = acts[0]
-    principalActTitle = parseActTitle principalAct.Title
-    principalActTitle = principalActTitle.replace /[^a-zA-Z0-9_\-\.]/g, '-'
+    principalActTitle = Git.getPrincipalActName acts
     repoPath = path.join opts.workDir, principalActTitle
     wrench.rmdirSyncRecursive repoPath, true
     mkdirp.sync repoPath

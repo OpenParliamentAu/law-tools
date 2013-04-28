@@ -55,6 +55,7 @@ class @AustLII
       page.scrape (e) ->
         return done e if e
         acts = acts.concat page.getData()
+        logger.debug "Downloaded all acts starting with '#{letter}'"
         done()
     , (e) ->
       return done e if e
