@@ -53,6 +53,7 @@ String::replaceLineBreaks = ->
   curr = node
   while curr?
     curr = $(curr).parent()[0]
+    return curr unless curr?
     if curr.type is 'root'
       curr = null
     else if curr.name is tagName

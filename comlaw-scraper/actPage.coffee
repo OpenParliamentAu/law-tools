@@ -62,10 +62,15 @@ class @ActPage extends BasePage
 
         # If no HTML or RTF then skip.
         logger.warn "Skipping act #{@opts.billId}. No HTML or RTF found."
+        logger.warn @lastResponse
         return done null, null
 
   downloadFileInMemory: (url, done) =>
-    request url, (e, r, b) ->
+    request
+      proxy: @opts.proxy
+      url: url
+      jar: false
+    , (e, r, b) ->
       return done e, b
 
   # Copied from billDownloadPage.

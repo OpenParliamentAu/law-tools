@@ -13,8 +13,8 @@ gitteh.openRepository repoPath, (e, repo) ->
     #tree = repo.getTree headCommit.tree
 
     # Copy file.
-    src = act.masterFile
-    dest = path.join repoPath, path.basename(act.masterFile)
+    src = act.output.path
+    dest = path.join repoPath, path.basename(act.output.path)
     fs.createReadStream(src).pipe fs.createWriteStream(dest)
 
     # Make commit.

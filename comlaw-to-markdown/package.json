@@ -1,5 +1,5 @@
 {
-  "name": "openparliamentau-amender",
+  "name": "op-comlaw-to-markdown",
   "version": "0.0.1",
   "private": true,
   "dependencies": {

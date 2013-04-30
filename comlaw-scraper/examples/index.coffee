@@ -1,7 +1,7 @@
 onelog = require 'onelog'
 log4js = require 'log4js'
 onelog.use onelog.Log4js, methods: 'setLevel'
-log4js.setGlobalLogLevel 'INFO'
+log4js.setGlobalLogLevel 'DEBUG'
 logger = onelog.get()
 
 mkdirp = require 'mkdirp'
@@ -20,8 +20,9 @@ aboriginalAffairs = 'C2004A03898'
 _act = aboriginalAffairs
 
 # Choose how many acts you want to be in your repo.
-noOfActsToIncludeInRepo = null
+noOfActsToIncludeInRepo = 2
 
+workDir = path.join Util.getUserHome(), 'tmp/makeRepoFromActSeries'
 
 # Creates a master repo and adds the Marriage Act Series.
 addActSeriesToMasterRepo = (comLawId, workDir, done) ->
@@ -31,6 +32,7 @@ addActSeriesToMasterRepo = (comLawId, workDir, done) ->
     first: noOfActsToIncludeInRepo
   , defer e, acts
   return done e if e
+
   await Git.makeGitRepo repoPath, defer e, repo
   return done e if e
 
@@ -66,9 +68,7 @@ makeRepoFromActSeries = (comLawId, workDir, done) ->
 # Main
 # ----
 
-workDir = path.join Util.getUserHome(), 'tmp/makeRepoFromActSeries'
 mkdirp.sync workDir
-
 program.parse process.argv
 example = program.args[0] or 'separate-repos'
 logger.info 'Running example:', example

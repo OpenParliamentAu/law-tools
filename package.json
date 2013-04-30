@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "onelog": "*",
+    "onelog": "git://github.com/vjpr/onelog.git",
     "log4js": "~0.6.3",
     "iced-coffee-script": "~1.6.2b"
   }

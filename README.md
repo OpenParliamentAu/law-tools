@@ -15,12 +15,20 @@ Separate modules are used for different parts of functionality.
 `npm install -g iced-coffee-script`
 `npm install`
 
+Install [SquidMan](http://squidman.net/squidman/) for OSX and run on `http://localhost:8080`. You can use any proxy you like.
+
 To run the entire process:
 
 ```
 cd main
 make
 ```
+
+Or run an individual phase as follows:
+
+`make arg='phase1'`
+
+See `main/index.coffee` for descriptions of each phase.
 
 ## Modules
 

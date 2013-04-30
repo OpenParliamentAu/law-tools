@@ -21,7 +21,7 @@ fixtures =
       'Start Date': '',
       'End Date': '',
       'Incorporating Amendments Up To': 'Act No. 71 of 1991',
-      masterFile: '/Users/Vaughan/dev/opendemocracy/lib/parser/downloads/comlaw/markdown/C2004C05246.md'
+      output: path: '/Users/Vaughan/dev/opendemocracy/lib/parser/downloads/comlaw/markdown/C2004C05246.md'
     },
     {
       Title: 'Marriage Act 1961\r\n                                                Superseded',
@@ -30,7 +30,7 @@ fixtures =
       'Start Date': '',
       'End Date': '',
       'Incorporating Amendments Up To': 'Act No. 216 of 1973',
-      masterFile: '/Users/Vaughan/dev/opendemocracy/lib/parser/downloads/comlaw/markdown/C2004C05245.md'
+      output: path: '/Users/Vaughan/dev/opendemocracy/lib/parser/downloads/comlaw/markdown/C2004C05245.md'
     }
   ]
 
@@ -48,7 +48,8 @@ main = ->
     logger.debug acts
     async.each acts, (act, done) ->
       ComLaw.downloadActFiles act.ComlawId, (e, newFile) =>
-        act.masterFile = newFile
+        act.output =
+          path: newFile
         done()
     , (e) ->
       throw e if e

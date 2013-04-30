@@ -23,6 +23,7 @@ natural = require 'natural'
 {toMarkdown} = require 'to-markdown'
 {CustomFilters} = require './filters'
 util = require './util'
+packageJson = require './package'
 
 # Constants.
 jquery = 'http://code.jquery.com/jquery.js'
@@ -49,6 +50,13 @@ class @Converter
       cheerioOpts:
         lowerCaseTags: true
         lowerCaseAttributeNames: true
+
+    @compilerInfo =
+      name: packageJson.name
+      version: packageJson.version
+      type: 'markdown'
+
+  getCompilerInfo: => @compilerInfo
 
   getHtml: (done) =>
     @html = @preprocessHTML @html

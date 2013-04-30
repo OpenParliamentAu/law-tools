@@ -3,7 +3,13 @@ cheerio = require 'cheerio'
 closest = ($, node, tagName) ->
   curr = node
   while curr?
-    curr = $(curr).parent()[0]
+    try
+      curr = $(curr).parent()[0]
+    catch e
+      console.error 'Error: Cheerio failed to get parent of current element. This is a Cheerio bug.'
+      return null
+
+    return curr unless curr?
     if curr.type is 'root'
       curr = null
     else if curr.name is tagName

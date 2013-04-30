@@ -26,7 +26,11 @@ writeManifest = (manifestDest, acts) ->
   fs.writeFileSync manifestDest, JSON.stringify(acts, null, 2)
 
 readManifest = (manifestDest) ->
-  require manifestDest
+  return null unless manifestDest?
+  if fs.existsSync manifestDest
+    require manifestDest
+  else
+    null
 
 #
 # A scraper for http://www.comlaw.gov.au/
@@ -107,10 +111,19 @@ class @ComLaw
   @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->
     ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->
       return done e if e
-      ComLaw.convertActsToMarkdown acts, manifestDest, baseDir, done
+      ComLaw.convertActsToMarkdown manifestDest, baseDir, done
 
   @downloadActSeries: (comLawId, workDir, opts, done) ->
     unless done? then done = opts; opts = {}
+    _.defaults opts,
+      force: false
+      first: null
+      # If we already have the files and want to rebuild the manifest
+      # files enable this.
+      # I had to use it when I accidentally overwrote all the manifest
+      # files.
+      filesAlreadyDownloaded: false
+
     # Each act series is saved in its own folder.
     baseDir = path.join workDir, comLawId
     mkdirp.sync baseDir
@@ -121,11 +134,46 @@ class @ComLaw
 
     # Unless we have already downloaded all the meta-data,
     # download all act meta-data in act series and save to manifest.
-    unless fs.existsSync manifestDest
+    manifest = readManifest manifestDest
+
+    if opts.force
+      # Always get act series meta-data.
       await ComLaw.actSeries comLawId, defer e, acts
       return done e if e
     else
-      acts = readManifest manifestDest
+      if manifest?
+        if manifest instanceof Array
+          # Valid manifest file.
+          acts = manifest
+        else
+          # Invalid manifest file. Get.
+          await ComLaw.actSeries comLawId, defer e, acts
+          return done e if e
+      else
+        # Manifest file doesn't exist. Get.
+        await ComLaw.actSeries comLawId, defer e, acts
+        return done e if e
+
+    # I used the following code to rebuild the act series manifest files
+    # after I accidentally overwrote them.
+    #
+    # We search the downloadedFilesDir for rtf and html and add
+    # this data to the manifest if we find it.
+
+    if opts.filesAlreadyDownloaded
+      for actData in acts
+        continue if actData.files?
+        destBase = path.join downloadedFilesDir, actData.ComlawId
+        if fs.existsSync destBase + '.html'
+          actData.files = html: destBase + '.html'
+          actData.versionScraper = ComLaw.getVersion()
+        else if fs.existsSync destBase + '.rtf'
+          actData.files = rtf: destBase + '.rtf'
+          actData.versionScraper = ComLaw.getVersion()
+      writeManifest manifestDest, acts
+      return done null, acts, manifestDest, baseDir
+
+    # ---
 
     unless acts?.length
       logger.debug 'No acts found'
@@ -158,24 +206,28 @@ class @ComLaw
 
     done null, acts, manifestDest, baseDir
 
-  @convertActsToMarkdown: (acts, manifestDest, baseDir, done) ->
+  @convertActsToMarkdown: (manifestDest, baseDir, done) ->
     # Convert all acts in series to Markdown from act manifest.
-    async.eachSeries acts, (actData, cb) ->
-      ComLaw.convertToMarkdownFromManifest actData, baseDir, cb
-    , (e) ->
+    acts = readManifest manifestDest
+    convertedCount = 0
+    for actData in acts
+      continue unless actData.files?
+      continue if actData.output?
+      await ComLaw.convertToMarkdownFromManifest actData, baseDir, defer e
       return done e if e
+      ++convertedCount
 
-      # Update manifest with path to Markdown files.
-      writeManifest manifestDest, acts
-      logger.debug "Finished converting #{acts.length} acts to Markdown"
-      done null, acts
+    # Update manifest with path to Markdown files.
+    writeManifest manifestDest, acts
+    logger.debug "Finished converting #{convertedCount}/#{acts.length} acts to Markdown"
+    done null, acts
 
   @convertToMarkdownFromManifest: (actData, baseDir, done) ->
     markdownDir = path.join baseDir, 'md'
     mkdirp.sync markdownDir
     markdownDest = path.join markdownDir, actData.ComlawId + '.md'
 
-    # Read files.
+    # Read source files.
     data = {}
     if actData.files.html?
       data.html = fs.readFileSync actData.files.html, 'utf-8'
@@ -183,8 +235,13 @@ class @ComLaw
       data.rtf = fs.readFileSync actData.files.rtf, 'utf-8'
 
     # Convert.
-    await ComLaw.convertToMarkdown actData.ComlawId, data, markdownDest, defer e
+    await ComLaw.convertToMarkdown actData.ComlawId, data, markdownDest
+    , defer e, dest, compilerInfo
     return done e if e
+
     # Attach the generated Markdown file to the act.
-    actData.masterFile = markdownDest
+    actData.output =
+      path: markdownDest
+      compiler: compilerInfo
+
     done()

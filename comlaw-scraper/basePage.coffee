@@ -17,6 +17,7 @@ class @BasePage
       url: ''
       # Whether we should parse with Cheerio after user calls `scrape`.
       parseAfterScrape: true
+      proxy: 'http://localhost:8080'
     @data = {}
     @hasScraped = false
     # This should be set to jquery/cheerio object for document.
@@ -49,10 +50,17 @@ class @BasePage
       return cb null, @opts.html
     return cb new Error 'Must set url or html' unless @opts.url
     logger.debug "Scraping #{@opts.url}"
-    request @opts.url, (e, r, b) =>
+    request
+      proxy: @opts.proxy
+      url: @opts.url
+      jar: false
+    , (e, r, b) =>
       if e then console.error 'gethtml', e
       return cb e if e
+      console.log b?.length
       @body = b
+      @lastResponse = r
+      logger.trace e, r, b
       @gotBody = true
       if @opts.parseAfterScrape
         try
