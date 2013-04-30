@@ -17,18 +17,12 @@ Separate modules are used for different parts of functionality.
 
 Install [SquidMan](http://squidman.net/squidman/) for OSX and run on `http://localhost:8080`. You can use any proxy you like.
 
-To run the entire process:
+To view command line interface options run:
 
 ```
 cd main
 make
 ```
-
-Or run an individual phase as follows:
-
-`make arg='phase1'`
-
-See `main/index.coffee` for descriptions of each phase.
 
 ## Modules
 
