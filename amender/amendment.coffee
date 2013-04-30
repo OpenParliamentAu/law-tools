@@ -67,9 +67,9 @@ class @Amendment
     curr = $(startEl)
     prev = null
     els = []
-    while curr?
+    while curr? and not _.isEmpty curr
       prev = curr
-      curr = curr.next()
+      curr = $(curr).next()
       #end1 = _.any untilClasses, (i) -> curr.hasClass(className)
       end = curr.hasClass(className)
       unless curr.length and curr isnt prev and not end # and not end1
@@ -102,16 +102,16 @@ class @Amendment
   apply: (html) =>
     logger.debug 'Applying action:', @amendment.action
     unit = @amendment.unit
+
+    # Skip non-unit header for now.
+    return html if unit.nonUnitHeader?
+
     $ = cheerio.load html
 
     action = @amendment.action
     action.type = actionMap[@amendment.action.type]
 
     logger.trace unit
-
-    # Skip non-unit header for now.
-    if unit.nonUnitHeader?
-      return $.html()
 
     # The last `subUnitNo` will always refer to a unit of type `unitType`.
     unitType = unit.unitType.toLowerCase()

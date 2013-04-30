@@ -23,7 +23,7 @@ program = require 'commander'
 {ComLaw} = require 'comlaw-scraper'
 {Git} = require 'git-tools'
 {Util} = require 'op-util'
-pjson = require '../package.json'
+pjson = require 'package.json'
 
 noOfActsToIncludeInRepo = null
 workDir = path.join Util.getUserHome(), 'tmp/openparl-examples'
@@ -46,7 +46,7 @@ addActSeriesToMasterRepo = (comLawId, workDir, done) ->
   folderName = principalActName.charAt(0).toLowerCase()
   subdir = path.join folderName, principalActName
 
-  await Git.addActsToGitRepo repo, acts,
+  await Git.addActsToGitRepo repo, acts.reverse(),
     version: 'test'
     subdir: subdir
   , defer e

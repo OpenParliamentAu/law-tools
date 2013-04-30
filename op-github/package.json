@@ -2,5 +2,8 @@
   "name": "op-github",
   "version": "0.0.1",
   "private": true,
-  "main": "index.coffee"
+  "main": "index.coffee",
+  "dependencies": {
+    "octonode": "~0.3.0"
+  }
 }

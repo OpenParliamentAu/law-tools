@@ -167,7 +167,7 @@ class @FederalLawScraper
       folderName = principalActName.charAt(0).toLowerCase()
       subdir = path.join folderName, principalActName
 
-      await Git.addActsToGitRepo repo, acts,
+      await Git.addActsToGitRepo repo, acts.reverse(),
         subdir: subdir
       , defer e
       return done e if e

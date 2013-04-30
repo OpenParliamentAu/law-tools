@@ -28,7 +28,7 @@ class @AmendmentParser
       amendment = {}
       amendment.line1 = item.line1
       amendment.line2 = item.line2
-      amendment.line3 = item.line3
+      amendment.line3 = item.line3 if item.line3?
 
       # Line 1
       # ------
@@ -50,7 +50,8 @@ class @AmendmentParser
       logger.debug 'Parsing action:', item.line2
       parser = new Parser @grammar.action
       amendment.action = parser.parse item.line2
-      amendment.action.position = header.position if header.position?
+      if header.position? and header.position isnt ''
+        amendment.action.position = header.position
       amendment.body = item.line3
 
       amendment

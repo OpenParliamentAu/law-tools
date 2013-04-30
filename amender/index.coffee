@@ -6,15 +6,11 @@ path = require 'path'
 
 # Logging.
 onelog = require 'onelog'
-log4js = require 'log4js'
-onelog.use onelog.Log4js
 logger = onelog.get 'Amender'
-logger.setLevel 'DEBUG'
-logger.setLevel 'OFF'
-#logger.setLevel 'TRACE'
+#logger.setLevel 'OFF'
 
 # Libs.
-{toMarkdown} = require 'to-markdown'
+#{toMarkdown} = require 'to-markdown'
 {Converter} = require 'comlaw-to-markdown'
 {AmendmentParser} = require './amendmentParser'
 {Amendment} = require './amendment'
@@ -106,7 +102,7 @@ class @Amender
         prev = curr
         curr = $(curr).next()
         end = _.any classes, (clazz) -> $(curr).hasClass(clazz)
-        break if $(curr).hasClass('ItemHead') or end or curr is prev
+        break if $(curr).hasClass('ItemHead') or end or curr is prev or curr.length is 0
       items.push els
     items
 
@@ -193,7 +189,7 @@ class @Amender
   toMarkdown: (html, cb) =>
 
     converter = new Converter html,
-      root: 'body'
+      #root: 'body'
       outputSplit: false
       outputDebug: false
       justMd: true

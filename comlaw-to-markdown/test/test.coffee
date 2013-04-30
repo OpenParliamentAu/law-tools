@@ -7,7 +7,7 @@ chai.should()
 
 describe 'The converter', ->
 
-  describe 'should not introduce regressions in', ->
+  describe 'should not introduce regressions', ->
 
     it 'when converting marriage act', (done) ->
       setup.call @, fixtures.marriageAct, =>

@@ -44,7 +44,7 @@ root = @
       root: 'body'
       convertEachRootTagSeparately: true
 
-@fixturesDir = path.resolve process.env['OPENPARL_FIXTURES']
+@fixturesDir = path.resolve path.join process.env['OPENPARL_FIXTURES'], 'comlaw-to-markdown'
 
 @getAllFixturesForAct = (actSlug) ->
   fs.readdirSync path.join root.fixturesDir, actSlug

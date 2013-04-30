@@ -80,11 +80,22 @@ A disadvantage is that diffs can only be generated against the latest consolidat
 
 ## Test
 
-### Integration
+### Setup
+
+Obtain fixtures from GitHub.
+
+    git clone https://github.com/OpenParliamentAu/law-fixtures.git
+
+Add location of fixtures as environment variable. Replace `fixtures-dir` with the
+directory where you cloned the fixtures repo to. Mine is at `~/dev/law-fixtures`.
+
+    echo 'export OPENPARL_FIXTURES="<fixtures-dir>"' >> ~/.bashrc
+
+### All tests
 
 `make test`
 
-### Parser
+### Parser tests
 
 `make arg='-g Parser'`
 

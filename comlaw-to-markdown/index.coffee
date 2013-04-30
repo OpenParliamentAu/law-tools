@@ -50,6 +50,8 @@ class @Converter
       cheerioOpts:
         lowerCaseTags: true
         lowerCaseAttributeNames: true
+      # Only output Markdown in-memory.
+      justMd: false
 
     @compilerInfo =
       name: packageJson.name

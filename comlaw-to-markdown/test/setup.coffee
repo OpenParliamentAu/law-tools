@@ -1,3 +1,7 @@
+# Logging config.
+require('./logging')()
+logger = require('onelog').get 'ComLawToMarkdown'
+
 # Vendor.
 path = require 'path'
 fs = require 'fs'
@@ -7,9 +11,7 @@ _ = require 'underscore'
 {Converter} = require '../index.coffee'
 {fixtures, fixturesDir, defaultOpts, getFileInfo} = require './helpers'
 
-# Logging config.
-onelog = require 'onelog'
-onelog.getLibrary().setGlobalLogLevel 'WARN'
+# ---
 
 opts = defaultOpts
 outputDir = path.join __dirname, 'out/singleFile'
