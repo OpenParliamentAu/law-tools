@@ -7,4 +7,4 @@ test:
 	  node_modules/.bin/mocha \
     $(arg)
 
-.PHONY: test example
+.PHONY: test

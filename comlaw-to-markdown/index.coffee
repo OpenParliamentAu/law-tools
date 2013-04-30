@@ -3,7 +3,7 @@
 # Logging.
 onelog = require 'onelog'
 
-logger = onelog.get 'converter'
+logger = onelog.get 'ComLawToMarkdown.Converter'
 defLogger = onelog.get 'definitions'
 #logger.setLevel 'DEBUG'
 #logger.setLevel 'TRACE'

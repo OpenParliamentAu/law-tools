@@ -1,4 +1,4 @@
-logger = require('onelog').get 'Converter'
+logger = require('onelog').get 'ComLaw.Converter'
 
 fs = require 'fs'
 path = require 'path'

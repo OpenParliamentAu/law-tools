@@ -1,6 +1,6 @@
 main:
 
-	NODE_PATH='..' iced . $(arg)
+	NODE_PATH='..' iced index.coffee $(arg)
 
 test:
 
@@ -11,4 +11,4 @@ test:
 	  node_modules/.bin/mocha \
     $(arg)
 
-.PHONY: test
+.PHONY: main test
