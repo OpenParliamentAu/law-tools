@@ -201,8 +201,11 @@ class @Amender
     fail = 0
     total = 0
     _.each amendments, (els) =>
-      html = @processAmendment els, html
-      unless html? then fail++ else win++
+      try
+        html = @processAmendment els, html
+        win++
+      catch e
+        fail++
       total++
 
     console.log "#{win}/#{total} passed"
@@ -243,7 +246,7 @@ class @Amender
     catch e
       logger.error "Error parsing amendment", e
       console.log "✗ #{line1} (Parse Error)".red
-      return html
+      throw e
 
     amendment = new Amendment amendmentJson
 
@@ -254,7 +257,7 @@ class @Amender
     catch e
       logger.error "Error applying amendment", e
       console.log "✗ #{line1} (Apply Error)".red
-      return html
+      throw e
 
     return html
 

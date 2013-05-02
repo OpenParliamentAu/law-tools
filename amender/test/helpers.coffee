@@ -60,7 +60,7 @@ fixtures =
   'Marriage Equality Amendment Act 2013':
     actDir: 'Marriage Equality Amendment Act 2013'
   'Aged Care Amendment Act 2011':
-    actDir: 'Aged Care Amendment Act 2011/acts'
+    actDir: 'Aged Care Amendment Act 2011'
 
 #
 recode = (file) ->
@@ -134,7 +134,7 @@ writeTemp = (content, opts) ->
 
   # Read amendment act html.
   if opts.recode
-    amendmentHtml = read fixture actDir, 'amend.html'
+    amendmentHtml = recode fixture actDir, 'amend.html'
   else
     amendmentHtml = read fixture actDir, 'amend.html'
 
@@ -172,7 +172,7 @@ writeTemp = (content, opts) ->
     if actsFixtures[title].expected isnt actOutput.modifiedOriginalHtml
       #for k,v of actsFixtures[title]
       #  console.log k, v.length
-      logger.info "Regression detected in '#{title}'. Generating diffs..."
+      logger.warn "Regression detected in '#{title}'. Generating diffs..."
       await printDiff title, actsFixtures[title], actOutput, defer e
       return done e if e
       regression = true
