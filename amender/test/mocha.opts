@@ -1,5 +1,5 @@
 --compilers coffee:iced-coffee-script
---reporter list
+--reporter spec
 --recursive
 --timeout 5000
 --globals ADD_GLOBALS_HERE

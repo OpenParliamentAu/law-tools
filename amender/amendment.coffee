@@ -196,7 +196,7 @@ class @Amendment
           el = Amendment.findSubUnit $, els, currentUnit.number, _unitType
 
           # If we don't find the subsection, it might not be numbered
-          # because it is the only one. (They sometimes to this).
+          # because it is the only one. (They sometimes do this).
           subsections = $(els).filter -> $(@).hasClass(_unitType)
           el = subsections[0] if subsections.length is 1
 

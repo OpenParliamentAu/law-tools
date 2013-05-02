@@ -17,5 +17,5 @@ module.exports = ->
       }
     ]
     levels:
-      'Amender': 'DEBUG'
+      #'Amender': 'DEBUG'
       'Amender': 'OFF'

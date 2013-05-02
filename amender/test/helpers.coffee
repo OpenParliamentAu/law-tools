@@ -7,16 +7,20 @@ path = require 'path'
 util = require 'util'
 _ = require 'underscore'
 mkdirp = require 'mkdirp'
+temp = require 'temp'
 require 'colors'
 
 # Libs.
 {Parser} = require '../parser'
 {Converter} = require 'comlaw-to-markdown'
+{Amender} = require '..'
 
 # Helpers.
 fixturesDir = path.join process.env['OPENPARL_FIXTURES'], 'amender'
 fixture = (dir, p) -> path.join fixturesDir, dir, p
-read = (file, format = 'utf-8') -> fs.readFileSync file, format
+read = (file, format = 'utf-8') ->
+  return null unless fs.existsSync file
+  fs.readFileSync file, format
 testOutputDir = path.join __dirname, 'testOutput'
 mkdirp.sync testOutputDir
 
@@ -40,7 +44,7 @@ actionGrammar = './grammar/action.pegjs'
 generateMdFromHtml = (html, cb) ->
   converter = new Converter html,
     # For aged care amendment act.
-    root: 'body'
+    #root: 'body'
     convertEachRootTagSeparately: true
     outputSplit: false
     outputDebug: false
@@ -53,13 +57,14 @@ generateMdFromHtml = (html, cb) ->
   converter.convert cb
 
 fixtures =
-  'marriage-equality-amendment-act-2013':
-    actDir: 'marriage-equality-amendment-act-2013'
-  'aged-care-amendment-act-2011':
-    actDir: 'aged-care-amendment-act-2011'
+  'Marriage Equality Amendment Act 2013':
+    actDir: 'Marriage Equality Amendment Act 2013'
+  'Aged Care Amendment Act 2011':
+    actDir: 'Aged Care Amendment Act 2011/acts'
 
 #
 recode = (file) ->
+  return null unless fs.existsSync file
   {Iconv} = require 'iconv'
   str = fs.readFileSync file
   iconv = new Iconv 'ISO-8859-1', 'UTF-8'
@@ -71,39 +76,39 @@ recode = (file) ->
   #ret = ret.replace /&#146;/g, '\''
   ret
 
-# opts.recode will convert from 'ISO-8859-1' to 'UTF-8' and replace
-# a few problematic characters.
-@testEntireAct = (fixtureKey, opts, done) ->
-  unless done? then done = opts; opts = {}
+@getAmendmentHtml = (fixtureKey) ->
   actDir = fixtures[fixtureKey].actDir
-  #actMd = read fixture actDir, 'before.md'
-  actHtmlPath = fixture actDir, 'before-original.html'
-  #actHtml = read actHtmlPath
-  actHtml = recode actHtmlPath
-  if opts.recode
-    amendment = recode fixture actDir, 'amend.html'
-  else
-    amendment = read fixture actDir, 'amend.html'
-  expectedHtmlPath = fixture actDir, 'after.html'
-  expectedPath = fixture actDir, 'after.md'
-  beforePath = fixture actDir, 'before.md'
-  actualPath = path.join testOutputDir, 'after-actual' + '.md'
-  actualModifiedOriginalHtmlPath = path.join testOutputDir, 'after-actual' + '.html'
-  actualIntermediateHtmlPath = path.join testOutputDir, 'after-actual-inter' + '.html'
-  act =
-    #markdown: actMd
-    #html: actHtml
-    originalHtml: actHtml
+  amendmentHtml = recode fixture actDir, 'amend.html'
 
-  printDiff = ->
-    console.log """
+printDiff = (title, fixures, actual, done) ->
+  actualMarkdownPath = writeTemp actual.markdown, suffix: '_ACTUAL.md'
+
+  # Generate expected Markdown before.
+  await generateMdFromHtml fixures.before, defer e, beforeMd
+  return done e if e
+  beforeMarkdownPath = writeTemp beforeMd, suffix: '_BEFORE.md'
+
+  # Generate expected Markdown after.
+  if fixures.expected?
+    await generateMdFromHtml fixures.expected, defer e, afterMd
+    return done e if e
+    expectedMarkdownPath = writeTemp afterMd, suffix: '_EXPECTED.md'
+  else
+    # Allow for manual Markdown generation.
+    expectedMarkdownPath = writeTemp fixures.expectedMarkdown, suffix: '_EXPECTED.md'
+
+  actHtmlPath = writeTemp fixures.before, suffix: '_BEFORE.html'
+  actualModifiedOriginalHtmlPath = writeTemp actual.modifiedOriginalHtml, suffix: '_ACTUAL_MODIFIED_ORIGINAL.html'
+  actualIntermediateHtmlPath = writeTemp actual.intermediateHtml, suffix: '_ACTUAL_INTERMEDIATE.html'
+
+  console.log """
 --------------------------------------------------------------------------------
-Regression detected.
+Regression detected when amending: #{title}
 
 1. Inspect Markdown diff (merge changes if they are expected):
-  #{diffCmd actualPath, expectedPath}
+  #{diffCmd actualMarkdownPath, expectedMarkdownPath}
 
-  #{diffCmd actualPath, expectedPath, beforePath}
+  #{diffCmd actualMarkdownPath, expectedMarkdownPath, beforeMarkdownPath}
 
 2. Inspect original HTML diff (original html > modified html > intermediate html):
   #{diffCmd actHtmlPath, actualModifiedOriginalHtmlPath, actualIntermediateHtmlPath}
@@ -111,41 +116,68 @@ Regression detected.
 --------------------------------------------------------------------------------
 """
 
-  finish = (expected) =>
-    @amender.amend act, amendment,
-      #onlyProcessRange: [8, 9]
-      onlyProcessRange: null
-    , (e, md, html) =>
-      return done e if e
-      fs.writeFileSync actualPath, md, 'utf8'
-      fs.writeFileSync actualModifiedOriginalHtmlPath, html, 'utf8'
-      fs.writeFileSync actualIntermediateHtmlPath, html, 'utf8'
-      logger.debug "Wrote to", actualPath
-      logger.debug "Wrote to", actualModifiedOriginalHtmlPath
-      logger.debug "Wrote to", actualIntermediateHtmlPath
-      unless md is expected
-        printDiff()
-        return done new Error 'Regression detected.'
-      done()
+  done()
 
-  # Generate original act as markdown.
-  # We can compare the after-actual.md to see what has actually changed.
-  if opts.generateBeforeMd and not fs.existsSync beforePath
-    beforeHtml = read fixture actDir, 'before-original.html'
-    await generateMdFromHtml beforeHtml, defer e, beforeMd
-    return done e if e
-    fs.writeFileSync beforePath, beforeMd
+writeTemp = (content, opts) ->
+  _.defaults opts, {suffix: null, prefix: null}
+  dest = temp.path {suffix: opts.suffix, prefix: opts.prefix}
+  fs.writeFileSync dest, content, 'utf8'
+  dest
 
-  # Only generate markdown fixture if it doesn't already exist.
-  if opts.generateExpectedMd and not fs.existsSync expectedPath
-    expectedHtml = read expectedHtmlPath
-    await generateMdFromHtml expectedHtml, defer e, expectedMd
-    return done e if e
-    fs.writeFileSync expectedPath, expectedMd
-    finish expectedMd
+# opts.recode will convert from 'ISO-8859-1' to 'UTF-8' and replace
+# a few problematic characters.
+@testEntireAct = (fixtureKey, opts, done) ->
+  unless done? then done = opts; opts = {}
+
+  # Get fixtures directory for a given amendment act.
+  actDir = fixtures[fixtureKey].actDir
+
+  # Read amendment act html.
+  if opts.recode
+    amendmentHtml = read fixture actDir, 'amend.html'
   else
-    expectedMd = read expectedPath
-    finish expectedMd
+    amendmentHtml = read fixture actDir, 'amend.html'
+
+  amender = new Amender amendmentHtml
+
+  # Get html data for all acts which will be amended.
+  #
+  # This dir is expected to contain all the before and after acts named
+  # exactly as they appear in the amendment act.
+  #
+  # Marriage Act 1961_before.html
+  # Marriage Act 1961_after.html
+  #
+  acts = amender.getAmendedActs()
+  actsFixtures = {}
+  actsInput = {}
+  for title in acts
+    # For testing purposes.
+    actsFixtures[title] = {}
+    actsFixtures[title].before = read fixture actDir, title + '_before.html'
+    actsFixtures[title].expected = read fixture actDir, title + '_after.html'
+    actsFixtures[title].expectedMarkdown = read fixture actDir, title + '_after.md'
+    # For passing to amender.
+    actsInput[title] = actsFixtures[title].before
+
+  # Run test.
+  await amender.amend actsInput,
+    #onlyProcessRange: [8, 9]
+    onlyProcessRange: null
+  , defer e, actsOutput
+  return done e if e
+
+  regression = false
+  for title, actOutput of actsOutput
+    if actsFixtures[title].expected isnt actOutput.modifiedOriginalHtml
+      #for k,v of actsFixtures[title]
+      #  console.log k, v.length
+      logger.info "Regression detected in '#{title}'. Generating diffs..."
+      await printDiff title, actsFixtures[title], actOutput, defer e
+      return done e if e
+      regression = true
+  return done new Error('Regression detected.') if regression
+  done()
 
 # Unit Tests
 # ==========

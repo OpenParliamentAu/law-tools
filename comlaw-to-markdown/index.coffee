@@ -184,7 +184,7 @@ class @Converter
 
   convert: (done) =>
     unless @html?
-      done new Error '`this.html` was null. Must call #getHtml first. Check `root` option too.'
+      return done new Error '`this.html` was null. Must call #getHtml first. Check `root` option too.'
     $ = @$
 
     logger.debug 'Converting', @opts.fileName

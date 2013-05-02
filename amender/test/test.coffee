@@ -12,18 +12,39 @@ helpers = require './helpers'
 {AmendmentParser} = require '../amendmentParser'
 {Amender} = require '../index'
 
+testGetAmendedActs = (bill, expected, done) ->
+  amendmentHtml = helpers.getAmendmentHtml bill
+  amender = new Amender amendmentHtml
+  acts = amender.getAmendedActs()
+  acts.should.eql expected
+  done()
+
+describe 'Unit', ->
+
+  it 'get amended acts from Marriage bill', (done) ->
+    testGetAmendedActs.call @, 'Marriage Equality Amendment Act 2013'
+    , ['Marriage Act 1961'], done
+
+  it 'get amended acts for Aged Care bill', (done) ->
+    testGetAmendedActs.call @, 'Aged Care Amendment Act 2011'
+    , ['Aged Care Act 1997',
+      'Health Insurance Act 1973',
+      'National Health Act 1953',
+      'Aged or Disabled Persons Care Act 1954',
+      'Nursing Home Charge (Imposition) Act 1994']
+    , done
+
 describe 'Integration', ->
 
   before ->
-    @amender = new Amender
 
   it 'Marriage Equality Amendment Bill 2013', (done) ->
-    helpers.testEntireAct.call @, 'marriage-equality-amendment-act-2013',
+    helpers.testEntireAct.call @, 'Marriage Equality Amendment Act 2013',
       generateExpectedMd: true
     , done
 
   it 'Aged Care Amendment Act 2011', (done) ->
-    helpers.testEntireAct.call @, 'aged-care-amendment-act-2011',
+    helpers.testEntireAct.call @, 'Aged Care Amendment Act 2011',
       generateExpectedMd: true
       generateBeforeMd: true
       recode: true

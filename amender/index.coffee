@@ -20,55 +20,123 @@ grammar =
   header: fs.readFileSync path.join(__dirname, 'grammar/header.pegjs'), 'utf-8'
   action: fs.readFileSync path.join(__dirname, 'grammar/action.pegjs'), 'utf-8'
 
+# Helpers
+# -------
+
+# Get all elements up until an element with the same class name is
+# found or end of siblings.
+nextUntil = ($, startEl, filter) ->
+  el = $(startEl)
+  return [] unless el.length
+  curr = el.next()
+  els = []
+  while curr?
+    if curr.length and not $(curr).filter(filter).length
+      els.push curr
+    else
+      break
+    curr = curr.next()
+  $ els
+
+# ---
+
 class @Amender
 
-  constructor: ->
-    @data = {}
+  constructor: (@amendmentActHtml) ->
+    # Pre-process amendment act html.
+    @amendmentActHtml = @amendmentActHtml.replace /&#210;/g, '"'
+    # Clean amendment act html.
+    # TODO: Do something different.
+    @amendmentActHtml
+      .replace(/&#8209;/g, '‑')
+      .replace(/‑/g, '‑')
+      #.replace /&nbsp;/g, '\u2002'
+    @$ = cheerio.load @amendmentActHtml
+
+  getAmendedActs: =>
+    acts = @getActs()
+    _.unique (act.title for act in acts)
 
   # This is the main function.
-  amend: (@act, @amendmentActHtml, @opts, done) =>
+  amend: (actsHtml, @opts, done) =>
     unless done? then done = @opts; @opts = {};
     _.defaults @opts,
       onlyProcessFirstN: null
       onlyProcessNth: null
       onlyProcessRange: null
 
-    # Pre-process amendment act html.
-    @amendmentActHtml = @amendmentActHtml.replace /&#210;/g, '"'
-
-    # TODO: Don't do this. Do something else.
-    @act.originalHtml = @act.originalHtml.replace  /&#8209;/g, '‑'
-    @act.originalHtml = @act.originalHtml.replace  /‑/g, '‑'
-    @act.originalHtml = @act.originalHtml.replace  /[ ]/g, ' '
-    @act.originalHtml = @act.originalHtml.replace  /&#146;/g, ' '
-    @amendmentActHtml = @amendmentActHtml.replace  /&#8209;/g, '‑'
-    @amendmentActHtml = @amendmentActHtml.replace  /‑/g, '‑'
-    #@amendmentActHtml = @amendmentActHtml.replace /&nbsp;/g, '\u2002'
-    # ---
-
-    @$ = cheerio.load @amendmentActHtml
     $ = @$
 
-    @outputHtml = @act.originalHtml
+    # Check all required acts have been passed in.
+    amendedActs = @getAmendedActs()
 
-    # Bill meta-data.
-    @data.isAssented = $('.AssentDt').length
-    unless @data.isAssented
-      @data.house = @$('House').text()
+    # TODO: Not needed.
+    #unless _.all(amendedActs, (act) -> actsHtml[act]?)
+    #  return done 'You must pass in an acts hash containing html for all acts.'
 
-    # TODO: Schedule then parts.
+    # TODO: Don't do this. Do something else in the future!
 
+    # Clean acts.
+    for act of actsHtml
+      continue unless act?
+      act = act
+        .replace(/&#8209;/g, '‑')
+        .replace(/‑/g, '‑')
+        .replace(/[ ]/g, ' ')
+        .replace(/&#146;/g, ' ')
+
+    # Prepare output hash.
+    @output = {}
+    logger.debug "Amending the following acts:"
+    for title in amendedActs
+      logger.debug "#{title} (size=#{actsHtml[title]?.length})"
+      continue unless actsHtml[title]?
+      @output[title] =
+        modifiedOriginalHtml: actsHtml[title]
+        # Bill meta-data.
+        data:
+          isAssented: $('.AssentDt').length
+      unless @output[title].data.isAssented
+        @output[title].data.house = @$('House').text()
+
+    # Each schedule will amend one or more acts.
     schedules = @getSchedules()
-    modifiedOriginalHtml = ''
     for schedule in schedules
-      console.log schedule.text
-      items = @getAllItems schedule.els
-      modifiedOriginalHtml = @processAmendments items
+      acts = @getActs schedule.els
+      for act in acts
+        # Skip if we didn't provide original html for this act.
+        continue unless @output[act.title]?
+        items = @getAllItems act.children
+        @output[act.title].modifiedOriginalHtml =
+          @processAmendments schedule.text, act.title, items, @output[act.title].modifiedOriginalHtml
+        #console.log act.title, @output[act.title].modifiedOriginalHtml?.length
 
-    @toMarkdown modifiedOriginalHtml, (e, md, intermediateHtml) ->
+    # Convert each act to Intermediate HTML and then Markdown.
+    for title, act of @output
+      await @toMarkdown act.modifiedOriginalHtml, defer e, md, intermediateHtml
       return done e if e
-      done null, md, modifiedOriginalHtml, intermediateHtml
+      act.intermediateHtml = intermediateHtml
+      act.markdown = md
 
+    # Return hash of act -> intermediate html and Markdown of amended act.
+    done null, @output
+
+  getActs: (scheduleEls) =>
+    $ = @$
+    # Find all the act headers in this schedule.
+    if scheduleEls?
+      actEls = $(scheduleEls).filter -> @hasClass 'ActHead9'
+    else
+      actEls = $('.ActHead9')
+    actEls.map ->
+      el: @
+      title: @text().replaceLineBreaks()
+      children: nextUntil $, @, ->
+        # Find next heading that is higher in header hierarchy.
+        matched = /ActHead[0-8]/.test @attr('class')
+        matched
+
+  # TODO: Rewrite functionally like above.
   getSchedules: =>
     $ = @$
 
@@ -77,6 +145,7 @@ class @Amender
     for el, i in els
       scheduleEls = Amendment.getElementsUntilClass $, el, 'ActHead6'
       schedules.push
+        el: el
         text: $(el).text()
         els: scheduleEls
     schedules
@@ -92,7 +161,7 @@ class @Amender
 
     $ = @$
     items = []
-    itemHeads = $(els).filter -> $(@).hasClass 'ItemHead'
+    itemHeads = $(els).filter -> @hasClass 'ItemHead'
     itemHeads.each ->
       els = []
       curr = @
@@ -114,7 +183,7 @@ class @Amender
   #   .Definition - the formatted definition
   #
   # Each item is processed separately.
-  processAmendments: (amendments) =>
+  processAmendments: (schedule, actTitle, amendments, html) =>
 
     # Process amendments.
     amendments = if @opts.onlyProcessNth
@@ -125,22 +194,25 @@ class @Amender
       amendments.slice @opts.onlyProcessRange[0] - 1, @opts.onlyProcessRange[1]
     else amendments
 
+    console.log 'Schedule:', schedule
+    console.log 'Act:', actTitle
+
     win = 0
     fail = 0
     total = 0
     _.each amendments, (els) =>
-      res = @processAmendment els
-      unless res then fail++ else win++
+      html = @processAmendment els, html
+      unless html? then fail++ else win++
       total++
 
-    console.log win, total
+    console.log "#{win}/#{total} passed"
     console.log "#{parseInt(win/total * 100)}% success rate\n"
 
     # Return html.
-    @outputHtml
+    html
 
   # Process each item.
-  processAmendment: (els) =>
+  processAmendment: (els, html) =>
     $ = @$
     # First, parse unit and action.
     parser = new AmendmentParser grammar
@@ -171,20 +243,20 @@ class @Amender
     catch e
       logger.error "Error parsing amendment", e
       console.log "✗ #{line1} (Parse Error)".red
-      return false
+      return html
 
     amendment = new Amendment amendmentJson
 
     # Applies the amendment to some html and returns the new html.
     try
-      @outputHtml = amendment.apply @outputHtml
+      html = amendment.apply html
       console.log "✔ #{line1}".green
     catch e
       logger.error "Error applying amendment", e
       console.log "✗ #{line1} (Apply Error)".red
-      return false
+      return html
 
-    return true
+    return html
 
   toMarkdown: (html, cb) =>
 
