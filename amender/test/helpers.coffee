@@ -169,14 +169,14 @@ writeTemp = (content, opts) ->
 
   regression = false
   for title, actOutput of actsOutput
-    if actsFixtures[title].expected isnt actOutput.modifiedOriginalHtml
+    unless actOutput.modifiedOriginalHtml.localeCompare actsFixtures[title].expected
       #for k,v of actsFixtures[title]
       #  console.log k, v.length
       logger.warn "Regression detected in '#{title}'. Generating diffs..."
       await printDiff title, actsFixtures[title], actOutput, defer e
       return done e if e
       regression = true
-  return done new Error('Regression detected.') if regression
+  return done(new Error 'Regression detected.') if regression
   done()
 
 # Unit Tests
