@@ -14,7 +14,7 @@ cheerio = require 'cheerio'
 
 # Libs.
 # TODO: Remove relative dependency.
-{BasePage} = require 'comlaw-scraper/basePage'
+{BasePage} = require 'shared'
 
 root = exports
 

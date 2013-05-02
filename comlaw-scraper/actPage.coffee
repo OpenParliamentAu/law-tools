@@ -5,7 +5,7 @@ path = require 'path'
 mkdirp = require 'mkdirp'
 fs = require 'fs'
 
-{BasePage} = require './basePage'
+{BasePage} = require 'shared'
 
 # A page showing details about a single act.
 #

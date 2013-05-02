@@ -1,6 +1,6 @@
 request = require 'request'
 cheerio = require 'cheerio'
-FeedParser = require 'feedparser'
+#FeedParser = require 'feedparser'
 _ = require 'underscore'
 querystring = require 'querystring'
 url = require 'url'
@@ -8,7 +8,7 @@ async = require 'async'
 fs = require 'fs'
 path = require 'path'
 
-{BasePage} = require '../lib/basePage'
+{BasePage} = require 'shared'
 
 class @BillPage extends BasePage
 

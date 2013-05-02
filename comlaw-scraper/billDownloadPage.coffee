@@ -5,7 +5,7 @@ path = require 'path'
 mkdirp = require 'mkdirp'
 fs = require 'fs'
 
-{BasePage} = require './basePage'
+{BasePage} = require 'shared'
 
 # The page which contains download links for all documents associated with
 # a bill.

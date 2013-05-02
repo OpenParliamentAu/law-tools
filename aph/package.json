@@ -1,0 +1,12 @@
+{
+  "name": "op-aph",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "mocha": "~1.9.0",
+    "wrench": "~1.4.4"
+  },
+  "devDependencies": {
+    "chai": "~1.6.0"
+  }
+}

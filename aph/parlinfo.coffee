@@ -12,8 +12,9 @@ parlInfoRoot = 'http://parlinfo.aph.gov.au'
 #root = 'http://parlinfo.aph.gov.au/parlInfo/search/display/display.w3p;'
 #qs = 'query=Dataset:allmps%20'
 
+root = exports
 
-class ParlInfo
+class @ParlInfo
 
   @search: (opts, done = ->) ->
     articles = []
@@ -39,7 +40,6 @@ class ParlInfo
       .on 'end', ->
         done e, articles
 
-
 # main
 # ----
 
@@ -50,7 +50,7 @@ beforeParliament = 'Dataset:billsCurBef Dataset_Phrase:"billhome"'
 billsCurrentlyBeforeParliament = 'Dataset:billsCurBef'
 
 scrapeBillsCurrentlyBeforeParliament = ->
-  ParlInfo.search
+  @ParlInfo.search
     query: billsCurrentlyBeforeParliament
   , (articles) ->
     tasks = _.map articles, (article) ->

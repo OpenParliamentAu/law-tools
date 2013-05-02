@@ -119,3 +119,14 @@ class @BasePage
         fn $, $(col), newRow
       rows.push newRow
     rows
+
+  # Extract definition list.
+  extractDefinitionList: (selector) =>
+    $ = @$
+    dl = $(selector)
+    obj = {}
+    dl.find('dt').each ->
+      term = @text()
+      def = @next().text()
+      obj[term] = def
+    obj

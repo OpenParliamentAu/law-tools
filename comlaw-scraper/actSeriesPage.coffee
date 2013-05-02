@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 # Libs.
-{BasePage} = require './basePage'
+{BasePage} = require 'shared'
 
 # A single page of act series results.
 #

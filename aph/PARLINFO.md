@@ -36,6 +36,8 @@ http://parlinfo.aph.gov.au/parlInfo/search/summary/summary.w3p;page=0;query=some
 
 ## View bill
 
+Its advantageous to use the aph.gov.au link as we don't need to know the postfix (i.e. _first-reps or _first-senate)
+
 http://www.aph.gov.au/Parliamentary_Business/Bills_Legislation/Bills_Search_Results/Result?bId=r5010
 
 http://parlinfo.aph.gov.au/parlInfo/search/display/display.w3p;

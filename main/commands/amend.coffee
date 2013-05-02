@@ -7,7 +7,8 @@ module.exports = (program) ->
     .description(amendDescription)
     .action (amendmentBillId, command) ->
       unless command? then arguments[0].outputHelp(); process.exit()
-      console.log 'TODO'
+      {AmendRunner} = require '../amend'
+      AmendRunner.amend amendmentBillId
 
   amendCmd.on '--help', ->
 

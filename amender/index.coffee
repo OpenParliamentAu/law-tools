@@ -17,8 +17,8 @@ logger = onelog.get 'Amender'
 
 # Constants.
 grammar =
-  header: fs.readFileSync './grammar/header.pegjs', 'utf-8'
-  action: fs.readFileSync './grammar/action.pegjs', 'utf-8'
+  header: fs.readFileSync path.join(__dirname, 'grammar/header.pegjs'), 'utf-8'
+  action: fs.readFileSync path.join(__dirname, 'grammar/action.pegjs'), 'utf-8'
 
 class @Amender
 
