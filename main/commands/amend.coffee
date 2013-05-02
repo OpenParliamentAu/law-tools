@@ -8,7 +8,8 @@ module.exports = (program) ->
     .action (amendmentBillId, command) ->
       unless command? then arguments[0].outputHelp(); process.exit()
       {AmendRunner} = require '../amend'
-      AmendRunner.amend amendmentBillId
+      AmendRunner.amend amendmentBillId, ->
+        process.exit()
 
   amendCmd.on '--help', ->
 

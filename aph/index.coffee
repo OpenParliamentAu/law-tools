@@ -75,7 +75,7 @@ class @APH
 # TODO: Make sure done isn't called twice.
 downloadFile = (dest, url, done) =>
   mkdirp.sync path.dirname dest
-  request(url).pipe(fs.createWriteStream dest)
+  request({url: url, proxy: 'http://localhost:8080'}).pipe(fs.createWriteStream dest)
     .on 'error', (e) ->
       done e
     .on 'close', ->

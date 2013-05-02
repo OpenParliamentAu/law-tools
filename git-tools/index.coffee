@@ -20,6 +20,53 @@ class @Git
     return done e if e
     done null, repo
 
+  # Accepts act markdown as strings.
+  # TODO: Maybe make #addActToGitRepo more generic?
+  @addAmendedActsToGitRepo: (info, repo, acts, opts, done) =>
+    _.defaults info,
+      title: 'Unknown Title'
+
+    for title, act of acts
+
+      console.log 'Committing act:', title
+
+      folderName = title.charAt(0).toLowerCase()
+      safeActTitle = title.replace /[^a-zA-Z0-9_\-\.]/g, '-'
+      subdir = path.join folderName, safeActTitle
+
+      # Create file
+      # -----------
+
+      # Place files in a subdirectory.
+      if opts.subdir?
+        dest = path.join repo.path, subdir, 'index.md'
+      else
+        dest = path.join repo.path, 'index.md'
+      mkdirp.sync path.dirname dest
+
+      fs.writeFileSync dest, act.markdown
+
+      # Make commit
+      # -----------
+
+      msg = "A committttt!"
+      subject = "An amendment!"
+      # Add file.
+      await repo.add path.resolve(dest), defer e, stdout, stderr
+      if e
+        logger.error e
+        continue
+        #return done e if e
+
+      # Commit changeset.
+      await repo.commit msg, {}, defer e
+      if e
+        logger.error "Commit failed! Perhaps there is nothing to commit?"
+        continue
+        #return done e if e
+      logger.debug "Committed:", subject
+
+    done()
 
   # Add acts to git repo.
   @addActsToGitRepo: (repo, acts, opts, done) ->

@@ -54,7 +54,9 @@ class @ComLaw
   # - Try to scrape HTML.
   # - Try to scrape RTF.
   # Returns (err, actData).
-  #   actData has same keys as titles from ComLaw html data table.
+  #   actData =
+  #     files: html|rtf: <filename>
+  #     data: html|rtf: <content>
   @downloadAct: (id, opts, done) ->
     unless done? then done = opts; opts = {}
     detailsUrl = "#{comlawRoot}/Details/#{id}"
@@ -70,6 +72,7 @@ class @ComLaw
   @convertToMarkdown: (id, actData, dest, done) =>
     Converter.convertToMarkdown id, actData, dest, done
 
+  # DEPRECATED - WE DO NOT USE THIS METHOD.
   # Download .doc file for act and convert to Markdown.
   # TODO: Uses FileConverter which we do not use.
   @downloadActFiles: (id, opts, done) ->
@@ -95,18 +98,20 @@ class @ComLaw
     "http://www.comlaw.gov.au/Browse/Results/ByID/Bills/Asmade/C2013B000/0"
     # TODO
 
+  # Get principal ComLawId - so that we can get the series.
+  # Also returns the raw scrape data.
   @getComLawIdFromActTitle: (actTitle, done) ->
     q = encodeURIComponent actTitle
     searchUrl = "#{comlawRoot}/Search/#{q}"
     searchResultsPage = new SearchResultsPage url: searchUrl
     searchResultsPage.scrape (e, data) ->
       return done e if e
-      #data = data.acts[0]['Title Link']
-      #data = data.replace 'http://www.comlaw.gov.au/Details/', ''
+      for act in data.acts
+        act.comLawId = act['Title Link'].replace 'http://www.comlaw.gov.au/Details/', ''
       seriesComLawId = data.acts[0]?['seriesComLawId']
       unless seriesComLawId?
         logger.warn 'Could not find seriesComLawId for page:', searchUrl
-      done null, seriesComLawId
+      done null, seriesComLawId, data
 
   @downloadActSeriesAndConvertToMarkdown: (comLawId, workDir, opts, done) ->
     ComLaw.downloadActSeries comLawId, workDir, opts, (e, acts, manifestDest, baseDir) ->

@@ -1,3 +1,6 @@
+# Logging.
+require('./logging')()
+
 program = require 'commander'
 pjson = require './package.json'
 

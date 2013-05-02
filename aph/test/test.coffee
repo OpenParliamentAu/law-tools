@@ -42,8 +42,6 @@ describe 'APH', ->
     data.should.eql fixtures
     done()
 
-  it 'should extract '
-
   it 'downloads first reading of amendment bill', (done) ->
     await APH.downloadFirstReading ndis, defer e, filename
     return done e if e

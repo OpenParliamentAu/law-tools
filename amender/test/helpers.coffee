@@ -8,7 +8,6 @@ util = require 'util'
 _ = require 'underscore'
 mkdirp = require 'mkdirp'
 temp = require 'temp'
-require 'colors'
 
 # Libs.
 {Parser} = require '../parser'
@@ -62,7 +61,7 @@ fixtures =
   'Aged Care Amendment Act 2011':
     actDir: 'Aged Care Amendment Act 2011'
 
-#
+
 recode = (file) ->
   return null unless fs.existsSync file
   {Iconv} = require 'iconv'

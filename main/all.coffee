@@ -1,11 +1,7 @@
 #require 'coffee-trace'
 
 # Logging.
-onelog = require 'onelog'
-log4js = require 'log4js'
-onelog.use onelog.Log4js, methods: 'setLevel'
-log4js.setGlobalLogLevel 'DEBUG'
-logger = onelog.get('Main')
+logger = require('onelog').get('Main')
 
 # Vendor.
 path = require 'path'

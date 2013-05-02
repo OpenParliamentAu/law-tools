@@ -8,7 +8,7 @@ module.exports = ->
     appenders: [
       {
         type: 'logLevelFilter'
-        category: ['Amender Test', 'Amendment', 'AmendmentParser', 'Amender']
+        category: ['Amender Test', 'Amendment', 'AmendmentParser', 'Amender', 'Amend']
         level: 'INFO'
         appender:
           type: 'console'
@@ -19,4 +19,4 @@ module.exports = ->
     ]
     levels:
       'Amender': 'OFF'
-      #'Amender': 'DEBUG'
+      'Amender': 'DEBUG'
