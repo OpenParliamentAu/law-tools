@@ -2,7 +2,7 @@ request = require 'request'
 cheerio = require 'cheerio'
 FeedParser = require 'feedparser'
 _ = require 'underscore'
-querystring = require './querystring'
+querystring = require 'querystring'
 url = require 'url'
 async = require 'async'
 fs = require 'fs'
@@ -14,23 +14,28 @@ parlInfoRoot = 'http://parlinfo.aph.gov.au'
 
 root = exports
 
+{BillPage} = require './billPage'
+
 class @ParlInfo
 
   @search: (opts, done = ->) ->
     articles = []
     metadata = {}
-    rssUrl = "http://parlinfo.aph.gov.au/parlInfo/feeds/rss.w3p;"
+    rssUrl = "#{parlInfoRoot}/parlInfo/feeds/rss.w3p;"
     _.defaults opts,
       adv: 'yes'
       # Options: date-eFirst, customrank
       orderBy: 'customrank'
       page: 0
       query: ''
-      resCount: 100
+      resCount: 'Default'
     str = querystring.stringify opts, ';'
     compiledUrl = rssUrl + str
     console.log 'Visiting:', str
-    request(compiledUrl).pipe(new FeedParser)
+    request(
+      url: compiledUrl
+      proxy: 'http://localhost:8080'
+    ).pipe(new FeedParser)
       .on 'error', (e) ->
         done e
       .on 'meta', (meta) ->
@@ -38,7 +43,7 @@ class @ParlInfo
       .on 'article', (article) ->
         articles.push article
       .on 'end', ->
-        done e, articles
+        done null, articles
 
 # main
 # ----
@@ -62,8 +67,8 @@ scrapeBillsCurrentlyBeforeParliament = ->
     async.parallel tasks, (e, r) ->
       console.log e, r
 
-page = new BillPage html: fs.readFileSync './fixtures/bill-amendment.html'
-page.scrape ->
-  console.log page.content
+#page = new BillPage html: fs.readFileSync './fixtures/bill-amendment.html'
+#page.scrape ->
+#  console.log page.content
 
 #scrapeBillsCurrentlyBeforeParliament()
