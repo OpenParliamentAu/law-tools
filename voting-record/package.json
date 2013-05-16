@@ -1,0 +1,14 @@
+{
+  "title": "op-voting-record",
+  "version": "0.0.1",
+  "dependencies": {
+    "libxmljs": "~0.8.1",
+    "eyes": "~0.1.8",
+    "xpath": "0.0.5",
+    "xmldom": "~0.1.16",
+    "walk": "~2.2.1",
+    "mongoose": "~3.6.10",
+    "sequelize": "~1.7.0-alpha1",
+    "pg": "~1.1.0"
+  }
+}
