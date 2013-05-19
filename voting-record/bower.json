@@ -1,0 +1,7 @@
+{
+  "name": "voting-record",
+  "version": "0.0.0",
+  "dependencies": {
+    "bootstrap-stylus": "latest"
+  }
+}

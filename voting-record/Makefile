@@ -9,7 +9,7 @@ watch:
 test:
 
 	NODE_PATH='..' nodemon \
-	  -e 'pegjs|coffee' \
+	  -e 'coffee' \
 	  --watch test \
 	  --watch . \
 	  node_modules/.bin/mocha \

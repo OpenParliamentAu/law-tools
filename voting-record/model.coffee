@@ -1,23 +1,22 @@
-findAllJson = ->
+errTo = require 'errto'
+S = Sequelize = require 'sequelize'
 
+model = null
+module.exports = ->
+  unless model?
+    model = new Model
+    model.init()
+  return model
 
-class @Model
+class Model
 
-  @sequelize: null
-  @Member: null
-  @Division: null
-  @MemberVote: null
-  @sequelize: null
-
-  @init: (done) ->
+  init: =>
     # Mongoose
     #mongoose = require 'mongoose'
     #mongoose.connect 'mongodb://localhost/op-voting-record'
     #person = mongoose.model 'Person',
     #  votes: Schema.Types.Mixed
 
-    # Sequelize
-    Sequelize = require 'sequelize'
     @sequelize = new Sequelize 'op-voting-record', 'postgres', null,
       dialect: 'postgres'
       host: 'localhost'
@@ -25,33 +24,78 @@ class @Model
       define:
         underscored: false
 
-    @Member = @sequelize.define 'member',
-      name: Sequelize.STRING
-      json: Sequelize.TEXT
+    define = (args...) => @sequelize.define args...
 
-    @Division = @sequelize.define 'division',
-      bill: Sequelize.STRING
-      majority: Sequelize.INTEGER
-      minority: Sequelize.INTEGER
-      yes: Sequelize.INTEGER
-      no: Sequelize.INTEGER
-      json: Sequelize.TEXT
+    @Member = define 'member',
+      name:       S.STRING
+      json:       S.TEXT
 
-    @MemberVote = @sequelize.define 'memberVote',
-      vote: Sequelize.STRING
+    @Speech = define 'speech',
+      content:    S.TEXT
+      duration:   S.INTEGER
+      wordcount:  S.INTEGER
+      xmlId:      S.TEXT
+      talktype:   S.STRING
+      aphUrl:     S.TEXT
+      # FK.
+      speakerId:  S.INTEGER
+      majorId:    S.INTEGER
+      minorId:    S.INTEGER
+      # Denorm.
+      speakerName: S.TEXT
+      # Other.
+      json:       S.TEXT
 
-    @Division.hasMany @MemberVote
-    @Member.hasMany @MemberVote
-    @MemberVote.belongsTo @Division
-    @MemberVote.belongsTo @Member
+    @Major = define 'major',
+      title:      S.TEXT
 
-    done()
+    @Minor = define 'minor',
+      title:      S.TEXT
 
-  @sync: (done) ->
+    @Division = define 'division',
+      # Division
+      date:       S.DATE
+      divNumber:  S.INTEGER
+      aphUrl:     S.STRING
+      nospeaker:  S.BOOLEAN
+      xmlId:      S.TEXT
+      # Division Count
+      ayes:       S.INTEGER
+      noes:       S.INTEGER
+      pairs:      S.INTEGER
+      tellerayes: S.INTEGER
+      tellernoes: S.INTEGER
+      # Calculated majority
+      majority:   S.INTEGER
+      # Other
+      json:       S.TEXT
+      # FK.
+      majorId:    S.INTEGER
+      minorId:    S.INTEGER
 
-    await @sequelize.drop().done defer e
-    return done e if e
-    await @sequelize.sync().done defer e
-    return done e if e
+    @DivisionSpeech = define 'divisionSpeech',
+      divisionId: S.INTEGER
+      speechId:   S.INTEGER
 
+    @DivisionMember = define 'divisionMember',
+      vote:       S.INTEGER
+      majority:   S.BOOLEAN
+      xmlId:      S.TEXT
+      # Denorm.
+      voterName:  S.STRING
+      # FK.
+      memberId:   S.INTEGER
+      divisionId: S.INTEGER
+
+    #@Bill = define 'bill',
+    #  json:       S.STRING
+
+    #@Division.hasMany @MemberVote
+    #@Member.hasMany @MemberVote
+    #@MemberVote.belongsTo @Division
+    #@MemberVote.belongsTo @Member
+
+  dropAndSync: (done) =>
+    await @sequelize.drop().done errTo done, defer()
+    await @sequelize.sync().done errTo done, defer()
     done()

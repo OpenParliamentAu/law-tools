@@ -1,19 +1,24 @@
 cheerio = require 'cheerio'
 _ = require 'underscore'
 
+nextOrPrevUntil = (dir, filter) ->
+  el = this
+  return [] unless el.length
+  curr = el[dir]()
+  els = []
+  while curr?
+    if curr.length and not curr.filter(filter).length
+      els.push curr
+    else
+      break
+    curr = curr[dir]()
+  els
+
 _.extend cheerio::,
-  prevUntil: (filter) ->
-    el = this
-    return [] unless el.length
-    curr = el.prev()
-    els = []
-    while curr?
-      if curr.length and not $(curr).filter(filter).length
-        els.push curr
-      else
-        break
-      curr = curr.prev()
-    els
+  prevUntil: (filter) -> nextOrPrevUntil.call @, 'prev', filter
+  nextUntil: (filter) -> nextOrPrevUntil.call @, 'next', filter
+  filterByTagName: (tagName) ->
+    @filter -> @[0].name is tagName
 
 _.mixin
   takeWhile: (list, callback, context) ->

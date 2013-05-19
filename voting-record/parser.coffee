@@ -1,91 +1,286 @@
-# Vendor
+iced.catchExceptions()
+
+logger = require('onelog').get()
+
+# Vendor.
 cheerio = require 'cheerio'
 _ = require 'underscore'
 xpath = require 'xpath'
 dom = require('xmldom').DOMParser
-inspect = require('eyes').inspector({maxLength: false})
+inspect = require('eyes').inspector {maxLength: false}
+{parseString} = require 'xml2js'
+xamel = require 'xamel'
+errTo = require 'errto'
+moment = require 'moment'
+
+# Libs.
+Model = require('./model')()
 
 class @Parser
 
-  @parse: (xml, done) ->
+  # Given an XML hansard document from OpenAustralia,
+  # return a json representation.
+  @getHansard: (xml, done) ->
+    $ = cheerio.load xml, xmlMode: true
+    els = $('debates > *')
 
-    doc = new dom().parseFromString xml
-    divs = []
+    ret =
+      units: []
+      divisions: []
+      # JSON representation of a session, for rendering a session page.
+      session: {}
+      bills: {}
 
-    # Find `major-heading` with text BILLS
-    nodes = xpath.select '//major-heading[contains(text(), "BILLS")][1]/following-sibling::*', doc
-    return done(null, []) unless nodes.length
-    # Get siblings until next `major-heading`.
-    nodes = _.takeWhile nodes, (el) -> el.tagName isnt 'major-heading'
-    #console.log _.pluck nodes, 'tagName'
-    # Find divisions.
-    divisions = _.filter nodes, (el) -> el.tagName is 'division'
-    return done(null, []) unless divisions.length
+    context =
+      major: null
+      majorEl: null
+      minor: null
+      minorEl: null
+      unit: null
+      unitEl: null
+      # Units since last minor-heading or division.
+      # These speeches are relevant to a division because they preceeded it.
+      speeches: []
 
-    for division in divisions
-      obj = {}
+    # Current position in context object.
+    pos = null
 
-      # Get division info.
-      await parseString division.toString(), {explicitArray: false}, defer e, json
-      return done e if e
-      obj.meta = json.division.$
-      obj.divisioncount = json.division.divisioncount.$
+    # Traverse hansard top-level elements.
+    # The hansard is a flattened hierarchical structure.
+    for el in els
+      $el = $(el)
+      name = $el[0].name
+      print = true
+      indent = null
+      switch name
 
-      # ---
-      # Get map of member -> vote
-      isFor = (vote) ->
-        switch vote
-          when 'aye' then true
-          when 'no' then false
-          when 'nay' then false
-          else vote
+        when 'major-heading'
+          context.major = $el.text().trim()
+          context.majorEl = $el
+          # Reset.
+          context.minor = null
+          context.speeches = []
+          # ---
+          indent = 0
+          pos = ret.session[$el.text().trim()] or= {}
+          pos.$ = $el.attr()
 
-      ayes = obj.divisioncount.ayes
-      noes = obj.divisioncount.noes
+        when 'minor-heading'
+          context.minor = $el.text().trim()
+          context.minorEl = $el
+          # Reset.
+          context.unit = null
+          context.speeches = []
+          # ---
+          indent = 2
+          pos = ret.session[context.major][$el.text().trim()] or= {}
+          pos.$ = $el.attr()
 
-      # Get Majority and Minority
-      isMajority = (vote) ->
-        return null if ayes is noes
-        if vote
-          return ayes > noes
-        else
-          return ayes < noes
+        when 'speech', 'division'
+          context.unit = $el
+          context.unitEl = $el
+          context
+          indent = 4
+          print = false
 
-      getMajority = ->
-        return Math.abs ayes - noes
+          # Session
+          # -------
+          pos = ret.session[context.major][context.minor]
+          unit =
+            content: $el.html()
+            $: $el.attr()
+          pos.units or= []
+          pos.units.push unit
+          # ---
 
-      membervotes = []
-      for list in json.division.memberlist
-        membervotes = membervotes.concat _.map list.member, (vote) ->
-          _vote = isFor vote.$.vote
-          id: vote.$.id
-          vote: _vote
-          majority: isMajority _vote
-          name: vote._
-      obj.membervotes = membervotes
-      # ---
+          # Unit
+          # ----
+          completeUnit =
+            $: $el.attr()
+            content: $el.html()
+            majorHeading: context.major
+            minorHeading: context.minor
+          ret.units.push completeUnit
+          # ---
+
+          #
+          # Speech
+          # ------
+          #
+
+          if name is 'speech'
+
+            # SpeakerId
+            await Model.Member.findOrCreate
+              name: completeUnit.$.speakername
+            .done errTo done, defer speaker
+
+            # MajorId
+            await Model.Major.findOrCreate
+              title: completeUnit.majorHeading
+            .done errTo done, defer major
+
+            # MinorId
+            await Model.Minor.findOrCreate
+              title: completeUnit.minorHeading
+            .done errTo done, defer minor
+
+            console.log speaker.id
+            await Model.Speech.create
+              content: $el.html()
+              duration: completeUnit.$.approximate_duration
+              wordcount: completeUnit.$.approximate_wordcount
+              xmlId: completeUnit.$.id
+              talktype: completeUnit.$.talktype
+              aphUrl: completeUnit.$.url
+              # FK.
+              speakerId: speaker.id
+              majorId: major.id
+              minorId: minor.id
+              # Denorm.
+              speakerName: completeUnit.$.speakername
+              # Other.
+              json: JSON.stringify {}
+            .done errTo done, defer speech
+
+            context.speeches.push speech
+
+          #
+          # Division
+          # --------
+          #
+
+          if name is 'division'
+
+            await parseString $el.toString(), {explicitArray: false}, errTo done, defer dJson
+
+            # MajorId
+            await Model.Major.findOrCreate
+              title: completeUnit.majorHeading
+            .done errTo done, defer major
+
+            # MinorId
+            await Model.Minor.findOrCreate
+              title: completeUnit.minorHeading
+            .done errTo done, defer major
+
+            # Combine date/time.
+            date = dJson.division.$.divdate
+            time = dJson.division.$.time
+            console.log "#{date} #{time}"
+            datetime = moment("#{date} #{time}", 'YYYY-MM-DD HH:mm').toDate()
+
+            # Shortcuts.
+            divisioncount = dJson.division.divisioncount.$
+
+            # Save Division.
+            await Model.Division.create
+              # Division
+              date: datetime
+              divNumber: dJson.division.$.divnumber
+              aphUrl: dJson.division.$.url
+              nospeaker: dJson.division.$.nospeaker
+              xmlId: dJson.division.$.id
+              # Division Count
+              ayes: divisioncount.ayes
+              noes: divisioncount.ayes
+              pairs: divisioncount.pairs
+              tellerayes: divisioncount.tellerayes
+              tellernoes: divisioncount.tellernoes
+              # Calculated majority
+              majority: Parser.getMajority divisioncount
+              # Other
+              json: JSON.stringify
+                speeches: context.speeches
+              # FK.
+              majorId: major.id
+              minorId: minor.id
+            .done errTo done, defer division
+
+            # DivisionSpeech: Division 1-M Speech (join table).
+            for speech in context.speeches
+              await Model.DivisionSpeech.create
+                divisionId: division.id
+                speechId: speech.id
+              .done errTo done, defer divisionSpeech
+
+            # A separate list for ayes and noes.
+            membervotes = Parser.processMemberLists dJson.division.memberlist
+            , divisioncount
+
+            # DivisionMember: Division M-M Members.
+            for vote in membervotes
+
+              # MemberId.
+              await Model.Member.findOrCreate
+                name: vote.voterName
+              .done errTo done, defer member
+
+              await Model.DivisionMember.create
+                vote: vote.vote
+                majority: vote.majority
+                xmlId: vote.xmlId
+                # Denorm.
+                voterName: vote.voterName
+                # FK.
+                memberId: member.id
+                divisionId: division.id
+              .done errTo done, defer divisionMember
+
+            ret.divisions.push division
+
+            # Reset.
+            context.speeches = []
+            # ---
+
+      # Print tree structure.
+
+      indent = ' '.repeat(indent)
+      if print
+        console.log "#{indent}#{name} -> #{$el.text().trim().first(100)}"
+
+    done null, ret
 
 
-      # Find nearest `minor-heading` which holds the title of the division.
-      #console.log division.tagName
+  @isMajority: (divisioncount, vote) ->
+    ayes = divisioncount.ayes
+    noes = divisioncount.noes
+    return null if ayes is noes
+    if vote
+       return ayes > noes
+     else
+       return ayes < noes
 
-      title = xpath.select 'preceding-sibling::minor-heading[1]/text()', division
-      str = title.toString()
+  @getMajority: (divisioncount) ->
+    ayes = divisioncount.ayes
+    noes = divisioncount.noes
+    return Math.abs ayes - noes
 
-      # Extract name.
-      # e.g.
-      #   Maritime Powers Bill 2012, Maritime Powers (Consequential Amendments)
-      #   Bill 2012; In Committee
-      str = str.split ';'
-      obj.billTitle = str[0]
-      obj.majority = getMajority()
+  @processMemberLists: (memberlists, divisioncount) ->
+    membervotes = []
+    for list in memberlists
+      membervotes = membervotes.concat _.map list.member, (vote) ->
+        _vote = isFor vote.$.vote
+        xmlId: vote.$.id
+        vote: _vote
+        majority: Parser.isMajority divisioncount, _vote
+        voterName: vote._
+    return membervotes
 
-      # Select text from title to division.
-      titleEl = xpath.select 'preceding-sibling::minor-heading[1]', division
-      nodes = _.takeWhile nodes, (el) -> el.tagName isnt 'division'
-      obj.hansard = nodes.toString()
+#
+# Example:
+#
+#     Maritime Powers Bill 2012, Maritime Powers (Consequential Amendments)
+#     Bill 2012; In Committee
+#
+extractBillTitleAndStage = (heading) ->
+  arr = heading.text().split(';')
+  _.map arr, (x) -> x.trim().replace('\n', '')
 
-      #console.log inspect obj
-      divs.push obj
-
-    done null, divs
+# Get map of member -> vote
+isFor = (vote) ->
+  switch vote
+    when 'aye' then 1
+    when 'no' then -1
+    when 'nay' then -1
+    else vote

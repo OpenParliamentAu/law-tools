@@ -1,4 +1,3 @@
-{parseString} = require 'xml2js'
 libxmljs = require 'libxmljs'
 
 @libxmljs: (xml) ->
