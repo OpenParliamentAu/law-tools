@@ -15,13 +15,12 @@ errTo = require 'errto'
 require './util'
 {Model} = require './model'
 {Parser} = require './parser'
-{DB} = require './db'
 
 # Constants.
 dir = path.join process.env.OPENPARL_FIXTURES, 'voting-record/data.openaustralia.org'
 
 # Create database.
-await DB.initAndSync defer()
+await DB.dropAndSync defer()
 
 {
   sequelize

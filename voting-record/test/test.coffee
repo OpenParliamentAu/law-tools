@@ -18,11 +18,7 @@ _ = require 'underscore'
 errTo = require 'errto'
 
 # Libs.
-require '../util'
-
-# Constants.
-dir = path.join process.env.OPENPARL_FIXTURES, 'voting-record/data.openaustralia.org'
-file = dir + '/scrapedxml/senate_debates/2013-02-06.xml'
+myutil = require '../util'
 
 # Helpers.
 printDivisions = (divisions) ->
@@ -34,14 +30,14 @@ printDivisions = (divisions) ->
     console.log d.hansardJSON.last().content.first(100)
     if not speech.talktype? then console.log speech
 
-describe 'Parse', ->
+describe 'OpenAustralia XML Parse', ->
 
-  {Parser} = require '../parser'
+  {Parser} = require '../oa/parser'
 
   before (done) ->
-    Model = require('../model')()
+    Model = require('../oa/model')()
     await Model.dropAndSync errTo done, defer()
-    @xml = fs.readFileSync file, 'utf8'
+    @xml = myutil.readFixture 'data.openaustralia.org/scrapedxml/senate_debates/2013-02-06.xml'
     done()
 
   it 'should get all divisions', (done) ->
@@ -54,3 +50,17 @@ describe 'Parse', ->
     done()
 
 
+# Use original XML from http://aph.gov.au.
+describe 'APH XML Parse', ->
+
+  {Parser} = require '../aph/parser'
+
+  before (done) ->
+    Model = require('../oa/model')()
+    await Model.dropAndSync errTo done, defer()
+    @xml = myutil.readFixture 'data.openaustralia.org/scrapedxml/senate_debates/2013-02-06.xml'
+    done()
+
+  it 'should process hansard', (done) ->
+    await Parser.parse @xml, errTo done, defer()
+    done()

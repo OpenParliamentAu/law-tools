@@ -1,5 +1,7 @@
 cheerio = require 'cheerio'
 _ = require 'underscore'
+path = require 'path'
+fs = require 'fs'
 
 nextOrPrevUntil = (dir, filter) ->
   el = this
@@ -31,3 +33,9 @@ _.mixin
       else
         true
     xs
+
+dir = path.join process.env.OPENPARL_FIXTURES, 'voting-record'
+@fixturePath = (p) -> path.join dir, p
+@readFixture = (p) ->
+  file = exports.fixturePath p
+  fs.readFileSync file, 'utf8'

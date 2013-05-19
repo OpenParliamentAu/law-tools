@@ -6,6 +6,13 @@ OpenAustralia provides easily accessible directory of hansard as XML available h
 
 The hansard contains all votes when division was required in nicely formatted XML.
 
+---
+
+EDIT (20/05/2013):
+
+The OpenAustralia XML in the `scrapedxml` dir is lossy. It has been changed to work with the UK web app.
+
+The original XML is better for our purposes.
 
 ## Senate
 
