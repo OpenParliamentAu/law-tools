@@ -50,7 +50,7 @@ class @BillPage extends BasePage
   downloadFile: (dest, url, done) =>
     request(url).pipe(fs.createWriteStream dest)
       .on 'error', (e) ->
-        throw new Error e
+        done new Error e
       .on 'close', ->
         console.log 'Close event fired'
         done()

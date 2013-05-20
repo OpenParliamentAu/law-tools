@@ -14,6 +14,12 @@ The OpenAustralia XML in the `scrapedxml` dir is lossy. It has been changed to w
 
 The original XML is better for our purposes.
 
+## Test
+
+Test APH parser:
+
+    make test arg="-g APH"
+
 ## Senate
 
 Journals: http://www.aph.gov.au/Parliamentary_Business/Chamber_documents/Senate_chamber_documents/Journals_of_the_Senate
@@ -26,3 +32,10 @@ Guide: http://www.aph.gov.au/About_Parliament/Senate/Powers_practice_n_procedure
 Votes and Proceedings: http://www.aph.gov.au/Parliamentary_Business/Chamber_documents/HoR/Votes_and_Proceedings
 
 ## Federation Chamber
+
+
+## Notes
+
+OpenAustralia XML schemas (see aph-xml):
+
+https://github.com/bruno/openaustralia-parser/tree/master/xml_schemas

@@ -183,7 +183,7 @@ class @Parser
               xmlId: dJson.division.$.id
               # Division Count
               ayes: divisioncount.ayes
-              noes: divisioncount.ayes
+              noes: divisioncount.noes
               pairs: divisioncount.pairs
               tellerayes: divisioncount.tellerayes
               tellernoes: divisioncount.tellernoes

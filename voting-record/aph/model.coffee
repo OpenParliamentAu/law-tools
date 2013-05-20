@@ -21,52 +21,75 @@ class Model
       dialect: 'postgres'
       host: 'localhost'
       port: 5432
+      logging: false
       define:
         underscored: false
 
     define = (args...) => @sequelize.define args...
 
+    @Session = define 'session',
+      date:         S.DATE
+      parliamentNo: S.INTEGER
+      sessionNo:    S.INTEGER
+      periodNo:     S.INTEGER
+      chamber:      S.STRING
+      pageNo:       S.INTEGER
+      proof:        S.INTEGER
+
+    @SessionJson = define 'sessionJson',
+      json:         S.TEXT
+      # FK.
+      sessionId:    S.INTEGER
+
     @Member = define 'member',
       name:       S.STRING
+      # TODO: Electorate.
       json:       S.TEXT
 
     @Speech = define 'speech',
+      date:       S.DATE
       content:    S.TEXT
-      duration:   S.INTEGER
-      wordcount:  S.INTEGER
-      xmlId:      S.TEXT
-      talktype:   S.STRING
-      aphUrl:     S.TEXT
       # FK.
       speakerId:  S.INTEGER
       majorId:    S.INTEGER
       minorId:    S.INTEGER
+      stageId:    S.INTEGER
       # Denorm.
-      speakerName: S.TEXT
+      content:    S.TEXT
+      electorate: S.STRING
+      ministerialTitles: S.STRING
+      speakerName: S.STRING
+      party:      S.STRING
+      mpid:       S.STRING # aph.gov.au MP id
       # Other.
       json:       S.TEXT
 
     @Major = define 'major',
       title:      S.TEXT
+      type:       S.STRING
 
     @Minor = define 'minor',
+      title:      S.TEXT
+      type:       S.STRING
+
+    # E.g. In Committee, Second Reading, etc.
+    @Stage = define 'stage',
       title:      S.TEXT
 
     @Division = define 'division',
       # Division
       date:       S.DATE
-      divNumber:  S.INTEGER
-      aphUrl:     S.STRING
-      nospeaker:  S.BOOLEAN
-      xmlId:      S.TEXT
+      preamble:   S.TEXT
+      result:     S.TEXT
       # Division Count
       ayes:       S.INTEGER
       noes:       S.INTEGER
       pairs:      S.INTEGER
-      tellerayes: S.INTEGER
-      tellernoes: S.INTEGER
       # Calculated majority
       majority:   S.INTEGER
+      # Denorm
+      majorTitle: S.STRING
+      minorTitle: S.STRING
       # Other
       json:       S.TEXT
       # FK.

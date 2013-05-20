@@ -34,8 +34,25 @@ _.mixin
         true
     xs
 
+_.mixin
+  # Convert to array if not already.
+  # If undefined, return empty array.
+  asArray: (val = []) ->
+    return val if _.isArray val
+    return [val]
+
 dir = path.join process.env.OPENPARL_FIXTURES, 'voting-record'
+
 @fixturePath = (p) -> path.join dir, p
+
 @readFixture = (p) ->
   file = exports.fixturePath p
   fs.readFileSync file, 'utf8'
+
+# `parliament.no` to `parliamentNo`
+@camelizeKeysExt = (json) ->
+  obj = {}
+  for k, v of json
+    newKey = k.replace('.', '-').camelize(false)
+    obj[newKey] = v
+  obj

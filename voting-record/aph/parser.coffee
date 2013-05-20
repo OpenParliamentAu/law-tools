@@ -7,243 +7,124 @@ logger = require('onelog').get()
 # Vendor.
 cheerio = require 'cheerio'
 _ = require 'underscore'
+
+# XPATH
 xpath = require 'xpath'
-dom = require('xmldom').DOMParser
+{DOMParser, XMLSerializer} = require 'xmldom'
+
 inspect = require('eyes').inspector {maxLength: false}
 {parseString} = require 'xml2js'
 xamel = require 'xamel'
 errTo = require 'errto'
 moment = require 'moment'
+myutil = require '../util'
+util = require 'util'
 
 # Libs.
 Model = require('./model')()
+{Division} = require './division'
+{Speech} = require './speech'
 
 class @Parser
 
+  # Anything in a `body` tag should be treated as HTML, so we wrap in CDATA.
+  @encodeTagsAsHTML: (xml) ->
+    xml = xml.replace /<body(?!.*\/>)([^>]*)>/gi, '<body$1><![CDATA['
+    xml = xml.replace /(<\/body>)/gi, "]]>$1"
+    xml
+
+  #
+  # We need to preserve the ordering of speeches and divisions so that we can
+  # associate a division, with the speeches preceding it.
+  #
+  # This is required because we are working with JSON object fomr xml2js.
+  # This would not be required if the library preserved ordering of children, or
+  # if we were traversing the XML DOM.
+  #
+  @numberSpeechesAndDivisions: (xml) ->
+    doc = new DOMParser().parseFromString xml
+    debates = xpath.select "//*[self::subdebate.1 or self::subdebate.2]", doc
+    for debate in debates
+      # Direct descendents of debate element only.
+      nodes = xpath.select '*[self::speech or self::division]', debate
+      for n, i in nodes
+        n.setAttribute 'order', i
+        #console.log n.toString()
+    str = new XMLSerializer().serializeToString doc
+    str
+
   # Given an XML hansard document from OpenAustralia,
   # return a json representation.
-  @getHansard: (xml, done) ->
-    $ = cheerio.load xml, xmlMode: true
-    els = $('debates > *')
+  parse: (xml, done) =>
 
-    return
+    context = {}
 
-    ret =
-      units: []
-      divisions: []
-      # JSON representation of a session, for rendering a session page.
-      session: {}
-      bills: {}
+    # Enclose elements containing HTML as CDATA.
+    xml = Parser.encodeTagsAsHTML xml
 
-    context =
-      major: null
-      majorEl: null
-      minor: null
-      minorEl: null
-      unit: null
-      unitEl: null
-      # Units since last minor-heading or division.
-      # These speeches are relevant to a division because they preceeded it.
-      speeches: []
+    # Number speeches and divisions.
+    xml = Parser.numberSpeechesAndDivisions xml
 
-    # Current position in context object.
-    pos = null
+    await parseString xml, {explicitArray: false}, errTo done, defer json
 
-    # Traverse hansard top-level elements.
-    # The hansard is a flattened hierarchical structure.
-    for el in els
-      $el = $(el)
-      name = $el[0].name
-      print = true
-      indent = null
-      switch name
+    # Session.
+    session = myutil.camelizeKeysExt json.hansard['session.header']
+    await Model.Session.create(session).done errTo done, defer session
+    context.session = session
 
-        when 'major-heading'
-          context.major = $el.text().trim()
-          context.majorEl = $el
-          # Reset.
-          context.minor = null
-          context.speeches = []
-          # ---
-          indent = 0
-          pos = ret.session[$el.text().trim()] or= {}
-          pos.$ = $el.attr()
+    # Session JSON.
+    sessionJson = {json: JSON.stringify(json), sessionId: session.id}
+    await Model.SessionJson.create(sessionJson).done errTo done, defer sessionJson
 
-        when 'minor-heading'
-          context.minor = $el.text().trim()
-          context.minorEl = $el
-          # Reset.
-          context.unit = null
-          context.speeches = []
-          # ---
-          indent = 2
-          pos = ret.session[context.major][$el.text().trim()] or= {}
-          pos.$ = $el.attr()
+    # Debates.
+    chamberXscript = json.hansard['chamber.xscript']
+    businessStart = chamberXscript['business.start']
 
-        when 'speech', 'division'
-          context.unit = $el
-          context.unitEl = $el
-          context
-          indent = 4
-          print = false
+    for d in _.asArray chamberXscript.debate
+      # Major heading.
+      major = d.debateinfo.title
+      await Model.Major.findOrCreate(title: major).done errTo done, defer major
+      context.major = major
 
-          # Session
-          # -------
-          pos = ret.session[context.major][context.minor]
-          unit =
-            content: $el.html()
-            $: $el.attr()
-          pos.units or= []
-          pos.units.push unit
-          # ---
+      console.log major.title
 
-          # Unit
-          # ----
-          completeUnit =
-            $: $el.attr()
-            content: $el.html()
-            majorHeading: context.major
-            minorHeading: context.minor
-          ret.units.push completeUnit
-          # ---
+      # Are the any speeches?
+      for speech in d.speech or []
+        await Speech.parse speech, context, errTo done, defer speech
 
-          #
-          # Speech
-          # ------
-          #
+      for subdebate in _.asArray d['subdebate.1']
 
-          if name is 'speech'
+        # Minor heading.
+        minor = subdebate.subdebateinfo.title
+        await Model.Minor.findOrCreate(title: minor).done errTo done, defer minor
+        context.minor = minor
 
-            # SpeakerId
-            await Model.Member.findOrCreate
-              name: completeUnit.$.speakername
-            .done errTo done, defer speaker
+        console.log '  ' + minor.title
 
-            # MajorId
-            await Model.Major.findOrCreate
-              title: completeUnit.majorHeading
-            .done errTo done, defer major
+        # Speeches.
+        for speech in subdebate.speech or []
+          await Speech.parse speech, context, errTo done, defer speech
 
-            # MinorId
-            await Model.Minor.findOrCreate
-              title: completeUnit.minorHeading
-            .done errTo done, defer minor
+        for subsubdebate in _.asArray subdebate['subdebate.2']
 
-            console.log speaker.id
-            await Model.Speech.create
-              content: $el.html()
-              duration: completeUnit.$.approximate_duration
-              wordcount: completeUnit.$.approximate_wordcount
-              xmlId: completeUnit.$.id
-              talktype: completeUnit.$.talktype
-              aphUrl: completeUnit.$.url
-              # FK.
-              speakerId: speaker.id
-              majorId: major.id
-              minorId: minor.id
-              # Denorm.
-              speakerName: completeUnit.$.speakername
-              # Other.
-              json: JSON.stringify {}
-            .done errTo done, defer speech
+          # Stage.
+          # E.g. Second Reading, In Committee
+          stage = subsubdebate.subdebateinfo.title
+          await Model.Stage.findOrCreate(title: stage).done errTo done, defer stage
+          context.stage = stage
 
-            context.speeches.push speech
+          console.log "    [#{stage.title}]"
 
-          #
-          # Division
-          # --------
-          #
+          # Speeches.
+          context.speechModels = []
+          for speech in _.asArray subsubdebate.speech
+            await Speech.parse speech, context, errTo done, defer speech
+            context.speechModels.push speech
 
-          if name is 'division'
+          for division in _.asArray subsubdebate.division
+            await Division.parse division, context, errTo done, defer division
 
-            await parseString $el.toString(), {explicitArray: false}, errTo done, defer dJson
-
-            # MajorId
-            await Model.Major.findOrCreate
-              title: completeUnit.majorHeading
-            .done errTo done, defer major
-
-            # MinorId
-            await Model.Minor.findOrCreate
-              title: completeUnit.minorHeading
-            .done errTo done, defer major
-
-            # Combine date/time.
-            date = dJson.division.$.divdate
-            time = dJson.division.$.time
-            console.log "#{date} #{time}"
-            datetime = moment("#{date} #{time}", 'YYYY-MM-DD HH:mm').toDate()
-
-            # Shortcuts.
-            divisioncount = dJson.division.divisioncount.$
-
-            # Save Division.
-            await Model.Division.create
-              # Division
-              date: datetime
-              divNumber: dJson.division.$.divnumber
-              aphUrl: dJson.division.$.url
-              nospeaker: dJson.division.$.nospeaker
-              xmlId: dJson.division.$.id
-              # Division Count
-              ayes: divisioncount.ayes
-              noes: divisioncount.ayes
-              pairs: divisioncount.pairs
-              tellerayes: divisioncount.tellerayes
-              tellernoes: divisioncount.tellernoes
-              # Calculated majority
-              majority: Parser.getMajority divisioncount
-              # Other
-              json: JSON.stringify
-                speeches: context.speeches
-              # FK.
-              majorId: major.id
-              minorId: minor.id
-            .done errTo done, defer division
-
-            # DivisionSpeech: Division 1-M Speech (join table).
-            for speech in context.speeches
-              await Model.DivisionSpeech.create
-                divisionId: division.id
-                speechId: speech.id
-              .done errTo done, defer divisionSpeech
-
-            # A separate list for ayes and noes.
-            membervotes = Parser.processMemberLists dJson.division.memberlist
-            , divisioncount
-
-            # DivisionMember: Division M-M Members.
-            for vote in membervotes
-
-              # MemberId.
-              await Model.Member.findOrCreate
-                name: vote.voterName
-              .done errTo done, defer member
-
-              await Model.DivisionMember.create
-                vote: vote.vote
-                majority: vote.majority
-                xmlId: vote.xmlId
-                # Denorm.
-                voterName: vote.voterName
-                # FK.
-                memberId: member.id
-                divisionId: division.id
-              .done errTo done, defer divisionMember
-
-            ret.divisions.push division
-
-            # Reset.
-            context.speeches = []
-            # ---
-
-      # Print tree structure.
-
-      indent = ' '.repeat(indent)
-      if print
-        console.log "#{indent}#{name} -> #{$el.text().trim().first(100)}"
-
-    done null, ret
+    done null, null
 
 
   @isMajority: (divisioncount, vote) ->

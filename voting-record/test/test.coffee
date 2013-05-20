@@ -56,11 +56,14 @@ describe 'APH XML Parse', ->
   {Parser} = require '../aph/parser'
 
   before (done) ->
-    Model = require('../oa/model')()
+    Model = require('../aph/model')()
     await Model.dropAndSync errTo done, defer()
-    @xml = myutil.readFixture 'data.openaustralia.org/scrapedxml/senate_debates/2013-02-06.xml'
+    # For comparison see:
+    # http://www.openaustralia.org/senate/?id=2013-02-06.6.1
+    @xml = myutil.readFixture 'data.openaustralia.org/origxml/senate_debates/2013-02-06.xml'
     done()
 
   it 'should process hansard', (done) ->
-    await Parser.parse @xml, errTo done, defer()
+    parser = new Parser
+    await parser.parse @xml, errTo done, defer()
     done()
