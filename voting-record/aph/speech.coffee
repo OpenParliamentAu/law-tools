@@ -11,9 +11,14 @@ Model = require('./model')()
 class @Speech
 
   @parse: (speech, context, done) ->
+    noErr = errTo.bind null, done
 
     ###
     Here is an example of the structure of a speech:
+
+    Interjection and continue only provide metadata about members who make
+    interjections. The actual text of the interjection and continuation can
+    be found in `talk.text`.
 
         talk.start
           talker
@@ -28,8 +33,6 @@ class @Speech
         continue
     ###
 
-    # Parse.
-    #console.log '\nParsing speech', speech
     # Speaker.
     speaker = myutil.camelizeKeysExt speech['talk.start'].talker
     speaker.name = speaker.name._
@@ -40,9 +43,11 @@ class @Speech
     result = Speech.extractContent talkText
 
     # SpeakerId.
-    await Model.Member.findOrCreate
-      name: speaker.name
-    .done errTo done, defer dbSpeaker
+    await Model.Member.findByNameFromHansard(speaker.name)
+    .done noErr defer dbSpeaker
+    # WARNING: dbSpeaker can be `null`
+
+    speakerId = if dbSpeaker? then dbSpeaker.id else null
 
     # Date time.
     date = moment context.session.date
@@ -54,8 +59,9 @@ class @Speech
     await Model.Speech.create
       date: date.toDate()
       content: result.html
+      hasChairQuestion: result.hasChairQuestion
       # FK.
-      speakerId: dbSpeaker.id
+      speakerId: speakerId
       majorId: context.major?.id
       minorId: context.minor?.id
       stageId: context.stage?.id
@@ -67,7 +73,7 @@ class @Speech
       mpid: speaker.nameId
       # JSON.
       #json: JSON.stringify speechAsJson
-    .done errTo done, defer speech
+    .done noErr defer speech
 
     done null, speech
 
@@ -79,6 +85,8 @@ class @Speech
       ministerialTitles: $('span.HPS-MinisterialTitles').text()
       time: $('span.HPS-Time').text()
       memberName: $('span.HPS-MemberSpeech').text() # e.g. Senate IAN MACDONALD
+      hasChairQuestion: false
+      chairQuestionResult: null
 
     $('span.HPS-Normal').each -> @replaceWith @html().trim()
 
@@ -102,6 +110,18 @@ class @Speech
     $('span.HPS-Electorate').remove()
     $('span.HPS-MinisterialTitles').remove()
     $('span.HPS-Time').remove()
+
+    # Does this speech contain a question?
+    # Relies upon liftStyle having run above.
+    $('.interjecting.office').each ->
+      matches = @text().match /The question is that(.*)./i
+      if matches?
+        result.hasChairQuestion = true
+        matches = @text().match /Question negatived/i
+        if matches?
+          result.chairQuestionResult = false
+        else
+          result.chairQuestionResult = true
 
     html = $.html()
     html = html.replace '() ():', ''

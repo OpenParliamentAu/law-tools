@@ -1,3 +1,4 @@
+iced.catchExceptions()
 require 'sugar'
 
 # Logging.
@@ -50,6 +51,19 @@ describe 'OpenAustralia XML Parse', ->
     done()
 
 
+describe 'OAXML Parser', ->
+
+  {OAXML} = require '../aph/oaxml'
+
+  before (done) ->
+    Model = require('../aph/model')()
+    await Model.dropAndSync errTo done, defer()
+
+  it 'should work', (done) ->
+    oaxml = new OAXML
+    await oaxml.toDb errTo done, defer()
+    done()
+
 # Use original XML from http://aph.gov.au.
 describe 'APH XML Parse', ->
 
@@ -58,7 +72,7 @@ describe 'APH XML Parse', ->
   before (done) ->
     Model = require('../aph/model')()
     await Model.dropAndSync errTo done, defer()
-    # For comparison see:
+    # To compare output visit the same session on OA.
     # http://www.openaustralia.org/senate/?id=2013-02-06.6.1
     @xml = myutil.readFixture 'data.openaustralia.org/origxml/senate_debates/2013-02-06.xml'
     done()

@@ -63,5 +63,5 @@ class VotingRecord
     await Parser.getHansard xml, errTo done, defer()
     done()
 
-await VotingRecord.run defer e
-throw e if e
+#await VotingRecord.run defer e
+#throw e if e

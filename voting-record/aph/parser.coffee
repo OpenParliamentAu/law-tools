@@ -56,6 +56,7 @@ class @Parser
   # Given an XML hansard document from OpenAustralia,
   # return a json representation.
   parse: (xml, done) =>
+    noErr = errTo.bind null, done
 
     context = {}
 
@@ -65,16 +66,16 @@ class @Parser
     # Number speeches and divisions.
     xml = Parser.numberSpeechesAndDivisions xml
 
-    await parseString xml, {explicitArray: false}, errTo done, defer json
+    await parseString xml, {explicitArray: false}, noErr defer json
 
     # Session.
     session = myutil.camelizeKeysExt json.hansard['session.header']
-    await Model.Session.create(session).done errTo done, defer session
+    await Model.Session.create(session).done noErr defer session
     context.session = session
 
     # Session JSON.
     sessionJson = {json: JSON.stringify(json), sessionId: session.id}
-    await Model.SessionJson.create(sessionJson).done errTo done, defer sessionJson
+    await Model.SessionJson.create(sessionJson).done noErr defer sessionJson
 
     # Debates.
     chamberXscript = json.hansard['chamber.xscript']
@@ -83,49 +84,84 @@ class @Parser
     for d in _.asArray chamberXscript.debate
       # Major heading.
       major = d.debateinfo.title
-      await Model.Major.findOrCreate(title: major).done errTo done, defer major
+      await Model.Major.findOrCreate(title: major).done noErr defer major
       context.major = major
 
       console.log major.title
 
       # Are the any speeches?
       for speech in d.speech or []
-        await Speech.parse speech, context, errTo done, defer speech
+        await Speech.parse speech, context, noErr defer speech
 
       for subdebate in _.asArray d['subdebate.1']
 
         # Minor heading.
         minor = subdebate.subdebateinfo.title
-        await Model.Minor.findOrCreate(title: minor).done errTo done, defer minor
+        await Model.Minor.findOrCreate(title: minor).done noErr defer minor
         context.minor = minor
 
         console.log '  ' + minor.title
 
         # Speeches.
         for speech in subdebate.speech or []
-          await Speech.parse speech, context, errTo done, defer speech
+          await Speech.parse speech, context, noErr defer speech
 
         for subsubdebate in _.asArray subdebate['subdebate.2']
 
           # Stage.
           # E.g. Second Reading, In Committee
           stage = subsubdebate.subdebateinfo.title
-          await Model.Stage.findOrCreate(title: stage).done errTo done, defer stage
+          await Model.Stage.findOrCreate(title: stage).done noErr defer stage
           context.stage = stage
 
           console.log "    [#{stage.title}]"
 
           # Speeches.
-          context.speechModels = []
-          for speech in _.asArray subsubdebate.speech
-            await Speech.parse speech, context, errTo done, defer speech
-            context.speechModels.push speech
 
+          for speech in _.asArray subsubdebate.speech
+            speech.$.type = 'speech'
+
+          # Add attribute to mark division as division.
           for division in _.asArray subsubdebate.division
-            await Division.parse division, context, errTo done, defer division
+            division.$.type = 'division'
+
+          # We need to associate speeches leading up to a division or question
+          # with that question.
+          units = []
+          units = units.concat _.asArray subsubdebate.speech
+          units = units.concat _.asArray subsubdebate.division
+          # Sort units by order attribute. (NOTE: The order attribute was added
+          # by us)
+          units = _.sortBy units, (unit) -> parseInt unit.$.order
+
+          precedingSpeechModels = []
+          for unit, i in units
+
+            if unit.$.type is 'division'
+              await Division.parse unit, context, precedingSpeechModels, noErr defer division
+              precedingSpeechModels = []
+
+            else if unit.$.type is 'speech'
+              await Speech.parse unit, context, noErr defer dbUnit
+              precedingSpeechModels.push dbUnit
+
+              followedByADivision = ->
+                idx = i + 1
+                u = units[idx]
+                return false unless u?
+                u.$.type is 'division'
+
+              # Does this speech contain a question?
+              if dbUnit.hasChairQuestion and not followedByADivision()
+                await Division.parseQuestion dbUnit, context, precedingSpeechModels, noErr defer division
+                precedingSpeechModels = []
 
     done null, null
 
+  #@addQuestionAttributeToSpeechIfNeccessary: (speech) ->
+  #  $ = cheerio.load speech['talk.text'].body._
+  #  console.log 'HTML:', $('.OfficeInterjecting').html()
+  #  speech.$.question = true
 
   @isMajority: (divisioncount, vote) ->
     ayes = divisioncount.ayes
