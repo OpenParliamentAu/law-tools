@@ -16,6 +16,7 @@ class @Division
     await Model.Division.create
       date: speech.date
       divided: false
+      result: JSON.parse(speech.json).chairQuestionResult
       # Denorm
       majorTitle: context.major?.title
       minorTitle: context.minor?.title
@@ -40,13 +41,16 @@ class @Division
     datetime = Division.extractTime division, context
 
     divisioncount =
-      ayes: division['division.data'].ayes['num.votes']
-      noes: division['division.data'].noes['num.votes']
-      pairs: division['division.data'].pairs['num.votes']
+      ayes: parseInt division['division.data'].ayes['num.votes']
+      noes: parseInt division['division.data'].noes['num.votes']
+      pairs: parseInt division['division.data'].pairs['num.votes']
 
     # Votes.
     await Division.parseMemberVotes division, divisioncount, context
     , noErr defer allVotes, partySummary, rebelVoters
+
+    turnout = divisioncount.ayes + divisioncount.noes + divisioncount.pairs
+    turnoutMax = _.keys(allVotes).length
 
     # Save Division.
     await Model.Division.create
@@ -59,6 +63,9 @@ class @Division
       ayes: divisioncount.ayes
       noes: divisioncount.noes
       pairs: divisioncount.pairs
+      turnout: turnout
+      turnoutMax: turnoutMax
+      turnoutPerc: turnout / turnoutMax
       # Majority/Minority
       majority: Division.voteCount true, divisioncount
       minority: Division.voteCount false, divisioncount
@@ -124,23 +131,32 @@ class @Division
       partySummary[member.party] or=
         majority: 0
         minority: 0
+        pairs: 0
         turnoutCount: 0
       partySummary[member.party].turnoutCount++
-      if mv.majority
-        partySummary[member.party].majority++
+      if mv.isPair
+        partySummary[member.party].pairs++
       else
-        partySummary[member.party].minority++
+        if mv.majority is true
+          partySummary[member.party].majority++
+        else if mv.majority is false
+          partySummary[member.party].minority++
 
     # Calculate party turnout.
+    sessionDate = moment(context.session.date).format('YYYY-MM-DD')
     for partyName, stats of partySummary
       # Get all members of party.
       # TODO: leftReason might not be best.
-      await Model.Member.findAll
-        where:
-          party: partyName
-          leftReason: 'still_in_office'
-          house: context.session.chamber.toLowerCase()
+      await Model.sequelize.query("""
+        select "personId"
+        from members
+        where ("enteredHouse", "leftHouse") overlaps ('#{sessionDate}'::timestamp, '#{sessionDate}'::timestamp)
+        and house = '#{context.session.chamber.toLowerCase()}'
+        and party = '#{partyName}'
+        group by "personId"
+      """)
       .done noErr defer partyMembers
+      stats.eligible = partyMembers.length
       stats.turnoutPerc = parseInt(stats.turnoutCount) / partyMembers.length
 
     # Voters who voted against the majority of their party.
@@ -160,21 +176,36 @@ class @Division
           vote: mv.vote
 
     # Find all members whom are eligible to vote in this division.
-    await Model.Member.findAll
-      where:
-        leftReason: 'still_in_office'
-        house: context.session.chamber.toLowerCase()
-    .done noErr defer eligib
+    #
+    # TODO: Find latest memberId instead of using personId.
+    #
+    sessionDate = moment(context.session.date).format('YYYY-MM-DD')
+    await Model.sequelize.query("""
+      select "personId"
+      from members
+      where ("enteredHouse", "leftHouse") overlaps ('#{sessionDate}'::timestamp, '#{sessionDate}'::timestamp)
+      and house = '#{context.session.chamber.toLowerCase()}'
+      group by "personId"
+    """)
+    .done noErr defer eligible
 
-
-    allVotes = []
+    allVotes = {}
     for mv in memberVotes
-      allVotes.push
+      allVotes[mv.memberModel.personId] =
         name: mv.memberModel.getFullName()
         constituency: mv.memberModel.constituency
         memberId: mv.memberModel.id
         party: mv.memberModel.party
         vote: mv.vote
+
+    for e in eligible
+      continue if allVotes[e.personId]?
+      allVotes[e.personId] =
+        name: e.firstName + ' ' + e.lastName
+        constituency: e.constituency
+        memberId: e.id
+        party: e.party
+        vote: 0
 
     done null, allVotes, partySummary, rebelVoters
 
@@ -226,8 +257,7 @@ class @Division
     memberVotes = []
     # k = ayes, noes, pairs
     for k, v of divisionData
-      if v.names isnt ''
-        names = v.names.name
+      names = if v.names isnt '' then v.names.name else []
       vote = switch k
         when 'ayes' then 1
         when 'noes' then -1

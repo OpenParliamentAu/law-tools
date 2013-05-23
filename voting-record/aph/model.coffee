@@ -83,9 +83,9 @@ class Model
       constituency: S.STRING
       party:      S.STRING
       house:      S.STRING
-      enteredHouse:  S.STRING
+      enteredHouse:  S.DATE
       enteredReason: enteredHouseReasonEnum
-      leftHouse:     S.STRING
+      leftHouse:     S.DATE
       leftReason:    leftHouseReasonEnum
       title:      S.STRING
       oaId:       oaIdType
@@ -188,6 +188,8 @@ class Model
       ayes:       S.INTEGER
       noes:       S.INTEGER
       pairs:      S.INTEGER
+      turnoutMax: S.INTEGER
+      turnoutPerc: S.FLOAT
       # Majority/Minority
       majority:   S.INTEGER
       minority:    S.INTEGER

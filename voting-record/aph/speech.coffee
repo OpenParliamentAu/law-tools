@@ -72,7 +72,8 @@ class @Speech
       party: speaker.party
       mpid: speaker.nameId
       # JSON.
-      #json: JSON.stringify speechAsJson
+      json: JSON.stringify
+        chairQuestionResult: result.chairQuestionResult
     .done noErr defer speech
 
     done null, speech
@@ -117,11 +118,9 @@ class @Speech
       matches = @text().match /The question is that(.*)./i
       if matches?
         result.hasChairQuestion = true
-        matches = @text().match /Question negatived/i
-        if matches?
-          result.chairQuestionResult = false
-        else
-          result.chairQuestionResult = true
+        result.chairQuestionResult = @next()?.text()
+        #matches = @text().match /Question negatived/i
+        #if matches?
 
     html = $.html()
     html = html.replace '() ():', ''

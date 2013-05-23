@@ -30,6 +30,7 @@ class @OAXML
 
   toDb: (done) =>
     @noErr = errTo.bind null, done
+
     # NOTE: The ordering here is significant.
     await @people @noErr defer()
     await @constituencies @noErr defer()
