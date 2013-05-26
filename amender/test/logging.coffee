@@ -18,5 +18,6 @@ module.exports = ->
       }
     ]
     levels:
-      'Amender': 'OFF'
-      #'Amender': 'DEBUG'
+      #Amender: 'OFF'
+      Amender: 'TRACE'
+      Amendment: 'TRACE'

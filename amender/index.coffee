@@ -20,26 +20,6 @@ grammar =
   header: fs.readFileSync path.join(__dirname, 'grammar/header.pegjs'), 'utf-8'
   action: fs.readFileSync path.join(__dirname, 'grammar/action.pegjs'), 'utf-8'
 
-# Helpers
-# -------
-
-# Get all elements up until an element with the same class name is
-# found or end of siblings.
-nextUntil = ($, startEl, filter) ->
-  el = $(startEl)
-  return [] unless el.length
-  curr = el.next()
-  els = []
-  while curr?
-    if curr.length and not $(curr).filter(filter).length
-      els.push curr
-    else
-      break
-    curr = curr.next()
-  $ els
-
-# ---
-
 class @Amender
 
   constructor: (@amendmentActHtml) ->
@@ -131,7 +111,7 @@ class @Amender
     actEls.map ->
       el: @
       title: @text().replaceLineBreaks()
-      children: nextUntil $, @, ->
+      children: $(@).nextUntil ->
         # Find next heading that is higher in header hierarchy.
         matched = /ActHead[0-8]/.test @attr('class')
         matched

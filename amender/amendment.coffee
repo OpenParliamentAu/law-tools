@@ -8,6 +8,7 @@ path = require 'path'
 
 # Helpers.
 require './util/helpers'
+{Finders} = require './util/finders'
 
 # Maps unit types to classes used in `html`.
 unitMappings =
@@ -23,7 +24,8 @@ unitMappings =
 
 # All unit referencing starts at section.
 units = [
-  'chapter', 'part', 'division', 'subdivision', 'section', 'subsection', 'paragraph', 'subparagraph', 'clause'
+  'chapter', 'part', 'division', 'subdivision', 'section', 'subsection',
+  'paragraph', 'subparagraph', 'clause'
 ]
 
 # For mapping string to methods in `Action` class.
@@ -34,54 +36,10 @@ actionMap =
   'repeal': 'repeal'
   'simpleInsert': 'simpleInsert'
 
-getClassNamesAboveUnit = (unit) ->
-  a = _.initial units, _.indexOf(units, unit)
-  a = _.map a, (i) -> unitMappings[i]
-  a
-
 class @Amendment
 
   constructor: (@amendment, @opts) ->
-    #_.defaults @opts,
-
-  # Statics
-  # -------
-
-  @findSubUnit: ($, els, unitNo, className) ->
-    #logger.trace 'Searching in:', $(els).map -> $(@).text()
-    subUnits = _.filter els, (el) -> $(el).hasClass className
-    #logger.trace 'Matching class:', $(subUnits).map -> $(@).text()
-    target = _.find subUnits, (el) ->
-      text = $(el).text()
-      text = text.replace /�/g, ' '
-      text = text.trim()
-      #logger.trace 'Matching text:', ///^\(#{unitNo}\)///, text
-      if typeof unitNo is 'object'
-        text.match ///#{unitNo.roman}///
-      else
-        text.match ///^\(#{unitNo}\)///
-    #logger.trace 'Match:', target
-    target
-
-  # Some units (such as section and subdivision) contain their number in a
-  # sub-element. This method does just that.
-  @findUnitFromInnerSelector: ($, headingSelector, innerSelector, unitNo, headingType) ->
-    els = $(headingSelector)
-    els = els.filter ->
-      headingNo = $(@).find(innerSelector).text()
-      headingNo = headingNo.replace(headingType, '').trim()
-      headingNo is unitNo
-    els[0]
-
-  @findDefinition: ($, els, definition) ->
-    _.find els, (el) ->
-      return unless $(el).hasClass('Definition')
-      defns = $(el).find('b > i')
-      res = defns.filter ->
-        $(@).text() is definition
-      res[0]
-
-  # ---
+    _.defaults @opts, {}
 
   apply: (html) =>
     logger.debug 'Applying action:', @amendment.action
@@ -136,11 +94,11 @@ class @Amendment
 
         when 'subdivision'
           # TODO: CharSubdNo includes `subdivision` text.
-          el = Amendment.findUnitFromInnerSelector $, '.ActHead4', '.CharSubdNo', currentUnit.number, 'Subdivision'
+          el = $('.ActHead4').findUnitFromInnerSelector '.CharSubdNo', currentUnit.number, 'Subdivision'
           els = $(el).getElementsUntilClass 'ActHead4'
 
         when 'part'
-          el = Amendment.findSubUnit $, els, currentUnit.number, 'ActHead2'
+          el = Finders.findSubUnit $, els, currentUnit.number, 'ActHead2'
           els = $(el).getElementsUntilClass 'ActHead2'
 
         when 'schedule'
@@ -153,7 +111,7 @@ class @Amendment
           el = chapters[0]
           els = $(el).getElementsUntilClass 'ActHead1'
         when 'section', 'clause'
-          el = Amendment.findUnitFromInnerSelector $, '.ActHead5', '.CharSectno', currentUnit.number
+          el = $('.ActHead5').findUnitFromInnerSelector '.CharSectno', currentUnit.number
           els = $(el).getElementsUntilClass 'ActHead5'
 
         when 'subsection'
@@ -171,13 +129,13 @@ class @Amendment
             multiple = true
             affected = []
             for number in numbers
-              el = Amendment.findSubUnit $, els, number, _unitType
+              el = Finders.findSubUnit $, els, number, _unitType
               pels = $(el).getElementsUntilClass _unitType
               affected.push {el: el, els: pels}
             break
 
           # Now that we have this section's elements. Find subUnitNo.
-          el = Amendment.findSubUnit $, els, currentUnit.number, _unitType
+          el = Finders.findSubUnit $, els, currentUnit.number, _unitType
 
           # If we don't find the subsection, it might not be numbered
           # because it is the only one. (They sometimes do this).
@@ -208,11 +166,11 @@ class @Amendment
               multiple = true
               affected = []
               for number in currentUnit.number
-                el = Amendment.findSubUnit $, _els, number, _unitType
+                el = Finders.findSubUnit $, _els, number, _unitType
                 pels = $(el).getElementsUntilClass _unitType
                 affected.push {el: el, els: pels}
             else
-              el = Amendment.findSubUnit $, _els, currentUnit.number, _unitType
+              el = Finders.findSubUnit $, _els, currentUnit.number, _unitType
               els = $(el).getElementsUntilClass _unitType
 
           find 'paragraph', els
@@ -243,7 +201,7 @@ class @Amendment
     # Definition?
     definition = unitDescriptor?.match(/definition of (.*)/)?[1]
     if definition?
-      definitionEl = Amendment.findDefinition $, els, definition
+      definitionEl = Finders.findDefinition $, els, definition
       if action.type is 'repealAndSubstitute'
         $(definitionEl).html @amendment.body
 
