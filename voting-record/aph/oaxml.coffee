@@ -9,13 +9,45 @@ path = require 'path'
 errTo = require 'errto'
 inspect = require('eyes').inspector {maxLength: 5000}
 _ = require 'underscore'
+csv = require 'csv'
+yacsv = require 'ya-csv'
 
 # Libs.
 {parseString} = require 'xml2js'
 myutil = require '../util'
 
 # Helpers.
-root = (p) -> path.join 'data.openaustralia.org/members/', p
+root = (p) -> path.join 'data.openaustralia.org/members', p
+csvRoot = (p) -> path.join 'data', p
+
+# CSV reading.
+readCSV = (p, done) ->
+  p = myutil.fixturePath csvRoot p + '.csv'
+  csv().from.path(p)
+  .to (rows, count) ->
+    done null, rows
+  , columns: true
+  .transform (row, id) ->
+    console.log row, id
+    # Skip comments.
+    return null if row.charAt(0) is '#'
+    return row
+
+readYaCSV = (p, done) ->
+  arr = []
+  p = myutil.fixturePath csvRoot p + '.csv'
+  reader = yacsv.createCsvFileReader p, {comment: '#', columnsFromHeader: true}
+  reader.addListener 'data', (data) ->
+    return null if data['person count'] is ''
+    arr.push data
+  reader.addListener 'end', -> done null, arr
+
+pad = (num, size) ->
+  s = num + ""
+  s = "0" + s while s.length < size
+  return s
+
+# ---
 
 Model = require('./model')()
 
@@ -23,6 +55,7 @@ class @OAXML
 
   constructor: ->
     @memberModelsByOAID = {}
+    @memberModelsByPersonOAID = {}
     @personModelsByOAID = {}
     # For attaching a personId to a member and memberOffice.
     # Prepared when passing `people.xml`.
@@ -30,13 +63,53 @@ class @OAXML
 
   toDb: (done) =>
     @noErr = errTo.bind null, done
-
     # NOTE: The ordering here is significant.
     await @people @noErr defer()
     await @constituencies @noErr defer()
     await @members 'representatives', @noErr defer()
     await @members 'senators', @noErr defer()
     await @memberOffices @noErr defer()
+
+    # Apply middle-names, aphId, etc.
+    await @updateFromCSV @noErr defer()
+    await @postCodes @noErr defer()
+    done()
+
+  postCodes: (done) =>
+    await readYaCSV 'postcodes', @noErr defer postcodes
+    for p in postcodes
+      await Model.PostCodes.create
+        postCode: p['Postcode']
+        electorate: p['Electoral division name']
+      .done @noErr defer done
+
+  updateFromCSV: (done) =>
+    await readYaCSV 'people', @noErr defer people
+    # `person count` corresponds to the last chars in person's `oaId`
+    # For each of these people we simply add the middlename.
+    for p in people
+      oaId = 'uk.org.publicwhip/person/1' + pad parseInt( p['person count'] ), 4
+      model = @personModelsByOAID[oaId]
+      aphId = p['aph id']
+      altName = p['alt name']
+      parseInitials = (name) ->
+        return unless name?
+        _(name.split(' ')).initial().map( (s) -> s.charAt 0 ).join ''
+
+      attrs =
+        aphId: aphId
+        fullName: p['name']
+        initials: parseInitials p['name']
+        altName: altName
+        altInitials: parseInitials p['alt name']
+
+      # Update person.
+      model.updateAttributes(attrs).done @noErr defer()
+
+      # Update member.
+      member = @memberModelsByPersonOAID[oaId]
+      member.updateAttributes(attrs).done @noErr defer()
+
     done()
 
   # Returns xml file as json.
@@ -105,6 +178,7 @@ class @OAXML
         personId: person.id
         partyId: party.id
       .done @noErr defer member
+      @memberModelsByPersonOAID[person.oaId] = member
       @memberModelsByOAID[m.id] = member
     return
 

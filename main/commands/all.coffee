@@ -3,7 +3,7 @@ module.exports = (program) ->
   allCmdDescription = 'Scrapes all act series from http://comlaw.gov.au/ and commits them to a single Git repo one by one.'
   allCmd = program
     .command('all')
-    .usage("arg='[options] <phase>'")
+    .usage("[options] <phase>")
     .description(allCmdDescription)
     .action (phase, command) ->
       unless command? then arguments[0].outputHelp(); process.exit()

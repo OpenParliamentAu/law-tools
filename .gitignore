@@ -1,6 +1,7 @@
 node_modules
 downloads/**
 tmp
+ts-definitions
 
 # IntelliJ
 .idea/workspace.xml

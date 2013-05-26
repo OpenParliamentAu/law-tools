@@ -109,8 +109,13 @@ class @Division
     for mv in memberVotes
 
       # MemberId.
-      await Model.Member.findByNameFromDivision(mv.voterName, context.session.chamber.toLowerCase())
-      .done noErr defer member
+      await Model.Member.findByNameFromDivision mv.voterName, context.session.chamber.toLowerCase()
+      , noErr defer member
+      unless member?
+        return done
+          msg: 'Failed to find member'
+          mv: mv
+          chamber: context.session.chamber
 
       # Add memberModel to member votes because we will use it to work out
       # rebel voters later.

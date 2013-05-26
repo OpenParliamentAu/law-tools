@@ -3,7 +3,7 @@ module.exports = (program) ->
   singleCmdDescription = 'Scrapes a series of acts from http://comlaw.gov.au/ and creates a Git repo from them.'
   singleCmd = program
     .command('single')
-    .usage("arg='[options] <comLawId>'")
+    .usage("[options] <comLawId>")
     .description(singleCmdDescription)
     .option('-s, --single-repo', 'Create repo containing only one act')
     .option('-n, --number-of-acts <n>', 'Max number of acts from the series to scrape', parseInt)

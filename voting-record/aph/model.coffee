@@ -30,8 +30,8 @@ class Model
       dialect: 'postgres'
       host: 'localhost'
       port: 5432
-      logging: false
-      #logging: console.log
+      #logging: false
+      logging: console.log
       omitNull: true
       define:
         underscored: false
@@ -61,6 +61,10 @@ class Model
       # FK.
       sessionId:    idType
 
+    @PostCodes = define 'postCodes',
+      postCode:     S.STRING
+      electorate:   S.STRING
+
     @Party = define 'party',
       name:         S.TEXT
 
@@ -76,19 +80,25 @@ class Model
 
     # Records membership.
     @Member = define 'member',
-      json:       S.TEXT
+      json:           S.TEXT
       # OA.
-      firstName:  S.STRING
-      lastName:   S.STRING
-      constituency: S.STRING
-      party:      S.STRING
-      house:      S.STRING
-      enteredHouse:  S.DATE
-      enteredReason: enteredHouseReasonEnum
-      leftHouse:     S.DATE
-      leftReason:    leftHouseReasonEnum
-      title:      S.STRING
-      oaId:       oaIdType
+      firstName:      S.STRING
+      lastName:       S.STRING
+      constituency:   S.STRING
+      party:          S.STRING
+      house:          S.STRING
+      enteredHouse:   S.DATE
+      enteredReason:  enteredHouseReasonEnum
+      leftHouse:      S.DATE
+      leftReason:     leftHouseReasonEnum
+      title:          S.STRING
+      oaId:           oaIdType
+      # From OA CSV.
+      fullName:       S.STRING # Including middle names.
+      initials:       S.STRING
+      altName:        S.STRING
+      altInitials:    S.STRING # From alt name.
+      aphId:          S.STRING
       # FK.
       personId:   idType
       partyId:    idType
@@ -103,13 +113,31 @@ class Model
         # TODO: We need to get their initials too because its the only way
         #   to unambigously match them from divisions.
         #
-        findByNameFromDivision: (name, house) ->
-          matches = name.match /([\S\s]+), (\S*)(\s\(teller\))?/
-          [match, lastName, initials, teller] = matches
-          return @find
-            where:
-              lastName: lastName
-              house: house
+        findByNameFromDivision: (text, house, done) ->
+          matches = text.match /([\S\s]+), (\S*)(\s\(teller\))?/
+          [match, lastName, divInitials, teller] = matches
+          return @findAll
+            where: [""" "lastName"=? AND "house"=? """, lastName, house]
+          .done (e, results) =>
+            return done e if e
+            unless results.length
+              return done null, null
+            # Return if we have a single result.
+            if results.length is 1
+              return done null, results[0]
+            # Filter if we found multiple members, filter by their initials.
+            members = _.filter results, (member) ->
+              [member.initials, member.altInitials].any divInitials
+            # If we have no members, use only first initial.
+            if members.length is 1
+              return done null, members[0]
+            if members.length is 0
+              members = _.filter results, (m) ->
+                [m.initials.charAt(0), m.altInitials?.charAt(0)].any divInitials.charAt(0)
+            if members.length is 1
+              return done null, members[0]
+            else
+              return done null, null
 
         # From element `speech/talk.start/talker/name`
         # Format: <lastname>, <abbreviated-title> <initials>
@@ -236,9 +264,15 @@ class Model
       oaMemberId: oaIdType
 
     @Person = define 'person',
-      latestName: S.STRING
-      oaId:       oaIdType
-      json:       S.TEXT
+      latestName:     S.STRING
+      oaId:           oaIdType
+      json:           S.TEXT
+      # From OA CSV.
+      fullName:       S.STRING # Including middle names.
+      initials:       S.STRING
+      altName:        S.STRING
+      altInitials:    S.STRING # From alt name.
+      aphId:          S.STRING
 
     #@Bill = define 'bill',
     #  json:       S.STRING

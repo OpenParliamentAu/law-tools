@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "underscore": "~1.4.4",
-    "async": "~0.2.7",
+    "async": "~0.2.8",
     "mocha": "~1.9.0",
     "iced-coffee-script": "~1.6.2",
     "colors": "~0.6.0-1",
@@ -12,6 +12,9 @@
     "timing": "~0.1.3",
     "wrench": "~1.4.4",
     "iconv": "~2.0.6",
-    "temp": "~0.5.0"
+    "temp": "~0.5.0",
+    "typescript-require": "~0.2.2",
+    "synchronize": "~0.5.2",
+    "asyncblock": "~2.1.13"
   }
 }

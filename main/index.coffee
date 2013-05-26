@@ -6,12 +6,13 @@ pjson = require './package.json'
 
 program
   .version(pjson.version)
-  .usage("arg='<command> [options]'")
-program._name = 'make'
+  .usage("<command> [options]")
+program._name = './run'
 
 require('./commands/single')(program)
 require('./commands/all')(program)
 require('./commands/amend')(program)
+require('./commands/test')(program)
 
 # Run.
 program.parse(process.argv)

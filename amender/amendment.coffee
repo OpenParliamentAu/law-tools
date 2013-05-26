@@ -6,6 +6,9 @@ _ = require 'underscore'
 fs = require 'fs'
 path = require 'path'
 
+# Helpers.
+require './util/helpers'
+
 # Maps unit types to classes used in `html`.
 unitMappings =
   'chapter': 'chapter' # not right!
@@ -59,25 +62,6 @@ class @Amendment
         text.match ///^\(#{unitNo}\)///
     #logger.trace 'Match:', target
     target
-
-  # Get all elements up until an element with the same class name is
-  # found or end of siblings.
-  @getElementsUntilClass = ($, startEl, className, untilClasses) ->
-    #untilClasses = getClassNamesAboveUnit className
-    curr = $(startEl)
-    prev = null
-    els = []
-    while curr? and not _.isEmpty curr
-      prev = curr
-      curr = $(curr).next()
-      #end1 = _.any untilClasses, (i) -> curr.hasClass(className)
-      end = curr.hasClass(className)
-      unless curr.length and curr isnt prev and not end # and not end1
-        curr = null
-      else
-        els.push curr
-    logger.debug "Found #{els.length} elements before next #{className} or last sibling"
-    els
 
   # Some units (such as section and subdivision) contain their number in a
   # sub-element. This method does just that.
@@ -153,11 +137,11 @@ class @Amendment
         when 'subdivision'
           # TODO: CharSubdNo includes `subdivision` text.
           el = Amendment.findUnitFromInnerSelector $, '.ActHead4', '.CharSubdNo', currentUnit.number, 'Subdivision'
-          els = Amendment.getElementsUntilClass $, el, 'ActHead4'
+          els = $(el).getElementsUntilClass 'ActHead4'
 
         when 'part'
           el = Amendment.findSubUnit $, els, currentUnit.number, 'ActHead2'
-          els = Amendment.getElementsUntilClass $, el, 'ActHead2'
+          els = $(el).getElementsUntilClass 'ActHead2'
 
         when 'schedule'
           chapters = $('.ActHead1').filter ->
@@ -167,10 +151,10 @@ class @Amendment
             else
               text is 'The Schedule'
           el = chapters[0]
-          els = Amendment.getElementsUntilClass $, el, 'ActHead1'
+          els = $(el).getElementsUntilClass 'ActHead1'
         when 'section', 'clause'
           el = Amendment.findUnitFromInnerSelector $, '.ActHead5', '.CharSectno', currentUnit.number
-          els = Amendment.getElementsUntilClass $, el, 'ActHead5'
+          els = $(el).getElementsUntilClass 'ActHead5'
 
         when 'subsection'
           _unitType = 'subsection'
@@ -188,7 +172,7 @@ class @Amendment
             affected = []
             for number in numbers
               el = Amendment.findSubUnit $, els, number, _unitType
-              pels = Amendment.getElementsUntilClass $, el, _unitType
+              pels = $(el).getElementsUntilClass _unitType
               affected.push {el: el, els: pels}
             break
 
@@ -202,7 +186,7 @@ class @Amendment
 
           # This will get any `subsection2` tags. These are just differently
           # formatted subsections.
-          els = Amendment.getElementsUntilClass $, el, _unitType
+          els = $(el).getElementsUntilClass _unitType
 
 
           if not els.length and not el?
@@ -225,11 +209,11 @@ class @Amendment
               affected = []
               for number in currentUnit.number
                 el = Amendment.findSubUnit $, _els, number, _unitType
-                pels = Amendment.getElementsUntilClass $, el, _unitType
+                pels = $(el).getElementsUntilClass _unitType
                 affected.push {el: el, els: pels}
             else
               el = Amendment.findSubUnit $, _els, currentUnit.number, _unitType
-              els = Amendment.getElementsUntilClass $, el, _unitType
+              els = $(el).getElementsUntilClass _unitType
 
           find 'paragraph', els
 

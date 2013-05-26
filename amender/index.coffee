@@ -143,7 +143,7 @@ class @Amender
     schedules = []
     els = $('.ActHead6')
     for el, i in els
-      scheduleEls = Amendment.getElementsUntilClass $, el, 'ActHead6'
+      scheduleEls = $(el).getElementsUntilClass 'ActHead6'
       schedules.push
         el: el
         text: $(el).text()

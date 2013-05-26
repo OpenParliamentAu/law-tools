@@ -1,6 +1,3 @@
-#
-# make test arg='test/amend.coffee'
-#
 require('../logging')()
 logger = require('onelog').get()
 
