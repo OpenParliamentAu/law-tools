@@ -53,6 +53,7 @@ export class Helpers {
       var id = result.results.acts[0].comLawId
       logger.info('Scraping html')
       var actData: ActData = ComLaw.downloadAct(id).sync()
+      console.log (actData)
       actsInput[actTitle] = actData.data.html
     })
     done(null, actsInput)

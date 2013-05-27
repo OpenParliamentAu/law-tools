@@ -20,10 +20,16 @@ grammar =
   header: fs.readFileSync path.join(__dirname, 'grammar/header.pegjs'), 'utf-8'
   action: fs.readFileSync path.join(__dirname, 'grammar/action.pegjs'), 'utf-8'
 
+
+# Amender takes the Word HTML of an Amendment Act, parses it, and applies
+# amendments to one or more Consolidated Acts.
 class @Amender
 
+  # We pass in the Word HTML of the Amendment Act.
   constructor: (@amendmentActHtml) ->
-    # Pre-process amendment act html.
+    # Pre-process amendment act html. This is neccessary because the HTML
+    # is encoded as Windows-1252 and we only operate on UTF-8.
+    # TODO: This is messy and should be centralized somewhere.
     @amendmentActHtml = @amendmentActHtml.replace /&#210;/g, '"'
     # Clean amendment act html.
     # TODO: Do something different.
@@ -31,8 +37,12 @@ class @Amender
       .replace(/&#8209;/g, '‑')
       .replace(/‑/g, '‑')
       #.replace /&nbsp;/g, '\u2002'
+    # Parse the HTML using Cheerio and make accessible to the rest of the class.
     @$ = cheerio.load @amendmentActHtml
 
+  # Returns an array of all acts which this Amendment Act amends.
+  # This is neccessary because the amendee acts are downloaded and converted
+  # to HTML externally, and then passed into the `amend` method.
   getAmendedActs: =>
     acts = @getActs()
     _.unique (act.title for act in acts)
@@ -45,6 +55,7 @@ class @Amender
       onlyProcessNth: null
       onlyProcessRange: null
 
+    # For convenience.
     $ = @$
 
     # Check all required acts have been passed in.
@@ -67,7 +78,8 @@ class @Amender
 
     # Prepare output hash.
     @output = {}
-    logger.debug "Amending the following acts:"
+    logger.debug "\n"
+    logger.debug "Amending acts:"
     for title in amendedActs
       logger.debug "#{title} (size=#{actsHtml[title]?.length})"
       continue unless actsHtml[title]?

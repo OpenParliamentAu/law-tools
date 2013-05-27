@@ -1,4 +1,3 @@
-require('./logging')()
 logger = require('onelog').get 'Amender Test'
 
 # Vendor.

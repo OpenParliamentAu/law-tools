@@ -1,4 +1,10 @@
 # Logging.
+require('shared/logging')
+  levels:
+    Amender: 'TRACE'
+    Amendment: 'TRACE'
+    'ComLawToMarkdown.Converter': 'INFO'
+
 logger = require('onelog').get 'Test'
 
 # Chai.
